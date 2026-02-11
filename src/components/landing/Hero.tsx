@@ -1,21 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { ShaderCanvas } from "@/components/ui/animated-shader-hero";
 
 const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center cosmic-bg diagonal-streak overflow-hidden pt-16">
-      {/* Floating orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-primary/5 blur-3xl animate-float" />
-      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full bg-secondary/5 blur-3xl animate-float" style={{ animationDelay: "2s" }} />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+      {/* WebGL Shader Background */}
+      <ShaderCanvas className="z-0" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
+        <div className="animate-fade-in-down">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full mb-8 text-sm text-muted-foreground">
             <span className="w-2 h-2 rounded-full bg-primary animate-glow-pulse" />
@@ -32,13 +27,13 @@ const Hero = () => {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up animation-delay-200">
             Transform how your team manages projects. AIVA Flow uses artificial intelligence to
             analyze files, generate tasks, track progress, and deliver automated reports.
           </p>
 
           {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up animation-delay-400">
             <Button
               size="lg"
               className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8 h-12 text-base glow-blue group"
@@ -61,8 +56,7 @@ const Hero = () => {
               </Link>
             </Button>
           </div>
-        </motion.div>
-
+        </div>
       </div>
     </section>
   );
