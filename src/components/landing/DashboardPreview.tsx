@@ -2,25 +2,25 @@ import { motion, useInView } from "framer-motion";
 import { AlertTriangle, Clock, Moon, Shield, ChevronRight, Search, Bell } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
 
-const tabs = ["Overview", "Incidents", "Metrics", "History", "Teams"];
+const tabs = ["Overview", "Projects", "Tasks", "Reports", "Teams"];
 
 const stats = [
-  { icon: AlertTriangle, label: "Critical Issues", value: 38, color: "text-red-400", bg: "bg-red-400/10" },
-  { icon: Clock, label: "Days open", value: 26, color: "text-amber-400", bg: "bg-amber-400/10" },
-  { icon: Moon, label: "Overnight work", value: 103, color: "text-blue-400", bg: "bg-blue-400/10" },
+  { icon: AlertTriangle, label: "Overdue Tasks", value: 38, color: "text-red-400", bg: "bg-red-400/10" },
+  { icon: Clock, label: "Days saved", value: 26, color: "text-amber-400", bg: "bg-amber-400/10" },
+  { icon: Moon, label: "AI Actions", value: 103, color: "text-blue-400", bg: "bg-blue-400/10" },
 ];
 
 const statusBars = [
-  { label: "On-call shifts", pct: 20, color: "bg-emerald-500" },
-  { label: "Status pages", pct: 25, color: "bg-primary" },
-  { label: "Alerts used", pct: 40, color: "bg-rose-400" },
+  { label: "Projects", pct: 20, color: "bg-emerald-500" },
+  { label: "Tasks done", pct: 25, color: "bg-primary" },
+  { label: "AI usage", pct: 40, color: "bg-rose-400" },
   { label: "Reports", pct: 15, color: "bg-amber-400" },
 ];
 
 const summaryItems = [
-  { label: "Triage", pct: 12, color: "bg-emerald-500" },
-  { label: "Fixing", pct: 8, color: "bg-primary" },
-  { label: "Investigating", pct: 2, color: "bg-amber-400" },
+  { label: "In Progress", pct: 12, color: "bg-emerald-500" },
+  { label: "Review", pct: 8, color: "bg-primary" },
+  { label: "Backlog", pct: 2, color: "bg-amber-400" },
 ];
 
 // Animated counter component
@@ -125,7 +125,7 @@ const DashboardPreview = () => {
               transition={{ delay: 0.3, duration: 0.6 }}
               className="flex items-center justify-between px-6 py-3 border-b border-border/20"
             >
-              <span className="font-display font-bold text-foreground text-sm">Resq.io</span>
+              <span className="font-display font-bold text-foreground text-sm">AIVA Flow</span>
               <div className="flex items-center gap-1">
                 {tabs.map((tab, i) => (
                   <button
@@ -221,7 +221,7 @@ const DashboardPreview = () => {
                 {/* Center: Incident frequency chart with animated SVG lines */}
                 <motion.div variants={item} className="col-span-7 glass p-4 rounded-xl">
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-xs font-medium text-foreground">Incident frequency</h4>
+                    <h4 className="text-xs font-medium text-foreground">Task completion</h4>
                     <div className="flex items-center gap-3">
                       {["12 months", "30 days", "1 week"].map((period, i) => (
                         <button
@@ -340,7 +340,7 @@ const DashboardPreview = () => {
                   </div>
 
                   <p className="text-[10px] text-muted-foreground leading-relaxed mb-4">
-                    Encryption ensures customer data remains completely secure from breaches.
+                    AI-powered analysis keeps your projects secure and on track.
                   </p>
 
                   {/* Priority circles with pulse animation */}
@@ -386,6 +386,21 @@ const DashboardPreview = () => {
               </div>
             </motion.div>
           </div>
+        </div>
+      </motion.div>
+      {/* Trusted by */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.3, duration: 0.8 }}
+        className="mt-16 text-center text-sm text-muted-foreground"
+      >
+        <p className="mb-4 opacity-60">Trusted by teams at</p>
+        <div className="flex items-center justify-center gap-8 opacity-30">
+          {["Google", "Microsoft", "Stripe", "Vercel", "Linear"].map((name) => (
+            <span key={name} className="font-display font-semibold text-lg text-foreground">{name}</span>
+          ))}
         </div>
       </motion.div>
     </section>
