@@ -63,20 +63,6 @@ const Hero = () => {
           </div>
         </motion.div>
 
-        {/* Trusted by */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="mt-16 text-sm text-muted-foreground"
-        >
-          <p className="mb-4 opacity-60">Trusted by teams at</p>
-          <div className="flex items-center justify-center gap-8 opacity-30">
-            {["Google", "Microsoft", "Stripe", "Vercel", "Linear"].map((name) => (
-              <span key={name} className="font-display font-semibold text-lg text-foreground">{name}</span>
-            ))}
-          </div>
-        </motion.div>
       </div>
     </section>
   );
