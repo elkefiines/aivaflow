@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 
 const CTASection = () => {
   return (
@@ -12,18 +13,46 @@ const CTASection = () => {
         viewport={{ once: true }}
         className="max-w-3xl mx-auto text-center"
       >
-        <div className="glass-strong p-12 rounded-3xl relative overflow-hidden">
+        <div className="relative rounded-3xl border border-border/30 bg-card/80 backdrop-blur-2xl p-12 overflow-hidden">
+          <GlowingEffect
+            spread={60}
+            glow
+            disabled={false}
+            proximity={80}
+            inactiveZone={0.01}
+            borderWidth={2}
+            blur={4}
+          />
+
           {/* Glow effect */}
           <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
 
           <div className="relative z-10">
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-4">
+            <motion.h2
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-4"
+            >
               Ready to transform your workflow?
-            </h2>
-            <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-muted-foreground mb-8 max-w-lg mx-auto"
+            >
               Join teams already using AI to manage projects smarter. Start free, upgrade when you're ready.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            >
               <Button
                 size="lg"
                 className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8 h-12 text-base glow-blue group"
@@ -41,7 +70,7 @@ const CTASection = () => {
               >
                 Talk to sales
               </Button>
-            </div>
+            </motion.div>
           </div>
         </div>
       </motion.div>

@@ -1,36 +1,73 @@
 import { motion } from "framer-motion";
 import { Brain, FileSearch, LayoutDashboard, Users, BarChart3, Zap } from "lucide-react";
+import RadialOrbitalTimeline from "@/components/ui/radial-orbital-timeline";
 
 const features = [
   {
-    icon: Brain,
+    id: 1,
     title: "AI Task Generation",
-    description: "Convert ideas and uploaded files into structured tasks with priorities, estimates, and dependencies — automatically.",
+    date: "Core Feature",
+    content: "Convert ideas and uploaded files into structured tasks with priorities, estimates, and dependencies — automatically.",
+    category: "AI",
+    icon: Brain,
+    relatedIds: [2, 6],
+    status: "completed" as const,
+    energy: 95,
   },
   {
-    icon: FileSearch,
+    id: 2,
     title: "File Analysis",
-    description: "Upload project documents and let AI extract milestones, deliverables, and action items in seconds.",
+    date: "Core Feature",
+    content: "Upload project documents and let AI extract milestones, deliverables, and action items in seconds.",
+    category: "Analysis",
+    icon: FileSearch,
+    relatedIds: [1, 3],
+    status: "completed" as const,
+    energy: 90,
   },
   {
-    icon: LayoutDashboard,
+    id: 3,
     title: "Smart Dashboard",
-    description: "Real-time health scores, risk summaries, and AI-powered recommendations at a glance.",
+    date: "Core Feature",
+    content: "Real-time health scores, risk summaries, and AI-powered recommendations at a glance.",
+    category: "Dashboard",
+    icon: LayoutDashboard,
+    relatedIds: [2, 4],
+    status: "in-progress" as const,
+    energy: 75,
   },
   {
-    icon: Users,
+    id: 4,
     title: "Team Insights",
-    description: "Monitor workload, detect burnout risk, and balance task distribution across your team.",
+    date: "Core Feature",
+    content: "Monitor workload, detect burnout risk, and balance task distribution across your team.",
+    category: "Team",
+    icon: Users,
+    relatedIds: [3, 5],
+    status: "in-progress" as const,
+    energy: 60,
   },
   {
-    icon: BarChart3,
+    id: 5,
     title: "Automated Reports",
-    description: "Daily and weekly reports generated automatically with velocity metrics, blockers, and predictions.",
+    date: "Core Feature",
+    content: "Daily and weekly reports generated automatically with velocity metrics, blockers, and predictions.",
+    category: "Reports",
+    icon: BarChart3,
+    relatedIds: [4, 6],
+    status: "pending" as const,
+    energy: 40,
   },
   {
-    icon: Zap,
+    id: 6,
     title: "Idea to Execution",
-    description: "Type a rough idea, and AIVA converts it into epics, tasks, and subtasks with AI confidence scores.",
+    date: "Core Feature",
+    content: "Type a rough idea, and AIVA converts it into epics, tasks, and subtasks with AI confidence scores.",
+    category: "AI",
+    icon: Zap,
+    relatedIds: [1, 5],
+    status: "pending" as const,
+    energy: 25,
   },
 ];
 
@@ -42,7 +79,7 @@ const Features = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-8"
         >
           <p className="text-sm text-primary font-medium mb-3 tracking-wide uppercase">Features</p>
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
@@ -54,24 +91,7 @@ const Features = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, i) => (
-            <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="glass p-6 rounded-2xl group hover:border-primary/30 transition-all duration-300 hover:glow-blue-sm"
-            >
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <feature.icon className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="font-display font-semibold text-lg text-foreground mb-2">{feature.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
-            </motion.div>
-          ))}
-        </div>
+        <RadialOrbitalTimeline timelineData={features} />
       </div>
     </section>
   );

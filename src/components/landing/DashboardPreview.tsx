@@ -1,6 +1,7 @@
 import { motion, useInView } from "framer-motion";
 import { AlertTriangle, Clock, Moon, Shield, ChevronRight, Search, Bell } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
+import { Logos3 } from "@/components/ui/logos3";
 
 const tabs = ["Overview", "Projects", "Tasks", "Reports", "Teams"];
 
@@ -23,7 +24,17 @@ const summaryItems = [
   { label: "Backlog", pct: 2, color: "bg-amber-400" },
 ];
 
-// Animated counter component
+const trustedLogos = [
+  { id: "logo-1", description: "Astro", image: "https://www.shadcnblocks.com/images/block/logos/astro.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-2", description: "Figma", image: "https://www.shadcnblocks.com/images/block/logos/figma.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-3", description: "Next.js", image: "https://www.shadcnblocks.com/images/block/logos/nextjs.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-4", description: "React", image: "https://www.shadcnblocks.com/images/block/logos/react.png", className: "h-7 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-5", description: "Supabase", image: "https://www.shadcnblocks.com/images/block/logos/supabase.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-6", description: "Tailwind CSS", image: "https://www.shadcnblocks.com/images/block/logos/tailwind.svg", className: "h-4 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-7", description: "Vercel", image: "https://www.shadcnblocks.com/images/block/logos/vercel.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-8", description: "shadcn/ui", image: "https://www.shadcnblocks.com/images/block/logos/shadcn-ui.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
+];
+
 const AnimatedNumber = ({ value, delay = 0 }: { value: number; delay?: number }) => {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
@@ -38,12 +49,8 @@ const AnimatedNumber = ({ value, delay = 0 }: { value: number; delay?: number })
       let current = 0;
       const interval = setInterval(() => {
         current += increment;
-        if (current >= value) {
-          setCount(value);
-          clearInterval(interval);
-        } else {
-          setCount(Math.floor(current));
-        }
+        if (current >= value) { setCount(value); clearInterval(interval); }
+        else setCount(Math.floor(current));
       }, duration / steps);
       return () => clearInterval(interval);
     }, delay);
@@ -53,7 +60,6 @@ const AnimatedNumber = ({ value, delay = 0 }: { value: number; delay?: number })
   return <span ref={ref}>{count}</span>;
 };
 
-// Animated progress bar
 const AnimatedBar = ({ pct, color, delay = 0 }: { pct: number; color: string; delay?: number }) => {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true });
@@ -62,10 +68,7 @@ const AnimatedBar = ({ pct, color, delay = 0 }: { pct: number; color: string; de
     <div ref={ref} className="h-3 bg-background rounded-full overflow-hidden">
       <div
         className={`h-full ${color} rounded-full transition-all duration-1000 ease-out`}
-        style={{
-          width: inView ? `${pct * 2.5}%` : "0%",
-          transitionDelay: `${delay}ms`,
-        }}
+        style={{ width: inView ? `${pct * 2.5}%` : "0%", transitionDelay: `${delay}ms` }}
       />
     </div>
   );
@@ -86,10 +89,7 @@ const DashboardPreview = () => {
 
   const container = {
     hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.08, delayChildren: 0.2 },
-    },
+    show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.2 } },
   };
 
   const item = {
@@ -100,14 +100,13 @@ const DashboardPreview = () => {
   const chartLine = {
     hidden: { pathLength: 0, opacity: 0 },
     show: (delay: number) => ({
-      pathLength: 1,
-      opacity: 1,
+      pathLength: 1, opacity: 1,
       transition: { duration: 1.8, delay, ease: [0.37, 0, 0.63, 1] as const },
     }),
   };
 
   return (
-    <section className="relative z-10 -mt-24 px-6 pb-24">
+    <section className="relative z-10 -mt-24 px-6 pb-12">
       <motion.div
         initial={{ opacity: 0, y: 50, scale: 0.97 }}
         whileInView={{ opacity: 1, y: 0, scale: 1 }}
@@ -128,14 +127,7 @@ const DashboardPreview = () => {
               <span className="font-display font-bold text-foreground text-sm">AIVA Flow</span>
               <div className="flex items-center gap-1">
                 {tabs.map((tab, i) => (
-                  <button
-                    key={tab}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      i === 0
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
+                  <button key={tab} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${i === 0 ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
                     {tab}
                   </button>
                 ))}
@@ -149,19 +141,11 @@ const DashboardPreview = () => {
               </div>
             </motion.div>
 
-            <motion.div
-              variants={container}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true }}
-              className="p-6"
-            >
-              {/* Welcome line */}
+            <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true }} className="p-6">
               <motion.h3 variants={item} className="font-display text-xl font-bold text-foreground mb-5">
                 Welcome in, <span className="font-normal text-muted-foreground">Caroline</span>
               </motion.h3>
 
-              {/* Status bars row + stat numbers */}
               <motion.div variants={item} className="flex items-center gap-6 mb-6">
                 <div className="flex items-center gap-2 flex-1">
                   {statusBars.map((bar, i) => (
@@ -176,15 +160,9 @@ const DashboardPreview = () => {
                     </div>
                   ))}
                 </div>
-
-                {/* Right stats with animated numbers */}
                 <div className="flex items-center gap-6">
                   {stats.map((stat, i) => (
-                    <motion.div
-                      key={stat.label}
-                      variants={item}
-                      className="flex items-center gap-2"
-                    >
+                    <motion.div key={stat.label} variants={item} className="flex items-center gap-2">
                       <div className={`w-8 h-8 ${stat.bg} rounded-lg flex items-center justify-center`}>
                         <stat.icon className={`w-4 h-4 ${stat.color}`} />
                       </div>
@@ -200,7 +178,6 @@ const DashboardPreview = () => {
               </motion.div>
 
               <div className="grid grid-cols-12 gap-4">
-                {/* Left: Summary */}
                 <motion.div variants={item} className="col-span-2 glass p-4 rounded-xl">
                   <h4 className="text-xs font-medium text-foreground mb-3">Summary</h4>
                   <div className="space-y-3">
@@ -218,26 +195,18 @@ const DashboardPreview = () => {
                   </div>
                 </motion.div>
 
-                {/* Center: Incident frequency chart with animated SVG lines */}
                 <motion.div variants={item} className="col-span-7 glass p-4 rounded-xl">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-xs font-medium text-foreground">Task completion</h4>
                     <div className="flex items-center gap-3">
                       {["12 months", "30 days", "1 week"].map((period, i) => (
-                        <button
-                          key={period}
-                          className={`text-[10px] px-2 py-0.5 rounded ${
-                            i === 0 ? "bg-primary/10 text-primary" : "text-muted-foreground"
-                          }`}
-                        >
+                        <button key={period} className={`text-[10px] px-2 py-0.5 rounded ${i === 0 ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}>
                           {period}
                         </button>
                       ))}
                     </div>
                   </div>
-
                   <div className="h-36 relative">
-                    {/* Grid lines */}
                     <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
                       {[400, 300, 200].map((v) => (
                         <div key={v} className="flex items-center gap-2">
@@ -246,75 +215,15 @@ const DashboardPreview = () => {
                         </div>
                       ))}
                     </div>
-
-                    <motion.svg
-                      viewBox="0 0 100 100"
-                      className="w-full h-full"
-                      preserveAspectRatio="none"
-                      initial="hidden"
-                      whileInView="show"
-                      viewport={{ once: true }}
-                    >
-                      {/* Green line */}
-                      <motion.polyline
-                        points={toPath(chartPoints.green)}
-                        fill="none"
-                        stroke="hsl(142 71% 45%)"
-                        strokeWidth="0.5"
-                        vectorEffect="non-scaling-stroke"
-                        strokeLinejoin="round"
-                        variants={chartLine}
-                        custom={0.3}
-                      />
-                      {/* Blue line */}
-                      <motion.polyline
-                        points={toPath(chartPoints.blue)}
-                        fill="none"
-                        stroke="hsl(233 90% 60%)"
-                        strokeWidth="0.5"
-                        vectorEffect="non-scaling-stroke"
-                        strokeLinejoin="round"
-                        variants={chartLine}
-                        custom={0.5}
-                      />
-                      {/* Pink line */}
-                      <motion.polyline
-                        points={toPath(chartPoints.pink)}
-                        fill="none"
-                        stroke="hsl(330 80% 60%)"
-                        strokeWidth="0.5"
-                        vectorEffect="non-scaling-stroke"
-                        strokeLinejoin="round"
-                        variants={chartLine}
-                        custom={0.7}
-                      />
-                      {/* Tooltip dot */}
-                      <motion.circle
-                        cx="63.6"
-                        cy="24.4"
-                        r="1.2"
-                        fill="hsl(233 90% 60%)"
-                        initial={{ scale: 0, opacity: 0 }}
-                        whileInView={{ scale: 1, opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 2, duration: 0.4, type: "spring" }}
-                      />
+                    <motion.svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="none" initial="hidden" whileInView="show" viewport={{ once: true }}>
+                      <motion.polyline points={toPath(chartPoints.green)} fill="none" stroke="hsl(142 71% 45%)" strokeWidth="0.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" variants={chartLine} custom={0.3} />
+                      <motion.polyline points={toPath(chartPoints.blue)} fill="none" stroke="hsl(233 90% 60%)" strokeWidth="0.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" variants={chartLine} custom={0.5} />
+                      <motion.polyline points={toPath(chartPoints.pink)} fill="none" stroke="hsl(330 80% 60%)" strokeWidth="0.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" variants={chartLine} custom={0.7} />
+                      <motion.circle cx="63.6" cy="24.4" r="1.2" fill="hsl(233 90% 60%)" initial={{ scale: 0, opacity: 0 }} whileInView={{ scale: 1, opacity: 1 }} viewport={{ once: true }} transition={{ delay: 2, duration: 0.4, type: "spring" }} />
                     </motion.svg>
-
-                    {/* Tooltip */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 5 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 2.2, duration: 0.4 }}
-                      className="absolute top-4 right-[30%] glass px-2 py-1 rounded-lg text-[9px] text-foreground pointer-events-none"
-                    >
-                      <span className="text-muted-foreground">7 September</span>
-                      <br />
-                      <span>5 incidents</span>
+                    <motion.div initial={{ opacity: 0, y: 5 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 2.2, duration: 0.4 }} className="absolute top-4 right-[30%] glass px-2 py-1 rounded-lg text-[9px] text-foreground pointer-events-none">
+                      <span className="text-muted-foreground">7 September</span><br /><span>5 incidents</span>
                     </motion.div>
-
-                    {/* X-axis labels */}
                     <div className="flex justify-between mt-1">
                       {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((m) => (
                         <span key={m} className="text-[7px] text-muted-foreground/40">{m}</span>
@@ -323,61 +232,30 @@ const DashboardPreview = () => {
                   </div>
                 </motion.div>
 
-                {/* Right: Vulnerability */}
                 <motion.div variants={item} className="col-span-3 glass p-4 rounded-xl">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <Shield className="w-4 h-4 text-primary" />
                       <h4 className="text-xs font-medium text-foreground">Vulnerability</h4>
                     </div>
-                    <motion.div
-                      className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center"
-                      animate={{ scale: [1, 1.15, 1] }}
-                      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                    >
+                    <motion.div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center" animate={{ scale: [1, 1.15, 1] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}>
                       <ChevronRight className="w-3 h-3 text-primary" />
                     </motion.div>
                   </div>
-
-                  <p className="text-[10px] text-muted-foreground leading-relaxed mb-4">
-                    AI-powered analysis keeps your projects secure and on track.
-                  </p>
-
-                  {/* Priority circles with pulse animation */}
+                  <p className="text-[10px] text-muted-foreground leading-relaxed mb-4">AI-powered analysis keeps your projects secure and on track.</p>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
-                      <motion.div
-                        className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center"
-                        animate={{ boxShadow: ["0 0 0px hsl(233 90% 47% / 0)", "0 0 12px hsl(233 90% 47% / 0.4)", "0 0 0px hsl(233 90% 47% / 0)"] }}
-                        transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                      >
+                      <motion.div className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center" animate={{ boxShadow: ["0 0 0px hsl(233 90% 47% / 0)", "0 0 12px hsl(233 90% 47% / 0.4)", "0 0 0px hsl(233 90% 47% / 0)"] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}>
                         <span className="text-[9px] font-medium text-primary">Priority</span>
                       </motion.div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {[
-                        { color: "bg-primary", size: "w-8 h-8", delay: 0 },
-                        { color: "bg-emerald-500", size: "w-6 h-6", delay: 0.15 },
-                        { color: "bg-amber-400", size: "w-5 h-5", delay: 0.3 },
-                      ].map((dot, i) => (
-                        <motion.div
-                          key={i}
-                          className={`${dot.size} ${dot.color} rounded-full opacity-60`}
-                          initial={{ scale: 0 }}
-                          whileInView={{ scale: 1 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: 1.2 + dot.delay, type: "spring", stiffness: 200 }}
-                        />
+                      {[{ color: "bg-primary", size: "w-8 h-8", delay: 0 }, { color: "bg-emerald-500", size: "w-6 h-6", delay: 0.15 }, { color: "bg-amber-400", size: "w-5 h-5", delay: 0.3 }].map((dot, i) => (
+                        <motion.div key={i} className={`${dot.size} ${dot.color} rounded-full opacity-60`} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ delay: 1.2 + dot.delay, type: "spring", stiffness: 200 }} />
                       ))}
                     </div>
                     <div className="flex items-center gap-3 mt-2">
-                      <motion.div
-                        className="w-10 h-10 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center"
-                        initial={{ opacity: 0, rotate: -90 }}
-                        whileInView={{ opacity: 1, rotate: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 1.5, duration: 0.6 }}
-                      >
+                      <motion.div className="w-10 h-10 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center" initial={{ opacity: 0, rotate: -90 }} whileInView={{ opacity: 1, rotate: 0 }} viewport={{ once: true }} transition={{ delay: 1.5, duration: 0.6 }}>
                         <span className="text-[9px] font-medium text-muted-foreground">Threats</span>
                       </motion.div>
                     </div>
@@ -388,21 +266,9 @@ const DashboardPreview = () => {
           </div>
         </div>
       </motion.div>
-      {/* Trusted by */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.3, duration: 0.8 }}
-        className="mt-16 text-center text-sm text-muted-foreground"
-      >
-        <p className="mb-4 opacity-60">Trusted by teams at</p>
-        <div className="flex items-center justify-center gap-8 opacity-30">
-          {["Google", "Microsoft", "Stripe", "Vercel", "Linear"].map((name) => (
-            <span key={name} className="font-display font-semibold text-lg text-foreground">{name}</span>
-          ))}
-        </div>
-      </motion.div>
+
+      {/* Trusted by - auto-scrolling logos */}
+      <Logos3 heading="Trusted by teams at" logos={trustedLogos} />
     </section>
   );
 };
