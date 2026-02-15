@@ -1,0 +1,104 @@
+import { Tables } from "@/integrations/supabase/types";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { GripVertical } from "lucide-react";
+
+type Task = Tables<"tasks">;
+
+interface KanbanBoardProps {
+  tasks: Task[];
+  onStatusChange: (taskId: string, status: string) => void;
+  statuses: string[];
+}
+
+const statusLabels: Record<string, string> = {
+  backlog: "Backlog",
+  todo: "To Do",
+  in_progress: "In Progress",
+  review: "Review",
+  done: "Done",
+};
+
+const statusColors: Record<string, string> = {
+  backlog: "bg-muted/20 border-muted/30",
+  todo: "bg-primary/5 border-primary/20",
+  in_progress: "bg-amber-500/5 border-amber-500/20",
+  review: "bg-purple-500/5 border-purple-500/20",
+  done: "bg-emerald-500/5 border-emerald-500/20",
+};
+
+const priorityBadge: Record<string, string> = {
+  critical: "bg-destructive/20 text-destructive border-destructive/30",
+  high: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+  medium: "bg-primary/20 text-primary border-primary/30",
+  low: "bg-muted/20 text-muted-foreground border-muted/30",
+};
+
+const KanbanBoard = ({ tasks, onStatusChange, statuses }: KanbanBoardProps) => {
+  const handleDragStart = (e: React.DragEvent, taskId: string) => {
+    e.dataTransfer.setData("taskId", taskId);
+  };
+
+  const handleDrop = (e: React.DragEvent, status: string) => {
+    e.preventDefault();
+    const taskId = e.dataTransfer.getData("taskId");
+    if (taskId) onStatusChange(taskId, status);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => e.preventDefault();
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      {statuses.map((status) => {
+        const columnTasks = tasks.filter((t) => t.status === status);
+        return (
+          <div
+            key={status}
+            className={`rounded-xl border p-3 min-h-[200px] ${statusColors[status] || ""}`}
+            onDrop={(e) => handleDrop(e, status)}
+            onDragOver={handleDragOver}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                {statusLabels[status] || status}
+              </h3>
+              <span className="text-[10px] text-muted-foreground bg-background/50 px-1.5 py-0.5 rounded-full">
+                {columnTasks.length}
+              </span>
+            </div>
+            <div className="space-y-2">
+              {columnTasks.map((task) => (
+                <Card
+                  key={task.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, task.id)}
+                  className="p-3 cursor-grab active:cursor-grabbing bg-card/80 border-border/30 hover:border-primary/30 transition-colors"
+                >
+                  <div className="flex items-start gap-2">
+                    <GripVertical className="h-4 w-4 text-muted-foreground/40 mt-0.5 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-foreground truncate">{task.title}</p>
+                      {task.description && (
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{task.description}</p>
+                      )}
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${priorityBadge[task.priority || "medium"]}`}>
+                          {task.priority}
+                        </Badge>
+                        {task.labels && task.labels.length > 0 && task.labels.map((l) => (
+                          <Badge key={l} variant="outline" className="text-[10px] px-1.5 py-0">{l}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+export default KanbanBoard;
