@@ -18,8 +18,8 @@ const AppLayout = () => {
         .from("profiles")
         .select("onboarding_completed")
         .eq("user_id", user.id)
-        .single();
-      if (!data?.onboarding_completed) {
+        .maybeSingle();
+      if (data && !data.onboarding_completed) {
         navigate("/onboarding", { replace: true });
       }
       setCheckingOnboarding(false);

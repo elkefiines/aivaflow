@@ -23,7 +23,7 @@ const Onboarding = () => {
         .from("profiles")
         .select("onboarding_completed")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
       if (data?.onboarding_completed) navigate("/dashboard", { replace: true });
     };
     checkOnboarding();
