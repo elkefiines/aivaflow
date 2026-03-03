@@ -27,7 +27,12 @@ const ProjectSwitcher = () => {
         setProjects(data);
         const saved = localStorage.getItem("active_project_id");
         const found = data.find((p) => p.id === saved);
-        setActive(found || data[0]);
+        const selected = found || data[0];
+        setActive(selected);
+        if (!found) {
+          localStorage.setItem("active_project_id", selected.id);
+          window.dispatchEvent(new CustomEvent("project-changed", { detail: selected.id }));
+        }
       }
     };
     load();
