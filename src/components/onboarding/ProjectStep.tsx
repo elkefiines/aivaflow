@@ -37,6 +37,8 @@ const ProjectStep = ({ onNext, onBack, onProjectCreated }: ProjectStepProps) => 
       toast.error("Failed to create project");
       return;
     }
+    localStorage.setItem("active_project_id", data.id);
+    window.dispatchEvent(new CustomEvent("project-changed", { detail: data.id }));
     onProjectCreated(data.id);
     onNext();
   };
