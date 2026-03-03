@@ -19,7 +19,10 @@ serve(async (req) => {
     if (!lovableKey) throw new Error("LOVABLE_API_KEY not configured");
 
     // Verify user
-    const userClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!, {
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!anonKey) throw new Error("SUPABASE_ANON_KEY not configured");
+
+    const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
     const { data: { user }, error: authError } = await userClient.auth.getUser();
