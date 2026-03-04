@@ -1,0 +1,1 @@
+CREATE POLICY "Owners can update project members" ON public.project_members FOR UPDATE TO authenticated USING (is_project_owner(project_id, auth.uid()));
