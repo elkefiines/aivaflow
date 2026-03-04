@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import {
   Lightbulb, Sparkles, Plus, Loader2, CheckCircle2, ArrowRight, Trash2,
 } from "lucide-react";
+import FileUploadZone from "@/components/ideas/FileUploadZone";
 
 type Idea = Tables<"ideas">;
 type AiTask = { title: string; description?: string; priority: string };
@@ -146,6 +147,9 @@ const Ideas = () => {
           </Button>
         </div>
       </Card>
+
+      {/* File upload */}
+      {projectId && <FileUploadZone projectId={projectId} onComplete={loadIdeas} />}
 
       {/* Ideas list */}
       <div className="space-y-4">
