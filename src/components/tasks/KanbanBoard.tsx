@@ -1,22 +1,20 @@
 import { Tables } from "@/integrations/supabase/types";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { GripVertical } from "lucide-react";
+import { GripVertical, User } from "lucide-react";
 
 type Task = Tables<"tasks">;
 
 interface KanbanBoardProps {
   tasks: Task[];
   onStatusChange: (taskId: string, status: string) => void;
+  onTaskClick: (task: Task) => void;
   statuses: string[];
+  memberNames?: Record<string, string>;
 }
 
 const statusLabels: Record<string, string> = {
-  backlog: "Backlog",
-  todo: "To Do",
-  in_progress: "In Progress",
-  review: "Review",
-  done: "Done",
+  backlog: "Backlog", todo: "To Do", in_progress: "In Progress", review: "Review", done: "Done",
 };
 
 const statusColors: Record<string, string> = {
@@ -34,7 +32,7 @@ const priorityBadge: Record<string, string> = {
   low: "bg-muted/20 text-muted-foreground border-muted/30",
 };
 
-const KanbanBoard = ({ tasks, onStatusChange, statuses }: KanbanBoardProps) => {
+const KanbanBoard = ({ tasks, onStatusChange, onTaskClick, statuses, memberNames = {} }: KanbanBoardProps) => {
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
     e.dataTransfer.setData("taskId", taskId);
   };
@@ -72,7 +70,8 @@ const KanbanBoard = ({ tasks, onStatusChange, statuses }: KanbanBoardProps) => {
                   key={task.id}
                   draggable
                   onDragStart={(e) => handleDragStart(e, task.id)}
-                  className="p-3 cursor-grab active:cursor-grabbing bg-card/80 border-border/30 hover:border-primary/30 transition-colors"
+                  onClick={() => onTaskClick(task)}
+                  className="p-3 cursor-pointer active:cursor-grabbing bg-card/80 border-border/30 hover:border-primary/30 transition-colors"
                 >
                   <div className="flex items-start gap-2">
                     <GripVertical className="h-4 w-4 text-muted-foreground/40 mt-0.5 shrink-0" />
@@ -85,9 +84,12 @@ const KanbanBoard = ({ tasks, onStatusChange, statuses }: KanbanBoardProps) => {
                         <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${priorityBadge[task.priority || "medium"]}`}>
                           {task.priority}
                         </Badge>
-                        {task.labels && task.labels.length > 0 && task.labels.map((l) => (
-                          <Badge key={l} variant="outline" className="text-[10px] px-1.5 py-0">{l}</Badge>
-                        ))}
+                        {task.assignee_id && (
+                          <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                            <User className="h-3 w-3" />
+                            {memberNames[task.assignee_id] || "Member"}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
