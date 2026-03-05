@@ -5,9 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tables, TablesInsert } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus } from "lucide-react";
+import { Plus, LayoutGrid, List } from "lucide-react";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import KanbanBoard from "@/components/tasks/KanbanBoard";
+import TaskListView from "@/components/tasks/TaskListView";
+import TaskEditDialog from "@/components/tasks/TaskEditDialog";
 
 type Task = Tables<"tasks">;
 
@@ -32,6 +34,10 @@ const Tasks = () => {
   const [priority, setPriority] = useState<string>("medium");
   const [status, setStatus] = useState<string>("todo");
   const [loading, setLoading] = useState(false);
+  const [view, setView] = useState<"kanban" | "list">("kanban");
+  const [editTask, setEditTask] = useState<Task | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [memberNames, setMemberNames] = useState<Record<string, string>>({});
 
   const loadTasks = async () => {
     if (!projectId) return;
@@ -43,8 +49,23 @@ const Tasks = () => {
     setTasks(data || []);
   };
 
+  const loadMembers = async () => {
+    if (!projectId) return;
+    const { data: proj } = await supabase.from("projects").select("owner_id").eq("id", projectId).single();
+    const { data: pm } = await supabase.from("project_members").select("user_id").eq("project_id", projectId);
+    const ids = new Set<string>();
+    if (proj?.owner_id) ids.add(proj.owner_id);
+    pm?.forEach((m) => ids.add(m.user_id));
+    if (ids.size === 0) return;
+    const { data: profiles } = await supabase.from("profiles").select("user_id, display_name").in("user_id", Array.from(ids));
+    const map: Record<string, string> = {};
+    profiles?.forEach((p) => { map[p.user_id] = p.display_name || p.user_id.slice(0, 8); });
+    setMemberNames(map);
+  };
+
   useEffect(() => {
     loadTasks();
+    loadMembers();
 
     if (!projectId) return;
     const channel = supabase
@@ -81,6 +102,11 @@ const Tasks = () => {
     await supabase.from("tasks").update({ status: newStatus as Task["status"] }).eq("id", taskId);
   };
 
+  const handleTaskClick = (task: Task) => {
+    setEditTask(task);
+    setEditOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -88,51 +114,93 @@ const Tasks = () => {
           <h1 className="font-display text-2xl font-bold text-foreground">Tasks</h1>
           <p className="text-muted-foreground text-sm mt-1">{tasks.length} tasks in project</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-2" />New Task</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="font-display">Create Task</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 pt-2">
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Task title" className="bg-background/50 border-border/50" />
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional details" rows={3} className="bg-background/50 border-border/50 resize-none" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center rounded-lg border border-border/30 p-0.5">
+            <Button
+              variant={view === "kanban" ? "secondary" : "ghost"}
+              size="sm"
+              className="h-7 px-2"
+              onClick={() => setView("kanban")}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={view === "list" ? "secondary" : "ghost"}
+              size="sm"
+              className="h-7 px-2"
+              onClick={() => setView("list")}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button><Plus className="h-4 w-4 mr-2" />New Task</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="font-display">Create Task</DialogTitle>
+                <DialogDescription className="text-muted-foreground text-sm">Add a new task to your project.</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 pt-2">
                 <div className="space-y-2">
-                  <Label>Priority</Label>
-                  <Select value={priority} onValueChange={setPriority}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {PRIORITIES.map((p) => <SelectItem key={p} value={p} className="capitalize">{p}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <Label>Title</Label>
+                  <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Task title" className="bg-background/50 border-border/50" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Status</Label>
-                  <Select value={status} onValueChange={setStatus}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s.replace("_", " ")}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <Label>Description</Label>
+                  <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional details" rows={3} className="bg-background/50 border-border/50 resize-none" />
                 </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label>Priority</Label>
+                    <Select value={priority} onValueChange={setPriority}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {PRIORITIES.map((p) => <SelectItem key={p} value={p} className="capitalize">{p}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Status</Label>
+                    <Select value={status} onValueChange={setStatus}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s.replace("_", " ")}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <Button onClick={createTask} disabled={loading || !title.trim()} className="w-full">
+                  {loading ? "Creating…" : "Create Task"}
+                </Button>
               </div>
-              <Button onClick={createTask} disabled={loading || !title.trim()} className="w-full">
-                {loading ? "Creating…" : "Create Task"}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
-      <KanbanBoard tasks={tasks} onStatusChange={updateTaskStatus} statuses={STATUSES as unknown as string[]} />
+
+      {view === "kanban" ? (
+        <KanbanBoard
+          tasks={tasks}
+          onStatusChange={updateTaskStatus}
+          onTaskClick={handleTaskClick}
+          statuses={STATUSES as unknown as string[]}
+          memberNames={memberNames}
+        />
+      ) : (
+        <TaskListView tasks={tasks} onTaskClick={handleTaskClick} memberNames={memberNames} />
+      )}
+
+      {projectId && (
+        <TaskEditDialog
+          task={editTask}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          onSaved={loadTasks}
+          projectId={projectId}
+        />
+      )}
     </div>
   );
 };
