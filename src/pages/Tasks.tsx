@@ -34,6 +34,7 @@ const Tasks = () => {
   const [priority, setPriority] = useState<string>("medium");
   const [status, setStatus] = useState<string>("todo");
   const [loading, setLoading] = useState(false);
+  const [assigneeId, setAssigneeId] = useState<string>("unassigned");
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [editOpen, setEditOpen] = useState(false);
@@ -88,13 +89,14 @@ const Tasks = () => {
       status: status as Task["status"],
       project_id: projectId,
       created_by: user.id,
+      assignee_id: assigneeId === "unassigned" ? null : assigneeId,
       position: tasks.length,
     };
     const { error } = await supabase.from("tasks").insert(newTask);
     setLoading(false);
     if (error) { toast.error("Failed to create task"); return; }
     toast.success("Task created");
-    setTitle(""); setDescription(""); setPriority("medium"); setStatus("todo");
+    setTitle(""); setDescription(""); setPriority("medium"); setStatus("todo"); setAssigneeId("unassigned");
     setDialogOpen(false);
   };
 
@@ -170,6 +172,18 @@ const Tasks = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Assignee</Label>
+                  <Select value={assigneeId} onValueChange={setAssigneeId}>
+                    <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unassigned">Unassigned</SelectItem>
+                      {Object.entries(memberNames).map(([id, name]) => (
+                        <SelectItem key={id} value={id}>{name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Button onClick={createTask} disabled={loading || !title.trim()} className="w-full">
                   {loading ? "Creating…" : "Create Task"}
