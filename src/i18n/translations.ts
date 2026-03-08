@@ -423,6 +423,13 @@ export const translations: Record<string, Record<string, string>> = {
     // Export
     exportCSV: "Export CSV",
     exportSuccess: "Exported successfully",
+
+    // Recurring
+    recurrence: "Recurrence",
+    noRecurrence: "None",
+    daily: "Daily",
+    weekly: "Weekly",
+    monthly: "Monthly",
   },
   ar: {
     dashboard: "لوحة التحكم",
