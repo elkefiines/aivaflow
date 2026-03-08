@@ -854,6 +854,10 @@ export const translations: Record<string, Record<string, string>> = {
     daily: "يومي",
     weekly: "أسبوعي",
     monthly: "شهري",
+
+    // Member Profile
+    completionRate: "معدل الإنجاز",
+    memberProfile: "الملف الشخصي",
   },
 } as const;
 
