@@ -11,6 +11,8 @@ import { CheckCircle2, Clock, TrendingUp, TrendingDown, Flame, Target, Timer, Li
 import { startOfWeek, endOfWeek, subWeeks, format, eachDayOfInterval, parseISO, isWithinInterval } from "date-fns";
 import { ar } from "date-fns/locale";
 import { motion } from "framer-motion";
+import AchievementsPanel from "@/components/achievements/AchievementsPanel";
+import { SHORTCUT_LIST } from "@/hooks/useKeyboardShortcuts";
 
 const MyStats = () => {
   const { user } = useAuth();
@@ -248,6 +250,26 @@ const MyStats = () => {
           </Card>
         </motion.div>
       </div>
+
+      {/* Achievements */}
+      <AchievementsPanel />
+
+      {/* Keyboard Shortcuts */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{isRtl ? "اختصارات لوحة المفاتيح" : "Keyboard Shortcuts"}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {SHORTCUT_LIST.map(s => (
+              <div key={s.key} className="flex items-center gap-2 text-sm">
+                <kbd className="px-2 py-0.5 rounded bg-muted text-muted-foreground font-mono text-xs border">{s.key}</kbd>
+                <span className="capitalize text-foreground">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
