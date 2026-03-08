@@ -198,7 +198,7 @@ const TeamMood = () => {
                   <MoodIcon className={`h-4 w-4 ${moodDef.color}`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="text-sm text-foreground">{memberNames[l.user_id] || l.user_id.slice(0, 8)}</span>
+                  <span className="text-sm text-foreground">{memberNames[l.user_id] || (isAr ? "عضو مجهول" : "Unknown Member")}</span>
                   {l.note && <p className="text-[10px] text-muted-foreground truncate">{l.note}</p>}
                 </div>
               </div>
