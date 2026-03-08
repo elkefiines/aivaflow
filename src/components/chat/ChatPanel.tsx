@@ -6,21 +6,24 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageSquare, Send, Loader2, Trash2, Sparkles } from "lucide-react";
 import { useChat, ChatMessage } from "@/hooks/useChat";
 import { useActiveProject } from "@/hooks/useActiveProject";
+import { useLanguage } from "@/hooks/useLanguage";
 import ReactMarkdown from "react-markdown";
-
-const quickPrompts = [
-  "Summarize my tasks",
-  "What should I focus on?",
-  "Break down my latest idea",
-  "Show overdue items",
-];
 
 const ChatPanel = () => {
   const { projectId } = useActiveProject();
   const { messages, isLoading, send, clear } = useChat(projectId);
+  const { t, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const [input, setInput] = useState("");
   const [open, setOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const quickPrompts = [
+    t("chatSummarizeTasks"),
+    t("chatWhatFocus"),
+    t("chatBreakdownIdea"),
+    t("chatShowOverdue"),
+  ];
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -44,11 +47,11 @@ const ChatPanel = () => {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:w-[420px] p-0 flex flex-col bg-card border-border/40">
-        <SheetHeader className="p-4 border-b border-border/30 flex-row items-center justify-between space-y-0">
-          <SheetTitle className="font-display flex items-center gap-2 text-base">
+      <SheetContent side={isRtl ? "left" : "right"} className="w-full sm:w-[420px] p-0 flex flex-col bg-card border-border/40" dir={dir}>
+        <SheetHeader className={`p-4 border-b border-border/30 flex-row items-center justify-between space-y-0 ${isRtl ? "flex-row-reverse" : ""}`}>
+          <SheetTitle className={`font-display flex items-center gap-2 text-base ${isRtl ? "flex-row-reverse" : ""}`}>
             <Sparkles className="h-4 w-4 text-primary" />
-            AIVA Assistant
+            {t("aivaAssistant")}
           </SheetTitle>
           {messages.length > 0 && (
             <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={clear}>
@@ -60,15 +63,15 @@ const ChatPanel = () => {
         <ScrollArea className="flex-1 p-4" ref={scrollRef}>
           {messages.length === 0 ? (
             <div className="space-y-3 pt-8">
-              <p className="text-sm text-muted-foreground text-center mb-6">
-                Ask AIVA anything about your project
+              <p className={`text-sm text-muted-foreground text-center mb-6`}>
+                {t("askAivaAnything")}
               </p>
               <div className="grid gap-2">
                 {quickPrompts.map((prompt) => (
                   <button
                     key={prompt}
                     onClick={() => send(prompt)}
-                    className="text-left text-sm p-3 rounded-lg border border-border/30 bg-background/50 hover:border-primary/40 hover:bg-primary/5 transition-colors text-foreground/80"
+                    className={`text-sm p-3 rounded-lg border border-border/30 bg-background/50 hover:border-primary/40 hover:bg-primary/5 transition-colors text-foreground/80 ${isRtl ? "text-end" : "text-left"}`}
                   >
                     {prompt}
                   </button>
@@ -78,12 +81,12 @@ const ChatPanel = () => {
           ) : (
             <div className="space-y-4">
               {messages.map((msg, i) => (
-                <MessageBubble key={i} message={msg} />
+                <MessageBubble key={i} message={msg} isRtl={isRtl} />
               ))}
               {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
-                <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <div className={`flex items-center gap-2 text-muted-foreground text-sm ${isRtl ? "flex-row-reverse" : ""}`}>
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  Thinking…
+                  {t("thinking")}
                 </div>
               )}
             </div>
@@ -93,17 +96,18 @@ const ChatPanel = () => {
         <div className="p-3 border-t border-border/30">
           <form
             onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-            className="flex gap-2"
+            className={`flex gap-2 ${isRtl ? "flex-row-reverse" : ""}`}
           >
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask AIVA…"
-              className="bg-background/50 border-border/50 text-sm"
+              placeholder={t("askAiva")}
+              className={`bg-background/50 border-border/50 text-sm ${isRtl ? "text-end" : ""}`}
               disabled={isLoading}
+              dir={dir}
             />
             <Button size="icon" type="submit" disabled={isLoading || !input.trim()}>
-              <Send className="h-4 w-4" />
+              <Send className={`h-4 w-4 ${isRtl ? "rotate-180" : ""}`} />
             </Button>
           </form>
         </div>
@@ -112,21 +116,21 @@ const ChatPanel = () => {
   );
 };
 
-const MessageBubble = ({ message }: { message: ChatMessage }) => {
+const MessageBubble = ({ message, isRtl }: { message: ChatMessage; isRtl: boolean }) => {
   const isUser = message.role === "user";
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+    <div className={`flex ${isUser ? (isRtl ? "justify-start" : "justify-end") : (isRtl ? "justify-end" : "justify-start")}`}>
       <div
         className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
           isUser
-            ? "bg-primary text-primary-foreground rounded-br-md"
-            : "bg-background/80 border border-border/30 rounded-bl-md"
+            ? `bg-primary text-primary-foreground ${isRtl ? "rounded-bl-md" : "rounded-br-md"}`
+            : `bg-background/80 border border-border/30 ${isRtl ? "rounded-br-md" : "rounded-bl-md"}`
         }`}
       >
         {isUser ? (
-          <p>{message.content}</p>
+          <p className={isRtl ? "text-end" : ""}>{message.content}</p>
         ) : (
-          <div className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_code]:text-xs [&_pre]:text-xs">
+          <div className={`prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_code]:text-xs [&_pre]:text-xs ${isRtl ? "text-end" : ""}`}>
             <ReactMarkdown>{message.content}</ReactMarkdown>
           </div>
         )}
