@@ -320,6 +320,15 @@ export const translations: Record<string, Record<string, string>> = {
     featureIdeaExec: "Idea to Execution",
     featureIdeaExecDesc: "Type a rough idea, and AIVA converts it into epics, tasks, and subtasks with AI confidence scores.",
     coreFeature: "Core Feature",
+
+    // Activity Log
+    activityLog: "Activity Log",
+    noActivityYet: "No activity yet",
+    activityCreatedTask: "created task",
+    activityAddedIdea: "added idea",
+    activityMovedTask: "moved task",
+    activityDeletedTask: "deleted task",
+    activityJoinedProject: "joined the project",
   },
   ar: {
     dashboard: "لوحة التحكم",
