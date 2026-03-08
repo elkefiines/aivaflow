@@ -9,6 +9,13 @@ import {
 } from "@/components/ui/sidebar";
 import { useLanguage } from "@/hooks/useLanguage";
 
+const groupColors: Record<string, string> = {
+  Overview: "text-blue-400",
+  Work: "text-amber-400",
+  Collaboration: "text-emerald-400",
+  Insights: "text-violet-400",
+};
+
 const navGroups = [
   {
     labelEn: "Overview",
