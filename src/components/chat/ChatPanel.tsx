@@ -43,13 +43,13 @@ const ChatPanel = () => {
         <Button variant="ghost" size="icon" className="rounded-full relative">
           <MessageSquare className="h-5 w-5" />
           {messages.length > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-primary animate-pulse" />
+            <span className="absolute -top-0.5 -end-0.5 h-3 w-3 rounded-full bg-primary animate-pulse" />
           )}
         </Button>
       </SheetTrigger>
       <SheetContent side={isRtl ? "left" : "right"} className="w-full sm:w-[420px] p-0 flex flex-col bg-card border-border/40" dir={dir}>
-        <SheetHeader className={`p-4 border-b border-border/30 flex-row items-center justify-between space-y-0 ${isRtl ? "flex-row-reverse" : ""}`}>
-          <SheetTitle className={`font-display flex items-center gap-2 text-base ${isRtl ? "flex-row-reverse" : ""}`}>
+        <SheetHeader className="p-4 border-b border-border/30 flex-row items-center justify-between space-y-0">
+          <SheetTitle className="font-display flex items-center gap-2 text-base">
             <Sparkles className="h-4 w-4 text-primary" />
             {t("aivaAssistant")}
           </SheetTitle>
@@ -63,7 +63,7 @@ const ChatPanel = () => {
         <ScrollArea className="flex-1 p-4" ref={scrollRef}>
           {messages.length === 0 ? (
             <div className="space-y-3 pt-8">
-              <p className={`text-sm text-muted-foreground text-center mb-6`}>
+              <p className="text-sm text-muted-foreground text-center mb-6">
                 {t("askAivaAnything")}
               </p>
               <div className="grid gap-2">
@@ -71,7 +71,7 @@ const ChatPanel = () => {
                   <button
                     key={prompt}
                     onClick={() => send(prompt)}
-                    className={`text-sm p-3 rounded-lg border border-border/30 bg-background/50 hover:border-primary/40 hover:bg-primary/5 transition-colors text-foreground/80 ${isRtl ? "text-end" : "text-left"}`}
+                    className="text-sm p-3 rounded-lg border border-border/30 bg-background/50 hover:border-primary/40 hover:bg-primary/5 transition-colors text-foreground/80 text-start"
                   >
                     {prompt}
                   </button>
@@ -84,7 +84,7 @@ const ChatPanel = () => {
                 <MessageBubble key={i} message={msg} isRtl={isRtl} />
               ))}
               {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
-                <div className={`flex items-center gap-2 text-muted-foreground text-sm ${isRtl ? "flex-row-reverse" : ""}`}>
+                <div className="flex items-center gap-2 text-muted-foreground text-sm">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   {t("thinking")}
                 </div>
@@ -96,13 +96,13 @@ const ChatPanel = () => {
         <div className="p-3 border-t border-border/30">
           <form
             onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-            className={`flex gap-2 ${isRtl ? "flex-row-reverse" : ""}`}
+            className="flex gap-2"
           >
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={t("askAiva")}
-              className={`bg-background/50 border-border/50 text-sm ${isRtl ? "text-end" : ""}`}
+              className="bg-background/50 border-border/50 text-sm"
               disabled={isLoading}
               dir={dir}
             />
@@ -119,7 +119,7 @@ const ChatPanel = () => {
 const MessageBubble = ({ message, isRtl }: { message: ChatMessage; isRtl: boolean }) => {
   const isUser = message.role === "user";
   return (
-    <div className={`flex ${isUser ? (isRtl ? "justify-start" : "justify-end") : (isRtl ? "justify-end" : "justify-start")}`}>
+    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
         className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
           isUser
@@ -128,9 +128,9 @@ const MessageBubble = ({ message, isRtl }: { message: ChatMessage; isRtl: boolea
         }`}
       >
         {isUser ? (
-          <p className={isRtl ? "text-end" : ""}>{message.content}</p>
+          <p>{message.content}</p>
         ) : (
-          <div className={`prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_code]:text-xs [&_pre]:text-xs ${isRtl ? "text-end" : ""}`}>
+          <div className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_code]:text-xs [&_pre]:text-xs">
             <ReactMarkdown>{message.content}</ReactMarkdown>
           </div>
         )}

@@ -20,18 +20,16 @@ type Project = Tables<"projects">;
 
 const Settings = () => {
   const { user } = useAuth();
-  const { lang, setLang, t } = useLanguage();
+  const { lang, setLang, t, dir } = useLanguage();
   const { projectId } = useActiveProject();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // Profile form
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
 
-  // Project form
   const [projectName, setProjectName] = useState("");
   const [projectDesc, setProjectDesc] = useState("");
   const [projectColor, setProjectColor] = useState("#0A26E6");
@@ -104,17 +102,15 @@ const Settings = () => {
   const initials = (displayName || user?.email || "U")
     .split(/[\s@]/).slice(0, 2).map((s: string) => s[0]?.toUpperCase()).join("");
 
-  const isRtl = lang === "ar";
-
   return (
-    <div className="space-y-6 max-w-2xl" dir={isRtl ? "rtl" : "ltr"}>
+    <div className="space-y-6 max-w-2xl" dir={dir}>
       <div>
         <h1 className="font-display text-2xl font-bold text-foreground">{t("settingsTitle")}</h1>
         <p className="text-muted-foreground text-sm mt-1">{t("settingsSubtitle")}</p>
       </div>
 
-      <Tabs defaultValue="profile" dir={isRtl ? "rtl" : "ltr"}>
-        <TabsList className={`bg-card/60 border border-border/30 ${isRtl ? "flex-row-reverse" : ""}`}>
+      <Tabs defaultValue="profile" dir={dir}>
+        <TabsList className="bg-card/60 border border-border/30">
           <TabsTrigger value="profile">{t("profile")}</TabsTrigger>
           <TabsTrigger value="project">{t("project")}</TabsTrigger>
           <TabsTrigger value="language">{t("language")}</TabsTrigger>
@@ -126,13 +122,13 @@ const Settings = () => {
               <CardTitle className="text-base font-display">{t("yourProfile")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className={`flex items-center gap-4 ${isRtl ? "flex-row-reverse" : ""}`}>
+              <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16">
                   {avatarUrl && <AvatarImage src={avatarUrl} />}
                   <AvatarFallback className="bg-primary/10 text-primary text-lg font-semibold">{initials}</AvatarFallback>
                 </Avatar>
-                <div className={isRtl ? "text-end" : ""}>
-                  <Label htmlFor="avatar-upload" className={`cursor-pointer inline-flex items-center gap-1.5 text-sm text-primary hover:underline ${isRtl ? "flex-row-reverse" : ""}`}>
+                <div>
+                  <Label htmlFor="avatar-upload" className="cursor-pointer inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
                     <Upload className="h-3.5 w-3.5" /> {t("changeAvatar")}
                   </Label>
                   <input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
@@ -141,18 +137,18 @@ const Settings = () => {
               </div>
               <div className="space-y-2">
                 <Label>{t("displayName")}</Label>
-                <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="bg-background/50 border-border/50" dir={isRtl ? "rtl" : "ltr"} />
+                <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="bg-background/50 border-border/50" />
               </div>
               <div className="space-y-2">
                 <Label>{t("bio")}</Label>
-                <Textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} className="bg-background/50 border-border/50 resize-none" placeholder="..." dir={isRtl ? "rtl" : "ltr"} />
+                <Textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} className="bg-background/50 border-border/50 resize-none" placeholder="..." />
               </div>
               <div className="space-y-2">
                 <Label>{t("email")}</Label>
                 <Input value={user?.email || ""} disabled className="bg-background/30 border-border/30 text-muted-foreground" dir="ltr" />
               </div>
-              <Button onClick={saveProfile} disabled={saving} className={isRtl ? "flex-row-reverse" : ""}>
-                {saving ? <Loader2 className={`h-4 w-4 animate-spin ${isRtl ? "ms-2" : "me-2"}`} /> : <Save className={`h-4 w-4 ${isRtl ? "ms-2" : "me-2"}`} />}
+              <Button onClick={saveProfile} disabled={saving}>
+                {saving ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : <Save className="h-4 w-4 me-2" />}
                 {t("saveProfile")}
               </Button>
             </CardContent>
@@ -171,21 +167,21 @@ const Settings = () => {
                 <>
                   <div className="space-y-2">
                     <Label>{t("projectName")}</Label>
-                    <Input value={projectName} onChange={(e) => setProjectName(e.target.value)} className="bg-background/50 border-border/50" dir={isRtl ? "rtl" : "ltr"} />
+                    <Input value={projectName} onChange={(e) => setProjectName(e.target.value)} className="bg-background/50 border-border/50" />
                   </div>
                   <div className="space-y-2">
                     <Label>{t("description")}</Label>
-                    <Textarea value={projectDesc} onChange={(e) => setProjectDesc(e.target.value)} rows={3} className="bg-background/50 border-border/50 resize-none" dir={isRtl ? "rtl" : "ltr"} />
+                    <Textarea value={projectDesc} onChange={(e) => setProjectDesc(e.target.value)} rows={3} className="bg-background/50 border-border/50 resize-none" />
                   </div>
                   <div className="space-y-2">
                     <Label>{t("color")}</Label>
-                    <div className={`flex items-center gap-3 ${isRtl ? "flex-row-reverse" : ""}`}>
+                    <div className="flex items-center gap-3">
                       <input type="color" value={projectColor} onChange={(e) => setProjectColor(e.target.value)} className="h-9 w-9 rounded border-0 cursor-pointer" />
                       <Input value={projectColor} onChange={(e) => setProjectColor(e.target.value)} className="bg-background/50 border-border/50 w-28 font-mono text-sm" dir="ltr" />
                     </div>
                   </div>
-                  <Button onClick={saveProject} disabled={saving} className={isRtl ? "flex-row-reverse" : ""}>
-                    {saving ? <Loader2 className={`h-4 w-4 animate-spin ${isRtl ? "ms-2" : "me-2"}`} /> : <Save className={`h-4 w-4 ${isRtl ? "ms-2" : "me-2"}`} />}
+                  <Button onClick={saveProject} disabled={saving}>
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : <Save className="h-4 w-4 me-2" />}
                     {t("saveProject")}
                   </Button>
                 </>
@@ -197,7 +193,7 @@ const Settings = () => {
         <TabsContent value="language" className="mt-4">
           <Card className="border-border/40 bg-card/80">
             <CardHeader>
-              <CardTitle className={`text-base font-display flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
+              <CardTitle className="text-base font-display flex items-center gap-2">
                 <Globe className="h-4 w-4" /> {t("language")}
               </CardTitle>
             </CardHeader>

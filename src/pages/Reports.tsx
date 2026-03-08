@@ -81,7 +81,6 @@ const Reports = () => {
     loadReports();
   };
 
-  // Velocity chart: tasks completed per day (last 14 days)
   const velocityData = (() => {
     const days = 14;
     const result: { day: string; completed: number }[] = [];
@@ -106,28 +105,27 @@ const Reports = () => {
   };
 
   return (
-    <div className="space-y-6" dir={isRtl ? "rtl" : "ltr"}>
-      <div className={`flex items-center justify-between ${isRtl ? "flex-row-reverse" : ""}`}>
-        <div className={isRtl ? "text-end" : ""}>
+    <div className="space-y-6" dir={dir}>
+      <div className="flex items-center justify-between">
+        <div>
           <h1 className="font-display text-2xl font-bold text-foreground">{t("reportsTitle")}</h1>
           <p className="text-muted-foreground text-sm mt-1">{t("reportsSubtitle")}</p>
         </div>
-        <div className={`flex gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
-          <Button variant="outline" size="sm" onClick={() => generateReport("daily")} disabled={generating} className={isRtl ? "flex-row-reverse" : ""}>
-            {generating ? <Loader2 className={`h-3.5 w-3.5 animate-spin ${isRtl ? "ms-1.5" : "me-1.5"}`} /> : <Sparkles className={`h-3.5 w-3.5 ${isRtl ? "ms-1.5" : "me-1.5"}`} />}
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => generateReport("daily")} disabled={generating}>
+            {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin me-1.5" /> : <Sparkles className="h-3.5 w-3.5 me-1.5" />}
             {t("dailyReport")}
           </Button>
-          <Button size="sm" onClick={() => generateReport("weekly")} disabled={generating} className={isRtl ? "flex-row-reverse" : ""}>
-            {generating ? <Loader2 className={`h-3.5 w-3.5 animate-spin ${isRtl ? "ms-1.5" : "me-1.5"}`} /> : <Sparkles className={`h-3.5 w-3.5 ${isRtl ? "ms-1.5" : "me-1.5"}`} />}
+          <Button size="sm" onClick={() => generateReport("weekly")} disabled={generating}>
+            {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin me-1.5" /> : <Sparkles className="h-3.5 w-3.5 me-1.5" />}
             {t("weeklyReport")}
           </Button>
         </div>
       </div>
 
-      {/* Velocity Chart */}
       <Card className="border-border/40 bg-card/80">
         <CardHeader>
-          <CardTitle className={`text-base font-display flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
+          <CardTitle className="text-base font-display flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-primary" />
             {t("taskVelocity")}
           </CardTitle>
@@ -153,7 +151,6 @@ const Reports = () => {
         </CardContent>
       </Card>
 
-      {/* Reports */}
       <div className="space-y-4">
         {reports.length === 0 && (
           <div className="text-center py-12">
@@ -175,16 +172,16 @@ const Reports = () => {
           return (
             <Card key={report.id} className="border-border/40 bg-card/80">
               <CardHeader>
-                <div className={`flex items-center justify-between ${isRtl ? "flex-row-reverse" : ""}`}>
-                  <div className={isRtl ? "text-end" : ""}>
+                <div className="flex items-center justify-between">
+                  <div>
                     <CardTitle className="text-base font-display">{content.title}</CardTitle>
                     <p className="text-xs text-muted-foreground mt-1">
                       {new Date(report.created_at).toLocaleDateString(isRtl ? "ar" : "en", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
-                  <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
+                  <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-[10px] capitalize">{report.type}</Badge>
-                    <div className={`flex items-center gap-1 text-sm font-bold ${healthColor(content.health_score)} ${isRtl ? "flex-row-reverse" : ""}`}>
+                    <div className={`flex items-center gap-1 text-sm font-bold ${healthColor(content.health_score)}`}>
                       <Heart className="h-4 w-4" />
                       {content.health_score}%
                     </div>
@@ -192,7 +189,7 @@ const Reports = () => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className={`text-sm text-foreground/80 ${isRtl ? "text-end" : ""}`}>{content.summary}</p>
+                <p className="text-sm text-foreground/80">{content.summary}</p>
 
                 {statusData.length > 0 && (
                   <div className="h-32">
@@ -212,27 +209,27 @@ const Reports = () => {
 
                 {content.highlights?.length > 0 && (
                   <div>
-                    <p className={`text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1 ${isRtl ? "flex-row-reverse" : ""}`}><CheckCircle2 className="h-3 w-3 text-emerald-400" /> {t("highlights")}</p>
+                    <p className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-emerald-400" /> {t("highlights")}</p>
                     <ul className="space-y-1">
-                      {content.highlights.map((h, i) => <li key={i} className={`text-sm text-foreground/80 ${isRtl ? "pr-4 text-end" : "pl-4"} relative before:absolute ${isRtl ? "before:right-0" : "before:left-0"} before:top-2 before:h-1.5 before:w-1.5 before:rounded-full before:bg-emerald-400/60`}>{h}</li>)}
+                      {content.highlights.map((h, i) => <li key={i} className="text-sm text-foreground/80 ps-4 relative before:absolute before:start-0 before:top-2 before:h-1.5 before:w-1.5 before:rounded-full before:bg-emerald-400/60">{h}</li>)}
                     </ul>
                   </div>
                 )}
 
                 {content.risks?.length > 0 && (
                   <div>
-                    <p className={`text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1 ${isRtl ? "flex-row-reverse" : ""}`}><AlertTriangle className="h-3 w-3 text-amber-400" /> {t("risks")}</p>
+                    <p className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><AlertTriangle className="h-3 w-3 text-amber-400" /> {t("risks")}</p>
                     <ul className="space-y-1">
-                      {content.risks.map((r, i) => <li key={i} className={`text-sm text-foreground/80 ${isRtl ? "pr-4 text-end" : "pl-4"} relative before:absolute ${isRtl ? "before:right-0" : "before:left-0"} before:top-2 before:h-1.5 before:w-1.5 before:rounded-full before:bg-amber-400/60`}>{r}</li>)}
+                      {content.risks.map((r, i) => <li key={i} className="text-sm text-foreground/80 ps-4 relative before:absolute before:start-0 before:top-2 before:h-1.5 before:w-1.5 before:rounded-full before:bg-amber-400/60">{r}</li>)}
                     </ul>
                   </div>
                 )}
 
                 {content.recommendations?.length > 0 && (
                   <div>
-                    <p className={`text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1 ${isRtl ? "flex-row-reverse" : ""}`}><Sparkles className="h-3 w-3 text-primary" /> {t("recommendations")}</p>
+                    <p className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><Sparkles className="h-3 w-3 text-primary" /> {t("recommendations")}</p>
                     <ul className="space-y-1">
-                      {content.recommendations.map((r, i) => <li key={i} className={`text-sm text-foreground/80 ${isRtl ? "pr-4 text-end" : "pl-4"} relative before:absolute ${isRtl ? "before:right-0" : "before:left-0"} before:top-2 before:h-1.5 before:w-1.5 before:rounded-full before:bg-primary/60`}>{r}</li>)}
+                      {content.recommendations.map((r, i) => <li key={i} className="text-sm text-foreground/80 ps-4 relative before:absolute before:start-0 before:top-2 before:h-1.5 before:w-1.5 before:rounded-full before:bg-primary/60">{r}</li>)}
                     </ul>
                   </div>
                 )}

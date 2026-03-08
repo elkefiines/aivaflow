@@ -1,4 +1,5 @@
 import { Tables } from "@/integrations/supabase/types";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Badge } from "@/components/ui/badge";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -6,10 +7,6 @@ import {
 import { format } from "date-fns";
 
 type Task = Tables<"tasks">;
-
-const statusLabels: Record<string, string> = {
-  backlog: "Backlog", todo: "To Do", in_progress: "In Progress", review: "Review", done: "Done",
-};
 
 const priorityBadge: Record<string, string> = {
   critical: "bg-destructive/20 text-destructive border-destructive/30",
@@ -33,22 +30,32 @@ interface TaskListViewProps {
 }
 
 const TaskListView = ({ tasks, onTaskClick, memberNames = {} }: TaskListViewProps) => {
+  const { t } = useLanguage();
+
+  const statusLabels: Record<string, string> = {
+    backlog: t("backlog"),
+    todo: t("todo"),
+    in_progress: t("inProgress"),
+    review: t("review"),
+    done: t("done"),
+  };
+
   return (
     <div className="rounded-xl border border-border/30 overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="border-border/30 hover:bg-transparent">
-            <TableHead className="text-xs font-semibold uppercase tracking-wider">Title</TableHead>
-            <TableHead className="text-xs font-semibold uppercase tracking-wider">Status</TableHead>
-            <TableHead className="text-xs font-semibold uppercase tracking-wider">Priority</TableHead>
-            <TableHead className="text-xs font-semibold uppercase tracking-wider">Assignee</TableHead>
-            <TableHead className="text-xs font-semibold uppercase tracking-wider">Due Date</TableHead>
+            <TableHead className="text-xs font-semibold uppercase tracking-wider">{t("title")}</TableHead>
+            <TableHead className="text-xs font-semibold uppercase tracking-wider">{t("status")}</TableHead>
+            <TableHead className="text-xs font-semibold uppercase tracking-wider">{t("priority")}</TableHead>
+            <TableHead className="text-xs font-semibold uppercase tracking-wider">{t("assignee")}</TableHead>
+            <TableHead className="text-xs font-semibold uppercase tracking-wider">{t("dueDate") || "Due Date"}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {tasks.length === 0 && (
             <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground py-8">No tasks yet</TableCell>
+              <TableCell colSpan={5} className="text-center text-muted-foreground py-8">{t("noTasksYet") || "No tasks yet"}</TableCell>
             </TableRow>
           )}
           {tasks.map((task) => (

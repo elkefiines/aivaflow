@@ -29,7 +29,6 @@ const Tasks = () => {
   const { user } = useAuth();
   const { projectId } = useActiveProject();
   const { t, dir } = useLanguage();
-  const isRtl = dir === "rtl";
   const [tasks, setTasks] = useState<Task[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -128,13 +127,13 @@ const Tasks = () => {
   };
 
   return (
-    <div className="space-y-6" dir={isRtl ? "rtl" : "ltr"}>
-      <div className={`flex items-center justify-between ${isRtl ? "flex-row-reverse" : ""}`}>
-        <div className={isRtl ? "text-end" : ""}>
+    <div className="space-y-6" dir={dir}>
+      <div className="flex items-center justify-between">
+        <div>
           <h1 className="font-display text-2xl font-bold text-foreground">{t("tasks")}</h1>
           <p className="text-muted-foreground text-sm mt-1">{tasks.length} {t("tasksInProject")}</p>
         </div>
-        <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
+        <div className="flex items-center gap-2">
           <div className="flex items-center rounded-lg border border-border/30 p-0.5">
             <Button
               variant={view === "kanban" ? "secondary" : "ghost"}
@@ -155,11 +154,11 @@ const Tasks = () => {
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className={isRtl ? "flex-row-reverse" : ""}>
-                <Plus className={`h-4 w-4 ${isRtl ? "ms-2" : "me-2"}`} />{t("newTask")}
+              <Button>
+                <Plus className="h-4 w-4 me-2" />{t("newTask")}
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md" dir={isRtl ? "rtl" : "ltr"}>
+            <DialogContent className="sm:max-w-md" dir={dir}>
               <DialogHeader>
                 <DialogTitle className="font-display">{t("createTask")}</DialogTitle>
                 <DialogDescription className="text-muted-foreground text-sm">{t("addTaskToProject")}</DialogDescription>

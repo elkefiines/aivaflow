@@ -1,4 +1,5 @@
 import { Tables } from "@/integrations/supabase/types";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GripVertical, User } from "lucide-react";
@@ -12,10 +13,6 @@ interface KanbanBoardProps {
   statuses: string[];
   memberNames?: Record<string, string>;
 }
-
-const statusLabels: Record<string, string> = {
-  backlog: "Backlog", todo: "To Do", in_progress: "In Progress", review: "Review", done: "Done",
-};
 
 const statusColors: Record<string, string> = {
   backlog: "bg-muted/20 border-muted/30",
@@ -33,13 +30,23 @@ const priorityBadge: Record<string, string> = {
 };
 
 const priorityBorder: Record<string, string> = {
-  critical: "border-l-destructive",
-  high: "border-l-amber-400",
-  medium: "border-l-primary",
-  low: "border-l-muted-foreground/40",
+  critical: "border-s-destructive",
+  high: "border-s-amber-400",
+  medium: "border-s-primary",
+  low: "border-s-muted-foreground/40",
 };
 
 const KanbanBoard = ({ tasks, onStatusChange, onTaskClick, statuses, memberNames = {} }: KanbanBoardProps) => {
+  const { t } = useLanguage();
+
+  const statusLabels: Record<string, string> = {
+    backlog: t("backlog"),
+    todo: t("todo"),
+    in_progress: t("inProgress"),
+    review: t("review"),
+    done: t("done"),
+  };
+
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
     e.dataTransfer.setData("taskId", taskId);
   };
@@ -78,7 +85,7 @@ const KanbanBoard = ({ tasks, onStatusChange, onTaskClick, statuses, memberNames
                   draggable
                   onDragStart={(e) => handleDragStart(e, task.id)}
                   onClick={() => onTaskClick(task)}
-                  className={`p-3 cursor-pointer active:cursor-grabbing bg-card/80 border-border/30 hover:border-primary/30 transition-colors border-l-[3px] ${priorityBorder[task.priority || "medium"]}`}
+                  className={`p-3 cursor-pointer active:cursor-grabbing bg-card/80 border-border/30 hover:border-primary/30 transition-colors border-s-[3px] ${priorityBorder[task.priority || "medium"]}`}
                 >
                   <div className="flex items-start gap-2">
                     <GripVertical className="h-4 w-4 text-muted-foreground/40 mt-0.5 shrink-0" />
