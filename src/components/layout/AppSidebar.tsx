@@ -25,7 +25,7 @@ const navItems = [
   { title: "TeamMood", url: "/team-mood", icon: Heart },
   { title: "MyStats", url: "/my-stats", icon: TrendingUp },
   { title: "Activity", url: "/activity", icon: Activity },
-  { title: "Admin", url: "/admin", icon: Shield },
+  
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
