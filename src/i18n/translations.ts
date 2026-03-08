@@ -146,6 +146,21 @@ export const translations = {
     markAllRead: "Mark all read",
     noNotifications: "No notifications",
 
+    // Onboarding
+    inviteTeam: "Invite your team",
+    inviteTeamDesc: "Create accounts for team members to collaborate",
+    invalidEmail: "Please enter a valid email",
+    passwordMinLength: "Password must be at least 6 characters",
+    emailAlreadyAdded: "This email is already added",
+    memberAdded: "Team member added successfully",
+    membersCreated: "team member(s) created",
+    minSixChars: "Min 6 characters",
+    passwordHint: "Share these credentials with your team members",
+    addedMembers: "Added Members",
+    back: "Back",
+    skip: "Skip",
+    continue: "Continue",
+
     // Auth
     signOut: "Sign out",
     aiReady: "AI Ready",
