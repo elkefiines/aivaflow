@@ -13,6 +13,8 @@ import { ar, enUS } from "date-fns/locale";
 const typeIcons: Record<string, string> = {
   task_assigned: "📋",
   idea_converted: "💡",
+  new_message: "💬",
+  task_completed: "✅",
   info: "ℹ️",
 };
 

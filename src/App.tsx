@@ -24,6 +24,7 @@ import Calendar from "./pages/Calendar";
 import NotFound from "./pages/NotFound";
 import Analytics from "./pages/Analytics";
 import FocusMode from "./pages/FocusMode";
+import MemberProfile from "./pages/MemberProfile";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/focus" element={<FocusMode />} />
+              <Route path="/member/:userId" element={<MemberProfile />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
