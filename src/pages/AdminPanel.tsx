@@ -495,6 +495,7 @@ const AdminPanel = () => {
                 <div className="divide-y divide-border/50">
                   {profiles.map((p, i) => {
                     const role = getRoleForUser(p.user_id);
+                    const isSelf = p.user_id === user?.id;
                     return (
                       <motion.div key={p.id} custom={i} variants={fadeIn} initial="hidden" animate="visible"
                         className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
@@ -504,18 +505,85 @@ const AdminPanel = () => {
                             {(p.display_name || "U")[0].toUpperCase()}
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-foreground">{p.display_name || (isRtl ? "مستخدم" : "User")}</p>
+                            <p className="text-sm font-medium text-foreground">
+                              {p.display_name || (isRtl ? "مستخدم" : "User")}
+                              {isSelf && <Badge variant="outline" className="text-[10px] ms-2">{isRtl ? "أنت" : "You"}</Badge>}
+                            </p>
                             <p className="text-[11px] text-muted-foreground">{isRtl ? "انضم في" : "Joined"} {format(new Date(p.created_at), "MMM dd, yyyy")}</p>
                           </div>
                         </div>
-                        <Badge 
-                          variant={role === "admin" ? "default" : "secondary"} 
-                          className={`text-xs capitalize ${role === "admin" ? "bg-primary/90" : ""}`}
-                        >
-                          {role === "admin" ? (
-                            <><Shield className="h-3 w-3 me-1" />{role}</>
-                          ) : role}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={role}
+                            disabled={isSelf}
+                            onValueChange={async (newRole) => {
+                              const roleRecord = userRoles.find(r => r.user_id === p.user_id);
+                              if (roleRecord) {
+                                const { error } = await supabase.from("user_roles").update({ role: newRole as any }).eq("id", roleRecord.id);
+                                if (error) { toast.error(isRtl ? "فشل تغيير الدور" : "Failed to change role"); return; }
+                              } else {
+                                const { error } = await supabase.from("user_roles").insert({ user_id: p.user_id, role: newRole as any });
+                                if (error) { toast.error(isRtl ? "فشل تغيير الدور" : "Failed to change role"); return; }
+                              }
+                              setUserRoles(prev => {
+                                const existing = prev.find(r => r.user_id === p.user_id);
+                                if (existing) return prev.map(r => r.user_id === p.user_id ? { ...r, role: newRole } : r);
+                                return [...prev, { id: crypto.randomUUID(), user_id: p.user_id, role: newRole }];
+                              });
+                              toast.success(isRtl ? "تم تغيير الدور بنجاح" : "Role updated successfully");
+                            }}
+                          >
+                            <SelectTrigger className="w-[130px] h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="user"><span className="flex items-center gap-1.5"><Users className="h-3 w-3" />{isRtl ? "مستخدم" : "User"}</span></SelectItem>
+                              <SelectItem value="moderator"><span className="flex items-center gap-1.5"><UserCog className="h-3 w-3" />{isRtl ? "مشرف" : "Moderator"}</span></SelectItem>
+                              <SelectItem value="admin"><span className="flex items-center gap-1.5"><Shield className="h-3 w-3" />{isRtl ? "مدير" : "Admin"}</span></SelectItem>
+                            </SelectContent>
+                          </Select>
+
+                          {!isSelf && (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>{isRtl ? "حذف المستخدم" : "Delete User"}</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    {isRtl
+                                      ? `هل أنت متأكد من حذف "${p.display_name || "المستخدم"}"؟ سيتم حذف جميع بياناته نهائياً.`
+                                      : `Are you sure you want to delete "${p.display_name || "User"}"? All their data will be permanently removed.`}
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>{isRtl ? "إلغاء" : "Cancel"}</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    onClick={async () => {
+                                      const { error } = await supabase.functions.invoke("admin-delete-user", {
+                                        body: { user_id: p.user_id },
+                                      });
+                                      if (error) {
+                                        toast.error(isRtl ? "فشل حذف المستخدم" : "Failed to delete user");
+                                        return;
+                                      }
+                                      setProfiles(prev => prev.filter(x => x.id !== p.id));
+                                      setUserRoles(prev => prev.filter(x => x.user_id !== p.user_id));
+                                      setStats(prev => ({ ...prev, users: prev.users - 1 }));
+                                      toast.success(isRtl ? "تم حذف المستخدم بنجاح" : "User deleted successfully");
+                                    }}
+                                  >
+                                    {isRtl ? "حذف" : "Delete"}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
+                        </div>
                       </motion.div>
                     );
                   })}
