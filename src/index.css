@@ -248,3 +248,61 @@
 .animation-delay-200 { animation-delay: 0.2s; }
 .animation-delay-400 { animation-delay: 0.4s; }
 .animation-delay-600 { animation-delay: 0.6s; }
+
+/* Custom Scrollbar — all scrollable areas */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 999px;
+  transition: background 0.2s;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Hide scrollbar until hover on containers */
+.overflow-auto,
+.overflow-y-auto,
+.overflow-x-auto {
+  scrollbar-gutter: stable;
+}
+
+/* Smooth scrollbar appearance on hover */
+.overflow-auto::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb,
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: hsl(var(--border) / 0.4);
+}
+
+.overflow-auto:hover::-webkit-scrollbar-thumb,
+.overflow-y-auto:hover::-webkit-scrollbar-thumb,
+.overflow-x-auto:hover::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+}
+
+/* Light theme scrollbar */
+.light *::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+}
+.light *::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.4);
+}
