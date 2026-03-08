@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageSquare, Send, Loader2, Trash2, Sparkles } from "lucide-react";
@@ -39,14 +40,23 @@ const ChatPanel = () => {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full relative group" title={t("aivaAssistant")}>
-          <Sparkles className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-          {messages.length > 0 && (
-            <span className="absolute -top-0.5 -end-0.5 h-3 w-3 rounded-full bg-primary animate-pulse" />
-          )}
-        </Button>
-      </SheetTrigger>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full relative group">
+                <Sparkles className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                {messages.length > 0 && (
+                  <span className="absolute -top-0.5 -end-0.5 h-3 w-3 rounded-full bg-primary animate-pulse" />
+                )}
+              </Button>
+            </SheetTrigger>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            <p>{t("aivaAssistant")}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <SheetContent side={isRtl ? "left" : "right"} className="w-full sm:w-[420px] p-0 flex flex-col bg-card border-border/40" dir={dir}>
         <SheetHeader className="p-4 border-b border-border/30 flex-row items-center justify-between space-y-0">
           <SheetTitle className="font-display flex items-center gap-2 text-base">
