@@ -30,6 +30,7 @@ import GanttChart from "./pages/GanttChart";
 import Goals from "./pages/Goals";
 import Automations from "./pages/Automations";
 import TeamMood from "./pages/TeamMood";
+import MyStats from "./pages/MyStats";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const App = () => (
               <Route path="/goals" element={<Goals />} />
               <Route path="/automations" element={<Automations />} />
               <Route path="/team-mood" element={<TeamMood />} />
+              <Route path="/my-stats" element={<MyStats />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />

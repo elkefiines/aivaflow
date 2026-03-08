@@ -472,10 +472,11 @@ export const translations: Record<string, Record<string, string>> = {
     targetDate: "Target Date",
     close: "Close",
 
-    // Phase 28-30
+    // Phase 28-31
     automations: "Automations",
     teamMood: "Team Mood",
     colorTheme: "Color Theme",
+    mystats: "My Stats",
   },
   ar: {
     dashboard: "لوحة التحكم",
@@ -938,10 +939,11 @@ export const translations: Record<string, Record<string, string>> = {
     targetDate: "التاريخ المستهدف",
     close: "إغلاق",
 
-    // Phase 28-30
+    // Phase 28-31
     automations: "الأتمتة",
     teamMood: "مزاج الفريق",
     colorTheme: "سمة الألوان",
+    mystats: "إحصائياتي",
   },
 } as const;
 
