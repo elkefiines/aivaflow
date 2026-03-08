@@ -778,6 +778,10 @@ export const translations: Record<string, Record<string, string>> = {
     searchPlaceholder: "ابحث في المهام والأفكار والرسائل…",
     searching: "جاري البحث…",
     noResults: "لا توجد نتائج",
+
+    // Subtasks
+    subtasks: "المهام الفرعية",
+    addSubtask: "أضف مهمة فرعية…",
   },
 } as const;
 
