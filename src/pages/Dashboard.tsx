@@ -3,8 +3,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import { useActiveProject } from "@/hooks/useActiveProject";
+import { useNavigate } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
-import { AlertTriangle, Clock, Moon, Shield, ChevronRight } from "lucide-react";
+import { AlertTriangle, Clock, Moon, Shield, ChevronRight, Users } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 type Task = Tables<"tasks">;
 
@@ -45,13 +48,35 @@ const AnimatedBar = ({ pct, color, delay = 0 }: { pct: number; color: string; de
   );
 };
 
+const statusBadgeColors: Record<string, string> = {
+  done: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  in_progress: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+  review: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+  todo: "bg-primary/15 text-primary border-primary/30",
+  backlog: "bg-muted/20 text-muted-foreground border-muted/30",
+};
+
+const statusLabels: Record<string, string> = {
+  done: "Done", in_progress: "In Progress", review: "Review", todo: "To Do", backlog: "Backlog",
+};
+
+const avatarColors = [
+  "bg-primary/20 text-primary",
+  "bg-emerald-500/20 text-emerald-400",
+  "bg-amber-500/20 text-amber-400",
+  "bg-purple-500/20 text-purple-400",
+  "bg-rose-500/20 text-rose-400",
+];
+
 const Dashboard = () => {
   const { user } = useAuth();
   const { projectId } = useActiveProject();
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [ideaCount, setIdeaCount] = useState(0);
   const [reportCount, setReportCount] = useState(0);
   const [displayName, setDisplayName] = useState("");
+  const [teamMembers, setTeamMembers] = useState<{ user_id: string; display_name: string }[]>([]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -65,10 +90,17 @@ const Dashboard = () => {
       supabase.from("tasks").select("*").eq("project_id", projectId),
       supabase.from("ideas").select("id", { count: "exact" }).eq("project_id", projectId),
       supabase.from("reports").select("id", { count: "exact" }).eq("project_id", projectId),
-    ]).then(([tasksRes, ideasRes, reportsRes]) => {
+      supabase.from("project_members").select("user_id").eq("project_id", projectId),
+    ]).then(async ([tasksRes, ideasRes, reportsRes, membersRes]) => {
       setTasks(tasksRes.data || []);
       setIdeaCount(ideasRes.count || 0);
       setReportCount(reportsRes.count || 0);
+
+      const userIds = (membersRes.data || []).map(m => m.user_id);
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase.from("profiles").select("user_id, display_name").in("user_id", userIds);
+        setTeamMembers((profiles || []).map(p => ({ user_id: p.user_id, display_name: p.display_name || "Unknown" })));
+      }
     });
   }, [projectId]);
 
@@ -78,12 +110,13 @@ const Dashboard = () => {
   const review = tasks.filter(t => t.status === "review").length;
   const backlog = tasks.filter(t => t.status === "backlog").length;
   const overdue = tasks.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== "done").length;
+  const recentTasks = [...tasks].sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()).slice(0, 5);
 
   const statusBars = [
-    { label: "Projects", pct: Math.round((done / total) * 100), color: "bg-emerald-500" },
-    { label: "Tasks done", pct: Math.round((done / total) * 100), color: "bg-primary" },
-    { label: "AI usage", pct: Math.round((ideaCount / Math.max(total, 1)) * 100), color: "bg-rose-400" },
-    { label: "Reports", pct: Math.min(reportCount * 10, 100), color: "bg-amber-400" },
+    { label: "Projects", pct: Math.round((done / total) * 100), color: "bg-emerald-500", route: "/tasks" },
+    { label: "Tasks done", pct: Math.round((done / total) * 100), color: "bg-primary", route: "/tasks" },
+    { label: "AI usage", pct: Math.round((ideaCount / Math.max(total, 1)) * 100), color: "bg-rose-400", route: "/ideas" },
+    { label: "Reports", pct: Math.min(reportCount * 10, 100), color: "bg-amber-400", route: "/reports" },
   ];
 
   const stats = [
@@ -98,7 +131,6 @@ const Dashboard = () => {
     { label: "Backlog", pct: Math.round((backlog / total) * 100), color: "bg-amber-400" },
   ];
 
-  // Build 12-month chart from task updated_at
   const now = new Date();
   const monthCounts = Array(12).fill(0);
   tasks.filter(t => t.status === "done").forEach(t => {
@@ -133,7 +165,7 @@ const Dashboard = () => {
       <motion.div variants={item} className="flex items-center gap-6">
         <div className="flex items-center gap-2 flex-1">
           {statusBars.map((bar, i) => (
-            <div key={bar.label} className="flex-1">
+            <div key={bar.label} className="flex-1 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate(bar.route)}>
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[10px] text-muted-foreground">{bar.label}</span>
               </div>
@@ -166,7 +198,7 @@ const Dashboard = () => {
           <h4 className="text-xs font-medium text-foreground mb-3">Summary</h4>
           <div className="space-y-3">
             {summaryItems.map((si, i) => (
-              <div key={si.label} className="flex items-center gap-2">
+              <div key={si.label} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate("/tasks")}>
                 <div className="flex-1">
                   <div className="flex justify-between mb-1">
                     <span className="text-[10px] text-muted-foreground">{si.label}</span>
@@ -237,6 +269,54 @@ const Dashboard = () => {
                 <span className="text-[9px] font-medium text-muted-foreground">Threats</span>
               </motion.div>
             </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Recent Tasks & Team */}
+      <div className="grid grid-cols-12 gap-4">
+        <motion.div variants={item} className="col-span-8 glass p-4 rounded-xl">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-xs font-medium text-foreground">Recent Tasks</h4>
+            <button className="text-[10px] text-primary hover:underline" onClick={() => navigate("/tasks")}>View all</button>
+          </div>
+          <div className="space-y-2">
+            {recentTasks.length === 0 && <p className="text-xs text-muted-foreground py-4 text-center">No tasks yet</p>}
+            {recentTasks.map((task) => (
+              <div key={task.id} className="flex items-center justify-between p-2.5 rounded-lg bg-background/50 border border-border/20 hover:border-primary/30 transition-colors cursor-pointer" onClick={() => navigate("/tasks")}>
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${task.priority === "critical" ? "bg-destructive" : task.priority === "high" ? "bg-amber-400" : task.priority === "medium" ? "bg-primary" : "bg-muted-foreground/40"}`} />
+                  <span className="text-sm text-foreground truncate">{task.title}</span>
+                </div>
+                <Badge variant="outline" className={`text-[10px] shrink-0 ml-2 ${statusBadgeColors[task.status || "backlog"]}`}>
+                  {statusLabels[task.status || "backlog"]}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        <motion.div variants={item} className="col-span-4 glass p-4 rounded-xl">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-primary" />
+              <h4 className="text-xs font-medium text-foreground">Team</h4>
+            </div>
+            <button className="text-[10px] text-primary hover:underline" onClick={() => navigate("/team")}>Manage</button>
+          </div>
+          <div className="space-y-2">
+            {teamMembers.length === 0 && <p className="text-xs text-muted-foreground py-4 text-center">No members yet</p>}
+            {teamMembers.map((member, i) => {
+              const initials = (member.display_name || "U").split(/\s/).slice(0, 2).map(s => s[0]?.toUpperCase()).join("");
+              return (
+                <div key={member.user_id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-background/50 transition-colors">
+                  <Avatar className="h-7 w-7">
+                    <AvatarFallback className={`text-[10px] font-semibold ${avatarColors[i % avatarColors.length]}`}>{initials}</AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm text-foreground truncate">{member.display_name}</span>
+                </div>
+              );
+            })}
           </div>
         </motion.div>
       </div>
