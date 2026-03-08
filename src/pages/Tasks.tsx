@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import KanbanBoard from "@/components/tasks/KanbanBoard";
 import TaskListView from "@/components/tasks/TaskListView";
 import TaskEditDialog from "@/components/tasks/TaskEditDialog";
+import AISuggestionsPanel from "@/components/tasks/AISuggestionsPanel";
 
 type Task = Tables<"tasks">;
 
@@ -159,6 +160,9 @@ const Tasks = () => {
           <p className="text-muted-foreground text-sm mt-1">{tasks.length} {t("tasksInProject")}</p>
         </div>
         <div className="flex items-center gap-2">
+          <div className="flex items-center rounded-lg border border-border/30 p-0.5">
+            <AISuggestionsPanel tasks={tasks} memberNames={memberNames} />
+          </div>
           <div className="flex items-center rounded-lg border border-border/30 p-0.5">
             <Button variant={view === "kanban" ? "secondary" : "ghost"} size="sm" className="h-7 px-2" onClick={() => setView("kanban")}>
               <LayoutGrid className="h-4 w-4" />

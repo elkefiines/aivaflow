@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
+import TaskComments from "@/components/tasks/TaskComments";
+import TaskTimer from "@/components/tasks/TaskTimer";
 
 type Task = Tables<"tasks">;
 
@@ -110,10 +112,13 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg" dir={dir}>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto" dir={dir}>
         <DialogHeader>
           <DialogTitle className="font-display">{t("editTask") || "Edit Task"}</DialogTitle>
-          <DialogDescription className="text-muted-foreground text-sm">{t("updateTaskDetails") || "Update task details, assign members, and set due dates."}</DialogDescription>
+          <div className="flex items-center justify-between">
+            <DialogDescription className="text-muted-foreground text-sm">{t("updateTaskDetails") || "Update task details, assign members, and set due dates."}</DialogDescription>
+            <TaskTimer taskId={task.id} />
+          </div>
         </DialogHeader>
         <div className="space-y-4 pt-2">
           <div className="space-y-2">
@@ -171,6 +176,9 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
             <Button variant="destructive" size="icon" onClick={handleDelete} title={t("deleteTask") || "Delete task"}>
               <Trash2 className="h-4 w-4" />
             </Button>
+          </div>
+          <div className="border-t border-border/30 pt-3">
+            <TaskComments taskId={task.id} memberNames={Object.fromEntries(members.map(m => [m.user_id, m.display_name || m.user_id.slice(0, 8)]))} />
           </div>
         </div>
       </DialogContent>

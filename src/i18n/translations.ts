@@ -329,6 +329,49 @@ export const translations: Record<string, Record<string, string>> = {
     activityMovedTask: "moved task",
     activityDeletedTask: "deleted task",
     activityJoinedProject: "joined the project",
+
+    // Calendar
+    calendar: "Calendar",
+    calendarDesc: "View tasks by due date",
+    today: "Today",
+
+    // AI Suggestions
+    aiSuggest: "AI Suggest",
+    aiSuggestions: "AI Suggestions",
+    aiSuggestionsDesc: "AI-powered recommendations for your project",
+    aiSuggestFailed: "Failed to get AI suggestions",
+    analyzing: "Analyzing your project...",
+    noSuggestions: "No suggestions available",
+
+    // Comments
+    comments: "Comments",
+    writeComment: "Write a comment...",
+    failedToComment: "Failed to add comment",
+    failedToUpload: "Failed to upload file",
+    attachment: "Attachment",
+
+    // Theme
+    lightMode: "Light Mode",
+    darkMode: "Dark Mode",
+
+    // Time Tracking
+    timeTracking: "Time Tracking",
+    startTimer: "Start Timer",
+    stopTimer: "Stop Timer",
+    timeSpent: "Time Spent",
+    noTimeEntries: "No time entries yet",
+
+    // Tags
+    tags: "Tags",
+    addTag: "Add Tag",
+    createTag: "Create Tag",
+    tagName: "Tag Name",
+
+    // Templates
+    templates: "Templates",
+    useTemplate: "Use Template",
+    blankProject: "Blank Project",
+    startFromScratch: "Start from scratch with an empty project",
   },
   ar: {
     dashboard: "لوحة التحكم",
@@ -648,6 +691,49 @@ export const translations: Record<string, Record<string, string>> = {
     activityMovedTask: "نقل مهمة",
     activityDeletedTask: "حذف مهمة",
     activityJoinedProject: "انضم للمشروع",
+
+    // Calendar
+    calendar: "التقويم",
+    calendarDesc: "عرض المهام حسب تاريخ الاستحقاق",
+    today: "اليوم",
+
+    // AI Suggestions
+    aiSuggest: "اقتراحات AI",
+    aiSuggestions: "اقتراحات ذكية",
+    aiSuggestionsDesc: "توصيات مدعومة بالذكاء الاصطناعي لمشروعك",
+    aiSuggestFailed: "فشل في الحصول على الاقتراحات",
+    analyzing: "جاري تحليل مشروعك...",
+    noSuggestions: "لا توجد اقتراحات",
+
+    // Comments
+    comments: "التعليقات",
+    writeComment: "اكتب تعليقاً...",
+    failedToComment: "فشل في إضافة التعليق",
+    failedToUpload: "فشل في رفع الملف",
+    attachment: "مرفق",
+
+    // Theme
+    lightMode: "الوضع الفاتح",
+    darkMode: "الوضع الداكن",
+
+    // Time Tracking
+    timeTracking: "تتبع الوقت",
+    startTimer: "بدء المؤقت",
+    stopTimer: "إيقاف المؤقت",
+    timeSpent: "الوقت المستغرق",
+    noTimeEntries: "لا توجد سجلات وقت",
+
+    // Tags
+    tags: "الوسوم",
+    addTag: "إضافة وسم",
+    createTag: "إنشاء وسم",
+    tagName: "اسم الوسم",
+
+    // Templates
+    templates: "القوالب",
+    useTemplate: "استخدام القالب",
+    blankProject: "مشروع فارغ",
+    startFromScratch: "ابدأ من الصفر بمشروع فارغ",
   },
 } as const;
 
