@@ -172,6 +172,18 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
               <Label>{t("dueDate") || "Due Date"}</Label>
               <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="bg-background/50 border-border/50" />
             </div>
+            <div className="space-y-2">
+              <Label>{t("recurrence")}</Label>
+              <Select value={recurrence} onValueChange={setRecurrence}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{t("noRecurrence")}</SelectItem>
+                  <SelectItem value="daily">{t("daily")}</SelectItem>
+                  <SelectItem value="weekly">{t("weekly")}</SelectItem>
+                  <SelectItem value="monthly">{t("monthly")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="flex gap-2">
             <Button onClick={handleSave} disabled={loading || !title.trim()} className="flex-1">
