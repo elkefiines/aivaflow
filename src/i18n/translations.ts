@@ -1,4 +1,4 @@
-export const translations = {
+export const translations: Record<string, Record<string, string>> = {
   en: {
     // Nav
     dashboard: "Dashboard",
@@ -153,6 +153,7 @@ export const translations = {
     passwordMinLength: "Password must be at least 6 characters",
     emailAlreadyAdded: "This email is already added",
     memberAdded: "Team member added successfully",
+    failedToAddMember: "Failed to add member",
     membersCreated: "team member(s) created",
     minSixChars: "Min 6 characters",
     passwordHint: "Share these credentials with your team members",
@@ -309,6 +310,7 @@ export const translations = {
     passwordMinLength: "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
     emailAlreadyAdded: "هذا البريد الإلكتروني مضاف بالفعل",
     memberAdded: "تمت إضافة عضو الفريق بنجاح",
+    failedToAddMember: "فشل في إضافة العضو",
     membersCreated: "عضو/أعضاء فريق تم إنشاؤهم",
     minSixChars: "6 أحرف كحد أدنى",
     passwordHint: "شارك بيانات الدخول هذه مع أعضاء فريقك",
