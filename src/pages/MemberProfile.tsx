@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useActiveProject } from "@/hooks/useActiveProject";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle2, Clock, ListTodo, TrendingUp } from "lucide-react";
 
-const MemberProfile = () => {
+const MemberProfile = forwardRef<HTMLDivElement>((_, ref) => {
   const { userId } = useParams<{ userId: string }>();
   const { projectId } = useActiveProject();
   const { t, dir } = useLanguage();
