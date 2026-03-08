@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import ThemeSelector from "@/components/settings/ThemeSelector";
 import ExportImport from "@/components/settings/ExportImport";
+import TagManager from "@/components/tags/TagManager";
 
 type Profile = Tables<"profiles">;
 type Project = Tables<"projects">;
@@ -231,6 +232,9 @@ const Settings = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Tag Management */}
+          {projectId && <TagManager mode="manage" />}
 
           {/* Danger Zone */}
           {projectId && (
