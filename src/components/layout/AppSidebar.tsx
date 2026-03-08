@@ -1,7 +1,8 @@
 import {
   LayoutDashboard, ListTodo, Lightbulb, FileBarChart, Settings, FolderKanban, Users, MessageSquare, Calendar, BarChart3, Crosshair, Activity, GanttChart, Target, Zap, Heart, TrendingUp, Shield,
 } from "lucide-react";
-import { NavLink } from "@/components/NavLink";
+import { NavLink, Link } from "react-router-dom";
+import { NavLink as AppNavLink } from "@/components/NavLink";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
@@ -40,14 +41,14 @@ const AppSidebar = () => {
       side={isRtl ? "right" : "left"}
       className={isRtl ? "border-l border-border/40" : "border-r border-border/40"}
     >
-      <div className="p-4 flex items-center gap-2">
+      <Link to="/" className="p-4 flex items-center gap-2 hover:opacity-80 transition-opacity">
         <FolderKanban className="h-7 w-7 text-primary shrink-0" />
         {!collapsed && (
           <span className="font-display text-lg font-bold text-foreground">
             AIVA <span className="text-primary">Flow</span>
           </span>
         )}
-      </div>
+      </Link>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>{t("navigation")}</SidebarGroupLabel>
