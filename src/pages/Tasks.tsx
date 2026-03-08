@@ -112,53 +112,36 @@ const Tasks = () => {
   };
 
   const priorityLabels: Record<string, string> = {
-    low: t("low"),
-    medium: t("medium"),
-    high: t("high"),
-    critical: t("critical"),
+    low: t("low"), medium: t("medium"), high: t("high"), critical: t("critical"),
   };
 
   const statusLabels: Record<string, string> = {
-    backlog: t("backlog"),
-    todo: t("todo"),
-    in_progress: t("inProgress"),
-    review: t("review"),
-    done: t("done"),
+    backlog: t("backlog"), todo: t("todo"), in_progress: t("inProgress"), review: t("review"), done: t("done"),
   };
 
   return (
-    <div className="space-y-6" dir={dir}>
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6" dir={dir}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">{t("tasks")}</h1>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">{t("tasks")}</h1>
           <p className="text-muted-foreground text-sm mt-1">{tasks.length} {t("tasksInProject")}</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center rounded-lg border border-border/30 p-0.5">
-            <Button
-              variant={view === "kanban" ? "secondary" : "ghost"}
-              size="sm"
-              className="h-7 px-2"
-              onClick={() => setView("kanban")}
-            >
+            <Button variant={view === "kanban" ? "secondary" : "ghost"} size="sm" className="h-7 px-2" onClick={() => setView("kanban")}>
               <LayoutGrid className="h-4 w-4" />
             </Button>
-            <Button
-              variant={view === "list" ? "secondary" : "ghost"}
-              size="sm"
-              className="h-7 px-2"
-              onClick={() => setView("list")}
-            >
+            <Button variant={view === "list" ? "secondary" : "ghost"} size="sm" className="h-7 px-2" onClick={() => setView("list")}>
               <List className="h-4 w-4" />
             </Button>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 me-2" />{t("newTask")}
+              <Button size="sm" className="sm:size-default">
+                <Plus className="h-4 w-4 me-1 sm:me-2" /><span className="hidden sm:inline">{t("newTask")}</span><span className="sm:hidden">{t("add")}</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md" dir={dir}>
+            <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto" dir={dir}>
               <DialogHeader>
                 <DialogTitle className="font-display">{t("createTask")}</DialogTitle>
                 <DialogDescription className="text-muted-foreground text-sm">{t("addTaskToProject")}</DialogDescription>
@@ -214,15 +197,19 @@ const Tasks = () => {
       </div>
 
       {view === "kanban" ? (
-        <KanbanBoard
-          tasks={tasks}
-          onStatusChange={updateTaskStatus}
-          onTaskClick={handleTaskClick}
-          statuses={STATUSES as unknown as string[]}
-          memberNames={memberNames}
-        />
+        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+          <KanbanBoard
+            tasks={tasks}
+            onStatusChange={updateTaskStatus}
+            onTaskClick={handleTaskClick}
+            statuses={STATUSES as unknown as string[]}
+            memberNames={memberNames}
+          />
+        </div>
       ) : (
-        <TaskListView tasks={tasks} onTaskClick={handleTaskClick} memberNames={memberNames} />
+        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+          <TaskListView tasks={tasks} onTaskClick={handleTaskClick} memberNames={memberNames} />
+        </div>
       )}
 
       {projectId && (

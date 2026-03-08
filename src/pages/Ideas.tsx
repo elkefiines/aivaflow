@@ -42,39 +42,23 @@ const Ideas = () => {
   };
 
   const priorityLabels: Record<string, string> = {
-    critical: t("critical"),
-    high: t("high"),
-    medium: t("medium"),
-    low: t("low"),
+    critical: t("critical"), high: t("high"), medium: t("medium"), low: t("low"),
   };
 
   const loadIdeas = async () => {
     if (!projectId) return;
-    const { data } = await supabase
-      .from("ideas")
-      .select("*")
-      .eq("project_id", projectId)
-      .order("created_at", { ascending: false });
+    const { data } = await supabase.from("ideas").select("*").eq("project_id", projectId).order("created_at", { ascending: false });
     setIdeas(data || []);
   };
 
-  useEffect(() => {
-    loadIdeas();
-  }, [projectId]);
+  useEffect(() => { loadIdeas(); }, [projectId]);
 
   const submitIdea = async () => {
     if (!user || !projectId || !newText.trim()) return;
     setSubmitting(true);
-    const { error } = await supabase.from("ideas").insert({
-      raw_text: newText.trim(),
-      project_id: projectId,
-      user_id: user.id,
-    });
+    const { error } = await supabase.from("ideas").insert({ raw_text: newText.trim(), project_id: projectId, user_id: user.id });
     setSubmitting(false);
-    if (error) {
-      toast.error("Failed to save idea");
-      return;
-    }
+    if (error) { toast.error("Failed to save idea"); return; }
     toast.success("Idea saved");
     setNewText("");
     loadIdeas();
@@ -83,18 +67,9 @@ const Ideas = () => {
   const processIdea = async (ideaId: string) => {
     setProcessingId(ideaId);
     setIdeas((prev) => prev.map((i) => (i.id === ideaId ? { ...i, status: "processing" as Idea["status"] } : i)));
-
-    const { data, error } = await supabase.functions.invoke("process-idea", {
-      body: { idea_id: ideaId },
-    });
-
-    if (error || data?.error) {
-      toast.error(data?.error || "Failed to process idea");
-      loadIdeas();
-    } else {
-      toast.success(`Extracted ${data.tasks?.length || 0} tasks`);
-      loadIdeas();
-    }
+    const { data, error } = await supabase.functions.invoke("process-idea", { body: { idea_id: ideaId } });
+    if (error || data?.error) { toast.error(data?.error || "Failed to process idea"); loadIdeas(); }
+    else { toast.success(`Extracted ${data.tasks?.length || 0} tasks`); loadIdeas(); }
     setProcessingId(null);
   };
 
@@ -102,24 +77,14 @@ const Ideas = () => {
     if (!user || !projectId) return;
     const aiTasks = (idea.ai_tasks || []) as AiTask[];
     if (aiTasks.length === 0) return;
-
     const inserts = aiTasks.map((t, i) => ({
-      title: t.title,
-      description: t.description || null,
+      title: t.title, description: t.description || null,
       priority: t.priority as "low" | "medium" | "high" | "critical",
-      status: "todo" as const,
-      project_id: projectId,
-      created_by: user.id,
-      ai_generated: true,
-      source_idea_id: idea.id,
-      position: i,
+      status: "todo" as const, project_id: projectId, created_by: user.id,
+      ai_generated: true, source_idea_id: idea.id, position: i,
     }));
-
     const { error } = await supabase.from("tasks").insert(inserts);
-    if (error) {
-      toast.error("Failed to create tasks");
-      return;
-    }
+    if (error) { toast.error("Failed to create tasks"); return; }
     toast.success(`${inserts.length} tasks created`);
     await supabase.from("ideas").update({ status: "archived" as Idea["status"] }).eq("id", idea.id);
     loadIdeas();
@@ -132,23 +97,23 @@ const Ideas = () => {
   };
 
   return (
-    <div className="space-y-6" dir={dir}>
+    <div className="space-y-4 sm:space-y-6" dir={dir}>
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">{t("ideasTitle")}</h1>
+        <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">{t("ideasTitle")}</h1>
         <p className="text-muted-foreground text-sm mt-1">{t("ideasSubtitle")}</p>
       </div>
 
-      <Card className="p-4 border-border/40 bg-card/80">
+      <Card className="p-3 sm:p-4 border-border/40 bg-card/80">
         <Textarea
           value={newText}
           onChange={(e) => setNewText(e.target.value)}
           placeholder={t("pasteNotes")}
-          rows={4}
+          rows={3}
           className="bg-background/50 border-border/50 resize-none mb-3"
         />
         <div className="flex justify-end">
-          <Button onClick={submitIdea} disabled={submitting || !newText.trim()}>
-            <Plus className="h-4 w-4 me-2" />
+          <Button onClick={submitIdea} disabled={submitting || !newText.trim()} size="sm" className="sm:size-default">
+            <Plus className="h-4 w-4 me-1 sm:me-2" />
             {submitting ? t("saving") : t("saveIdea")}
           </Button>
         </div>
@@ -170,14 +135,12 @@ const Ideas = () => {
           const isProcessing = processingId === idea.id || idea.status === "processing";
 
           return (
-            <Card key={idea.id} className="p-4 border-border/40 bg-card/80">
+            <Card key={idea.id} className="p-3 sm:p-4 border-border/40 bg-card/80">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-foreground whitespace-pre-wrap line-clamp-4">
-                    {idea.raw_text}
-                  </p>
+                  <p className="text-sm text-foreground whitespace-pre-wrap line-clamp-4">{idea.raw_text}</p>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                   <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${status.color}`}>
                     {status.icon}
                     <span className="ms-1">{status.label}</span>
@@ -189,7 +152,7 @@ const Ideas = () => {
               </div>
 
               {idea.ai_summary && (
-                <div className="mb-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                <div className="mb-3 p-2 sm:p-3 rounded-lg bg-primary/5 border border-primary/10">
                   <p className="text-xs font-medium text-primary mb-1 flex items-center gap-1">
                     <Sparkles className="h-3 w-3" /> {t("aiSummary")}
                   </p>
@@ -203,8 +166,8 @@ const Ideas = () => {
                   {aiTasks.map((t, i) => (
                     <div key={i} className="flex items-center gap-2 p-2 rounded bg-background/50 border border-border/30">
                       <CheckCircle2 className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
-                      <span className="text-sm text-foreground flex-1">{t.title}</span>
-                      <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${priorityBadge[t.priority] || ""}`}>
+                      <span className="text-sm text-foreground flex-1 truncate">{t.title}</span>
+                      <Badge variant="outline" className={`text-[10px] px-1.5 py-0 shrink-0 ${priorityBadge[t.priority] || ""}`}>
                         {priorityLabels[t.priority] || t.priority}
                       </Badge>
                     </div>
@@ -212,7 +175,7 @@ const Ideas = () => {
                 </div>
               )}
 
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-2 justify-end flex-wrap">
                 {(idea.status === "raw" || idea.status === null) && (
                   <Button size="sm" variant="outline" onClick={() => processIdea(idea.id)} disabled={isProcessing}>
                     {isProcessing ? (

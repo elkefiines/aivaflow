@@ -41,15 +41,15 @@ const TaskListView = ({ tasks, onTaskClick, memberNames = {} }: TaskListViewProp
   };
 
   return (
-    <div className="rounded-xl border border-border/30 overflow-hidden">
+    <div className="rounded-xl border border-border/30 overflow-hidden min-w-[600px]">
       <Table>
         <TableHeader>
           <TableRow className="border-border/30 hover:bg-transparent">
             <TableHead className="text-xs font-semibold uppercase tracking-wider">{t("title")}</TableHead>
             <TableHead className="text-xs font-semibold uppercase tracking-wider">{t("status")}</TableHead>
-            <TableHead className="text-xs font-semibold uppercase tracking-wider">{t("priority")}</TableHead>
-            <TableHead className="text-xs font-semibold uppercase tracking-wider">{t("assignee")}</TableHead>
-            <TableHead className="text-xs font-semibold uppercase tracking-wider">{t("dueDate") || "Due Date"}</TableHead>
+            <TableHead className="text-xs font-semibold uppercase tracking-wider hidden sm:table-cell">{t("priority")}</TableHead>
+            <TableHead className="text-xs font-semibold uppercase tracking-wider hidden md:table-cell">{t("assignee")}</TableHead>
+            <TableHead className="text-xs font-semibold uppercase tracking-wider hidden md:table-cell">{t("dueDate") || "Due Date"}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -73,15 +73,15 @@ const TaskListView = ({ tasks, onTaskClick, memberNames = {} }: TaskListViewProp
                   {statusLabels[task.status || "backlog"]}
                 </Badge>
               </TableCell>
-              <TableCell>
+              <TableCell className="hidden sm:table-cell">
                 <Badge variant="outline" className={`text-[10px] ${priorityBadge[task.priority || "medium"]}`}>
                   {task.priority}
                 </Badge>
               </TableCell>
-              <TableCell className="text-sm text-muted-foreground">
+              <TableCell className="text-sm text-muted-foreground hidden md:table-cell">
                 {task.assignee_id ? (memberNames[task.assignee_id] || "Member") : "—"}
               </TableCell>
-              <TableCell className="text-sm text-muted-foreground">
+              <TableCell className="text-sm text-muted-foreground hidden md:table-cell">
                 {task.due_date ? format(new Date(task.due_date), "MMM d, yyyy") : "—"}
               </TableCell>
             </TableRow>

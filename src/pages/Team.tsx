@@ -110,21 +110,21 @@ const Team = () => {
   };
 
   return (
-    <div className="space-y-6" dir={dir}>
+    <div className="space-y-4 sm:space-y-6" dir={dir}>
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">{t("teamTitle")}</h1>
+        <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">{t("teamTitle")}</h1>
         <p className="text-muted-foreground text-sm mt-1">{t("teamSubtitle")}</p>
       </div>
 
       {isOwner && (
         <Card className="border-border/40 bg-card/80">
-          <CardContent className="p-4">
-            <form onSubmit={(e) => { e.preventDefault(); addMember(); }} className="flex gap-2">
+          <CardContent className="p-3 sm:p-4">
+            <form onSubmit={(e) => { e.preventDefault(); addMember(); }} className="flex flex-col sm:flex-row gap-2">
               <Input
                 value={addName}
                 onChange={(e) => setAddName(e.target.value)}
                 placeholder={t("displayName")}
-                className="bg-background/50 border-border/50 max-w-[160px]"
+                className="bg-background/50 border-border/50 sm:max-w-[160px]"
               />
               <Input
                 value={addEmail}
@@ -142,10 +142,10 @@ const Team = () => {
                 type="password"
                 required
                 minLength={6}
-                className="bg-background/50 border-border/50 max-w-[160px]"
+                className="bg-background/50 border-border/50 sm:max-w-[160px]"
                 dir="ltr"
               />
-              <Button disabled={adding || !addEmail.trim() || !addPassword.trim()}>
+              <Button disabled={adding || !addEmail.trim() || !addPassword.trim()} className="shrink-0">
                 {adding ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : <UserPlus className="h-4 w-4 me-2" />}
                 {t("add")}
               </Button>
@@ -154,7 +154,7 @@ const Team = () => {
         </Card>
       )}
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {members.map((m, idx) => {
           const w = getWorkload(m.user_id);
           const initials = (m.display_name || "U").split(/\s/).slice(0, 2).map(s => s[0]?.toUpperCase()).join("");

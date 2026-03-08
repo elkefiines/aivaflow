@@ -106,7 +106,7 @@ const DashboardPreview = () => {
   };
 
   return (
-    <section className="relative z-10 -mt-24 px-6 pb-12">
+    <section className="relative z-10 -mt-24 px-4 sm:px-6 pb-12">
       <motion.div
         initial={{ opacity: 0, y: 50, scale: 0.97 }}
         whileInView={{ opacity: 1, y: 0, scale: 1 }}
@@ -114,18 +114,18 @@ const DashboardPreview = () => {
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
         className="max-w-6xl mx-auto"
       >
-        <div className="glass-strong p-1 rounded-3xl glow-blue">
-          <div className="bg-card rounded-[22px] overflow-hidden">
+        <div className="glass-strong p-1 rounded-2xl sm:rounded-3xl glow-blue">
+          <div className="bg-card rounded-[18px] sm:rounded-[22px] overflow-hidden">
             {/* Top bar */}
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="flex items-center justify-between px-6 py-3 border-b border-border/20"
+              className="flex items-center justify-between px-3 sm:px-6 py-3 border-b border-border/20"
             >
               <span className="font-display font-bold text-foreground text-sm">AIVA Flow</span>
-              <div className="flex items-center gap-1">
+              <div className="hidden sm:flex items-center gap-1">
                 {tabs.map((tab, i) => (
                   <button key={tab} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${i === 0 ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
                     {tab}
@@ -141,15 +141,16 @@ const DashboardPreview = () => {
               </div>
             </motion.div>
 
-            <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true }} className="p-6">
-              <motion.h3 variants={item} className="font-display text-xl font-bold text-foreground mb-5">
+            <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true }} className="p-3 sm:p-6">
+              <motion.h3 variants={item} className="font-display text-lg sm:text-xl font-bold text-foreground mb-4 sm:mb-5">
                 Welcome in, <span className="font-normal text-muted-foreground">Caroline</span>
               </motion.h3>
 
-              <motion.div variants={item} className="flex items-center gap-6 mb-6">
-                <div className="flex items-center gap-2 flex-1">
+              {/* Status bars + stats */}
+              <motion.div variants={item} className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6 mb-6">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 flex-1">
                   {statusBars.map((bar, i) => (
-                    <div key={bar.label} className="flex-1">
+                    <div key={bar.label}>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-[10px] text-muted-foreground">{bar.label}</span>
                       </div>
@@ -160,14 +161,14 @@ const DashboardPreview = () => {
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-4 sm:gap-6 flex-wrap">
                   {stats.map((stat, i) => (
                     <motion.div key={stat.label} variants={item} className="flex items-center gap-2">
                       <div className={`w-8 h-8 ${stat.bg} rounded-lg flex items-center justify-center`}>
                         <stat.icon className={`w-4 h-4 ${stat.color}`} />
                       </div>
                       <div>
-                        <p className="text-xl font-display font-bold text-foreground leading-none">
+                        <p className="text-lg sm:text-xl font-display font-bold text-foreground leading-none">
                           <AnimatedNumber value={stat.value} delay={600 + i * 200} />
                         </p>
                         <p className="text-[10px] text-muted-foreground">{stat.label}</p>
@@ -177,8 +178,9 @@ const DashboardPreview = () => {
                 </div>
               </motion.div>
 
-              <div className="grid grid-cols-12 gap-4">
-                <motion.div variants={item} className="col-span-2 glass p-4 rounded-xl">
+              {/* Main grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4">
+                <motion.div variants={item} className="xl:col-span-2 glass p-4 rounded-xl">
                   <h4 className="text-xs font-medium text-foreground mb-3">Summary</h4>
                   <div className="space-y-3">
                     {summaryItems.map((si, i) => (
@@ -195,10 +197,10 @@ const DashboardPreview = () => {
                   </div>
                 </motion.div>
 
-                <motion.div variants={item} className="col-span-7 glass p-4 rounded-xl">
+                <motion.div variants={item} className="xl:col-span-7 glass p-4 rounded-xl">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-xs font-medium text-foreground">Task completion</h4>
-                    <div className="flex items-center gap-3">
+                    <div className="hidden sm:flex items-center gap-3">
                       {["12 months", "30 days", "1 week"].map((period, i) => (
                         <button key={period} className={`text-[10px] px-2 py-0.5 rounded ${i === 0 ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}>
                           {period}
@@ -206,7 +208,7 @@ const DashboardPreview = () => {
                       ))}
                     </div>
                   </div>
-                  <div className="h-36 relative">
+                  <div className="h-28 sm:h-36 relative">
                     <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
                       {[400, 300, 200].map((v) => (
                         <div key={v} className="flex items-center gap-2">
@@ -221,7 +223,7 @@ const DashboardPreview = () => {
                       <motion.polyline points={toPath(chartPoints.pink)} fill="none" stroke="hsl(330 80% 60%)" strokeWidth="0.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" variants={chartLine} custom={0.7} />
                       <motion.circle cx="63.6" cy="24.4" r="1.2" fill="hsl(233 90% 60%)" initial={{ scale: 0, opacity: 0 }} whileInView={{ scale: 1, opacity: 1 }} viewport={{ once: true }} transition={{ delay: 2, duration: 0.4, type: "spring" }} />
                     </motion.svg>
-                    <motion.div initial={{ opacity: 0, y: 5 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 2.2, duration: 0.4 }} className="absolute top-4 right-[30%] glass px-2 py-1 rounded-lg text-[9px] text-foreground pointer-events-none">
+                    <motion.div initial={{ opacity: 0, y: 5 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 2.2, duration: 0.4 }} className="absolute top-4 right-[30%] glass px-2 py-1 rounded-lg text-[9px] text-foreground pointer-events-none hidden sm:block">
                       <span className="text-muted-foreground">7 September</span><br /><span>5 incidents</span>
                     </motion.div>
                     <div className="flex justify-between mt-1">
@@ -232,7 +234,7 @@ const DashboardPreview = () => {
                   </div>
                 </motion.div>
 
-                <motion.div variants={item} className="col-span-3 glass p-4 rounded-xl">
+                <motion.div variants={item} className="xl:col-span-3 glass p-4 rounded-xl">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <Shield className="w-4 h-4 text-primary" />
@@ -267,7 +269,7 @@ const DashboardPreview = () => {
         </div>
       </motion.div>
 
-      {/* Trusted by - auto-scrolling logos */}
+      {/* Trusted by */}
       <Logos3 heading="Trusted by teams at" logos={trustedLogos} />
     </section>
   );
