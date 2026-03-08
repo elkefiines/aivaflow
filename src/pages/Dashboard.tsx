@@ -1,119 +1,246 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ListTodo, Lightbulb, Users, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import { useActiveProject } from "@/hooks/useActiveProject";
+import { motion, useInView } from "framer-motion";
+import { AlertTriangle, Clock, Moon, Shield, ChevronRight } from "lucide-react";
 
 type Task = Tables<"tasks">;
+
+const AnimatedNumber = ({ value, delay = 0 }: { value: number; delay?: number }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (!inView) return;
+    const timeout = setTimeout(() => {
+      const steps = 30;
+      const increment = value / steps;
+      let current = 0;
+      const interval = setInterval(() => {
+        current += increment;
+        if (current >= value) { setCount(value); clearInterval(interval); }
+        else setCount(Math.floor(current));
+      }, 1200 / steps);
+      return () => clearInterval(interval);
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [inView, value, delay]);
+
+  return <span ref={ref}>{count}</span>;
+};
+
+const AnimatedBar = ({ pct, color, delay = 0 }: { pct: number; color: string; delay?: number }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true });
+  return (
+    <div ref={ref} className="h-3 bg-background rounded-full overflow-hidden flex-1">
+      <div
+        className={`h-full ${color} rounded-full transition-all duration-1000 ease-out`}
+        style={{ width: inView ? `${Math.min(pct * 2.5, 100)}%` : "0%", transitionDelay: `${delay}ms` }}
+      />
+    </div>
+  );
+};
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { projectId } = useActiveProject();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [memberCount, setMemberCount] = useState(0);
   const [ideaCount, setIdeaCount] = useState(0);
+  const [reportCount, setReportCount] = useState(0);
+  const [displayName, setDisplayName] = useState("");
+
+  useEffect(() => {
+    if (!user?.id) return;
+    supabase.from("profiles").select("display_name").eq("user_id", user.id).single()
+      .then(({ data }) => setDisplayName(data?.display_name || user.email?.split("@")[0] || ""));
+  }, [user]);
 
   useEffect(() => {
     if (!projectId) return;
-    const load = async () => {
-      const [tasksRes, membersRes, ideasRes] = await Promise.all([
-        supabase.from("tasks").select("*").eq("project_id", projectId),
-        supabase.from("project_members").select("id", { count: "exact" }).eq("project_id", projectId),
-        supabase.from("ideas").select("id", { count: "exact" }).eq("project_id", projectId),
-      ]);
+    Promise.all([
+      supabase.from("tasks").select("*").eq("project_id", projectId),
+      supabase.from("ideas").select("id", { count: "exact" }).eq("project_id", projectId),
+      supabase.from("reports").select("id", { count: "exact" }).eq("project_id", projectId),
+    ]).then(([tasksRes, ideasRes, reportsRes]) => {
       setTasks(tasksRes.data || []);
-      setMemberCount((membersRes.count || 0) + 1); // +1 for owner
       setIdeaCount(ideasRes.count || 0);
-    };
-    load();
+      setReportCount(reportsRes.count || 0);
+    });
   }, [projectId]);
 
-  const done = tasks.filter((t) => t.status === "done").length;
-  const inProgress = tasks.filter((t) => t.status === "in_progress").length;
-  const overdue = tasks.filter((t) => t.due_date && new Date(t.due_date) < new Date() && t.status !== "done").length;
+  const total = tasks.length || 1;
+  const done = tasks.filter(t => t.status === "done").length;
+  const inProgress = tasks.filter(t => t.status === "in_progress").length;
+  const review = tasks.filter(t => t.status === "review").length;
+  const backlog = tasks.filter(t => t.status === "backlog").length;
+  const overdue = tasks.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== "done").length;
 
-  const stats = [
-    { label: "Total Tasks", value: tasks.length, icon: ListTodo, color: "text-primary" },
-    { label: "Completed", value: done, icon: CheckCircle2, color: "text-emerald-400" },
-    { label: "In Progress", value: inProgress, icon: Clock, color: "text-amber-400" },
-    { label: "Overdue", value: overdue, icon: AlertTriangle, color: "text-destructive" },
-    { label: "Ideas", value: ideaCount, icon: Lightbulb, color: "text-purple-400" },
-    { label: "Members", value: memberCount, icon: Users, color: "text-sky-400" },
+  const statusBars = [
+    { label: "Projects", pct: Math.round((done / total) * 100), color: "bg-emerald-500" },
+    { label: "Tasks done", pct: Math.round((done / total) * 100), color: "bg-primary" },
+    { label: "AI usage", pct: Math.round((ideaCount / Math.max(total, 1)) * 100), color: "bg-rose-400" },
+    { label: "Reports", pct: Math.min(reportCount * 10, 100), color: "bg-amber-400" },
   ];
 
-  const recentTasks = tasks
-    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-    .slice(0, 5);
+  const stats = [
+    { icon: AlertTriangle, label: "Overdue Tasks", value: overdue, color: "text-red-400", bg: "bg-red-400/10" },
+    { icon: Clock, label: "Days saved", value: done, color: "text-amber-400", bg: "bg-amber-400/10" },
+    { icon: Moon, label: "AI Actions", value: ideaCount, color: "text-blue-400", bg: "bg-blue-400/10" },
+  ];
 
-  const priorityColor: Record<string, string> = {
-    critical: "bg-destructive/20 text-destructive",
-    high: "bg-amber-500/20 text-amber-400",
-    medium: "bg-primary/20 text-primary",
-    low: "bg-muted/20 text-muted-foreground",
+  const summaryItems = [
+    { label: "In Progress", pct: Math.round((inProgress / total) * 100), color: "bg-emerald-500" },
+    { label: "Review", pct: Math.round((review / total) * 100), color: "bg-primary" },
+    { label: "Backlog", pct: Math.round((backlog / total) * 100), color: "bg-amber-400" },
+  ];
+
+  // Build 12-month chart from task updated_at
+  const now = new Date();
+  const monthCounts = Array(12).fill(0);
+  tasks.filter(t => t.status === "done").forEach(t => {
+    const d = new Date(t.updated_at);
+    const diff = (now.getFullYear() - d.getFullYear()) * 12 + now.getMonth() - d.getMonth();
+    if (diff >= 0 && diff < 12) monthCounts[11 - diff]++;
+  });
+  const maxVal = Math.max(...monthCounts, 1);
+  const chartPath = monthCounts.map((v, i) => `${(i / 11) * 100},${100 - (v / maxVal) * 80}`).join(" ");
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const monthLabels = Array(12).fill(0).map((_, i) => months[(now.getMonth() - 11 + i + 12) % 12]);
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
   };
+  const item = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const } },
+  } as const;
+  const chartLine = {
+    hidden: { pathLength: 0, opacity: 0 },
+    show: { pathLength: 1, opacity: 1, transition: { duration: 1.8, delay: 0.3, ease: [0.37, 0, 0.63, 1] as const } },
+  } as const;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground text-sm mt-1">Your project at a glance</p>
-      </div>
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+      <motion.h3 variants={item} className="font-display text-xl font-bold text-foreground">
+        Welcome in, <span className="font-normal text-muted-foreground">{displayName}</span>
+      </motion.h3>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        {stats.map(({ label, value, icon: Icon, color }) => (
-          <Card key={label} className="glass border-border/30">
-            <CardContent className="p-4 flex flex-col items-center text-center gap-2">
-              <Icon className={`h-5 w-5 ${color}`} />
-              <span className="text-2xl font-bold text-foreground">{value}</span>
-              <span className="text-xs text-muted-foreground">{label}</span>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <motion.div variants={item} className="flex items-center gap-6">
+        <div className="flex items-center gap-2 flex-1">
+          {statusBars.map((bar, i) => (
+            <div key={bar.label} className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] text-muted-foreground">{bar.label}</span>
+              </div>
+              <div className="h-6 bg-background rounded-lg overflow-hidden flex items-center px-2">
+                <AnimatedBar pct={bar.pct} color={bar.color} delay={400 + i * 150} />
+                <span className="ml-2 text-[10px] text-muted-foreground">{bar.pct}%</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center gap-6">
+          {stats.map((stat, i) => (
+            <motion.div key={stat.label} variants={item} className="flex items-center gap-2">
+              <div className={`w-8 h-8 ${stat.bg} rounded-lg flex items-center justify-center`}>
+                <stat.icon className={`w-4 h-4 ${stat.color}`} />
+              </div>
+              <div>
+                <p className="text-xl font-display font-bold text-foreground leading-none">
+                  <AnimatedNumber value={stat.value} delay={600 + i * 200} />
+                </p>
+                <p className="text-[10px] text-muted-foreground">{stat.label}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card className="glass border-border/30">
-          <CardHeader>
-            <CardTitle className="text-base font-display">Recent Tasks</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {recentTasks.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">No tasks yet. Create one from the Tasks page.</p>
-            ) : (
-              recentTasks.map((task) => (
-                <div key={task.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-background/50 border border-border/20">
-                  <div className={`px-2 py-0.5 rounded text-[10px] font-medium ${priorityColor[task.priority || "medium"]}`}>
-                    {task.priority}
+      <div className="grid grid-cols-12 gap-4">
+        <motion.div variants={item} className="col-span-2 glass p-4 rounded-xl">
+          <h4 className="text-xs font-medium text-foreground mb-3">Summary</h4>
+          <div className="space-y-3">
+            {summaryItems.map((si, i) => (
+              <div key={si.label} className="flex items-center gap-2">
+                <div className="flex-1">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-[10px] text-muted-foreground">{si.label}</span>
+                    <span className="text-[10px] text-muted-foreground">{si.pct}%</span>
                   </div>
-                  <span className="text-sm text-foreground truncate flex-1">{task.title}</span>
-                  <span className="text-[10px] text-muted-foreground capitalize">{task.status?.replace("_", " ")}</span>
+                  <AnimatedBar pct={si.pct * 4} color={si.color} delay={800 + i * 150} />
                 </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="glass border-border/30">
-          <CardHeader>
-            <CardTitle className="text-base font-display">Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {[
-              { label: "Create a new task", desc: "Add a task manually to your board" },
-              { label: "Paste an idea", desc: "Drop rough notes and let AI structure them" },
-              { label: "Invite a teammate", desc: "Collaborate with your team" },
-            ].map(({ label, desc }) => (
-              <div key={label} className="p-3 rounded-lg bg-background/50 border border-border/20 hover:border-primary/30 cursor-pointer transition-colors">
-                <p className="text-sm font-medium text-foreground">{label}</p>
-                <p className="text-xs text-muted-foreground">{desc}</p>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </motion.div>
+
+        <motion.div variants={item} className="col-span-7 glass p-4 rounded-xl">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-xs font-medium text-foreground">Task completion</h4>
+            <div className="flex items-center gap-3">
+              {["12 months", "30 days", "1 week"].map((period, i) => (
+                <button key={period} className={`text-[10px] px-2 py-0.5 rounded ${i === 0 ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}>
+                  {period}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="h-36 relative">
+            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+              {[maxVal, Math.round(maxVal * 0.66), Math.round(maxVal * 0.33)].map(v => (
+                <div key={v} className="flex items-center gap-2">
+                  <span className="text-[8px] text-muted-foreground/40 w-6 text-right">{v}</span>
+                  <div className="flex-1 h-px bg-border/10" />
+                </div>
+              ))}
+            </div>
+            <motion.svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="none" initial="hidden" animate="show">
+              <motion.polyline points={chartPath} fill="none" stroke="hsl(var(--primary))" strokeWidth="0.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" variants={chartLine} />
+            </motion.svg>
+            <div className="flex justify-between mt-1">
+              {monthLabels.map((m, i) => (
+                <span key={i} className="text-[7px] text-muted-foreground/40">{m}</span>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div variants={item} className="col-span-3 glass p-4 rounded-xl">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-primary" />
+              <h4 className="text-xs font-medium text-foreground">AI Insights</h4>
+            </div>
+            <motion.div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center" animate={{ scale: [1, 1.15, 1] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}>
+              <ChevronRight className="w-3 h-3 text-primary" />
+            </motion.div>
+          </div>
+          <p className="text-[10px] text-muted-foreground leading-relaxed mb-4">AI-powered analysis keeps your projects secure and on track.</p>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <motion.div className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center" animate={{ boxShadow: ["0 0 0px hsl(var(--primary) / 0)", "0 0 12px hsl(var(--primary) / 0.4)", "0 0 0px hsl(var(--primary) / 0)"] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}>
+                <span className="text-[9px] font-medium text-primary">Priority</span>
+              </motion.div>
+            </div>
+            <div className="flex items-center gap-2">
+              {[{ color: "bg-primary", size: "w-8 h-8", delay: 0 }, { color: "bg-emerald-500", size: "w-6 h-6", delay: 0.15 }, { color: "bg-amber-400", size: "w-5 h-5", delay: 0.3 }].map((dot, i) => (
+                <motion.div key={i} className={`${dot.size} ${dot.color} rounded-full opacity-60`} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.2 + dot.delay, type: "spring", stiffness: 200 }} />
+              ))}
+            </div>
+            <div className="flex items-center gap-3 mt-2">
+              <motion.div className="w-10 h-10 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center" initial={{ opacity: 0, rotate: -90 }} animate={{ opacity: 1, rotate: 0 }} transition={{ delay: 1.5, duration: 0.6 }}>
+                <span className="text-[9px] font-medium text-muted-foreground">Threats</span>
+              </motion.div>
+            </div>
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
