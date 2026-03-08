@@ -40,8 +40,8 @@ const ChatPanel = () => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full relative">
-          <MessageSquare className="h-5 w-5" />
+        <Button variant="ghost" size="icon" className="rounded-full relative group" title={t("aivaAssistant")}>
+          <Sparkles className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
           {messages.length > 0 && (
             <span className="absolute -top-0.5 -end-0.5 h-3 w-3 rounded-full bg-primary animate-pulse" />
           )}
