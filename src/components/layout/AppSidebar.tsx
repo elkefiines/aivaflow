@@ -9,6 +9,13 @@ import {
 } from "@/components/ui/sidebar";
 import { useLanguage } from "@/hooks/useLanguage";
 
+const groupColors: Record<string, string> = {
+  Overview: "text-blue-400",
+  Work: "text-amber-400",
+  Collaboration: "text-emerald-400",
+  Insights: "text-violet-400",
+};
+
 const navGroups = [
   {
     labelEn: "Overview",
@@ -83,7 +90,7 @@ const AppSidebar = () => {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={t(item.title.toLowerCase() as any)}>
                       <NavLink to={item.url} end className="hover:bg-accent/50" activeClassName="bg-accent text-primary font-medium">
-                        <item.icon className="h-4 w-4" />
+                        <item.icon className={`h-4 w-4 ${groupColors[group.labelEn] || ""}`} />
                         <span>{t(item.title.toLowerCase() as any)}</span>
                       </NavLink>
                     </SidebarMenuButton>
