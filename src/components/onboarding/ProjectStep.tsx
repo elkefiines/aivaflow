@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { FolderPlus } from "lucide-react";
+import { FolderPlus, Code, Megaphone, Calendar, Rocket, Check } from "lucide-react";
 
 interface ProjectStepProps {
   onNext: () => void;
@@ -15,7 +15,17 @@ interface ProjectStepProps {
   onProjectCreated: (id: string) => void;
 }
 
+interface Template {
+  id: string;
+  name: string;
+  description: string | null;
+  icon: string;
+  color: string;
+  default_tasks: any[];
+}
+
 const COLORS = ["#0A26E6", "#2B39A6", "#8D5A74", "#22C55E", "#F59E0B", "#EF4444"];
+const iconMap: Record<string, typeof Code> = { code: Code, megaphone: Megaphone, calendar: Calendar, rocket: Rocket };
 
 const ProjectStep = ({ onNext, onBack, onProjectCreated }: ProjectStepProps) => {
   const { user } = useAuth();
@@ -24,6 +34,23 @@ const ProjectStep = ({ onNext, onBack, onProjectCreated }: ProjectStepProps) => 
   const [description, setDescription] = useState("");
   const [color, setColor] = useState(COLORS[0]);
   const [loading, setLoading] = useState(false);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+
+  useEffect(() => {
+    supabase.from("project_templates").select("*").then(({ data }) => {
+      setTemplates((data as Template[]) || []);
+    });
+  }, []);
+
+  const handleTemplateSelect = (tmpl: Template | null) => {
+    setSelectedTemplate(tmpl);
+    if (tmpl) {
+      if (!name) setName(tmpl.name);
+      if (!description && tmpl.description) setDescription(tmpl.description);
+      setColor(tmpl.color);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,11 +61,27 @@ const ProjectStep = ({ onNext, onBack, onProjectCreated }: ProjectStepProps) => 
       .insert({ name: name.trim(), description: description.trim() || null, color, owner_id: user.id })
       .select("id")
       .single();
-    setLoading(false);
     if (error) {
       toast.error(t("failedToCreateProject") || "Failed to create project");
+      setLoading(false);
       return;
     }
+
+    // Create template tasks if selected
+    if (selectedTemplate?.default_tasks?.length) {
+      const tasks = selectedTemplate.default_tasks.map((task: any, i: number) => ({
+        title: task.title,
+        priority: task.priority || "medium",
+        status: task.status || "todo",
+        project_id: data.id,
+        created_by: user.id,
+        position: i,
+        ai_generated: false,
+      }));
+      await supabase.from("tasks").insert(tasks);
+    }
+
+    setLoading(false);
     localStorage.setItem("active_project_id", data.id);
     window.dispatchEvent(new CustomEvent("project-changed", { detail: data.id }));
     onProjectCreated(data.id);
@@ -54,6 +97,41 @@ const ProjectStep = ({ onNext, onBack, onProjectCreated }: ProjectStepProps) => 
         <h2 className="font-display text-xl font-bold text-foreground">{t("createFirstProject") || "Create your first project"}</h2>
         <p className="text-muted-foreground text-sm mt-1">{t("projectsOrganize") || "Projects organize your tasks and ideas"}</p>
       </div>
+
+      {/* Template selector */}
+      <div className="space-y-2">
+        <Label>{t("templates") || "Template"}</Label>
+        <div className="grid grid-cols-2 gap-2">
+          <div
+            className={`p-2.5 rounded-lg border cursor-pointer transition-colors ${!selectedTemplate ? "border-primary/50 bg-primary/5" : "border-border/30 hover:border-primary/30"}`}
+            onClick={() => handleTemplateSelect(null)}
+          >
+            <div className="flex items-center gap-2">
+              <FolderPlus className="h-4 w-4 text-muted-foreground" />
+              <span className="text-xs font-medium text-foreground">{t("blankProject") || "Blank"}</span>
+              {!selectedTemplate && <Check className="h-3 w-3 text-primary ms-auto" />}
+            </div>
+          </div>
+          {templates.map((tmpl) => {
+            const Icon = iconMap[tmpl.icon] || Rocket;
+            const selected = selectedTemplate?.id === tmpl.id;
+            return (
+              <div
+                key={tmpl.id}
+                className={`p-2.5 rounded-lg border cursor-pointer transition-colors ${selected ? "border-primary/50 bg-primary/5" : "border-border/30 hover:border-primary/30"}`}
+                onClick={() => handleTemplateSelect(tmpl)}
+              >
+                <div className="flex items-center gap-2">
+                  <Icon className="h-4 w-4" style={{ color: tmpl.color }} />
+                  <span className="text-xs font-medium text-foreground truncate">{tmpl.name}</span>
+                  {selected && <Check className="h-3 w-3 text-primary ms-auto shrink-0" />}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="projectName">{t("projectName")}</Label>
