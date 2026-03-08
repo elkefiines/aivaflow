@@ -913,6 +913,25 @@ export const translations: Record<string, Record<string, string>> = {
     templateName: "اسم القالب",
     newTemplate: "قالب جديد",
     quickTemplates: "قوالب جاهزة لإنشاء المهام بسرعة",
+
+    // Phase 24-26
+    replyingTo: "رد على",
+    youWereMentioned: "تمت الإشارة إليك",
+    gantt: "جانت",
+    ganttChart: "مخطط جانت",
+    ganttDesc: "عرض المهام على خط زمني",
+    noTasksWithDates: "لا توجد مهام بمواعيد",
+    goals: "الأهداف",
+    goalsDesc: "ربط المهام بأهداف استراتيجية وتتبع التقدم",
+    newGoal: "هدف جديد",
+    createGoal: "إنشاء هدف",
+    goalCreated: "تم إنشاء الهدف",
+    noGoalsYet: "لا توجد أهداف بعد",
+    progress: "التقدم",
+    linkTask: "ربط مهمة",
+    allTasksLinked: "كل المهام مربوطة",
+    targetDate: "التاريخ المستهدف",
+    close: "إغلاق",
   },
 } as const;
 
