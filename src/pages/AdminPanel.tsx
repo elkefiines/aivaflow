@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 import {
   Shield, Users, FolderKanban, Activity, ListChecks, AlertTriangle,
-  ArrowLeft, ArrowRight, LogOut, BarChart3, TrendingUp, Clock
+  ArrowLeft, ArrowRight, LogOut, BarChart3, TrendingUp, Clock, Mail, Eye, CheckCircle2
 } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { ar } from "date-fns/locale";
@@ -28,6 +28,7 @@ const AdminPanel = () => {
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
   const [userRoles, setUserRoles] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
+  const [contacts, setContacts] = useState<any[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -36,11 +37,12 @@ const AdminPanel = () => {
       setIsAdmin(!!data);
       if (!data) { setLoading(false); return; }
 
-      const [projectsRes, tasksRes, profilesRes, rolesRes] = await Promise.all([
+      const [projectsRes, tasksRes, profilesRes, rolesRes, contactsRes] = await Promise.all([
         supabase.from("projects").select("id, name, color, icon, created_at, owner_id, description"),
         supabase.from("tasks").select("id, status, project_id, due_date, created_at, priority"),
         supabase.from("profiles").select("id, user_id, display_name, avatar_url, created_at"),
         supabase.from("user_roles").select("*"),
+        supabase.from("contact_submissions" as any).select("*").order("created_at", { ascending: false }).limit(100),
       ]);
 
       const allProjects = projectsRes.data || [];
@@ -53,6 +55,7 @@ const AdminPanel = () => {
       setProjects(allProjects);
       setProfiles(profilesRes.data || []);
       setUserRoles(rolesRes.data || []);
+      setContacts((contactsRes.data as any[]) || []);
       setStats({
         projects: allProjects.length,
         users: (profilesRes.data || []).length,
