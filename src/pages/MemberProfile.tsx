@@ -121,6 +121,7 @@ const MemberProfile = forwardRef<HTMLDivElement>((_, ref) => {
       )}
     </div>
   );
-};
+});
+MemberProfile.displayName = "MemberProfile";
 
 export default MemberProfile;
