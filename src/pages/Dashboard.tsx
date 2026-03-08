@@ -9,6 +9,7 @@ import { motion, useInView } from "framer-motion";
 import { AlertTriangle, Clock, Moon, Shield, ChevronRight, Users, ChevronLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Task = Tables<"tasks">;
 
@@ -57,6 +58,36 @@ const avatarColors = [
   "bg-rose-500/20 text-rose-400",
 ];
 
+const getGreeting = (t: (key: any) => string) => {
+  const hour = new Date().getHours();
+  if (hour < 12) return t("goodMorning");
+  if (hour < 18) return t("goodAfternoon");
+  return t("goodEvening");
+};
+
+const DashboardSkeleton = () => (
+  <div className="space-y-6">
+    <Skeleton className="h-7 w-48" />
+    <div className="flex flex-col lg:flex-row gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 flex-1">
+        {[1,2,3,4].map(i => <Skeleton key={i} className="h-12 rounded-lg" />)}
+      </div>
+      <div className="flex gap-6">
+        {[1,2,3].map(i => <Skeleton key={i} className="h-12 w-20" />)}
+      </div>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4">
+      <Skeleton className="xl:col-span-2 h-40 rounded-xl" />
+      <Skeleton className="xl:col-span-7 h-40 rounded-xl" />
+      <Skeleton className="xl:col-span-3 h-40 rounded-xl" />
+    </div>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <Skeleton className="lg:col-span-8 h-48 rounded-xl" />
+      <Skeleton className="lg:col-span-4 h-48 rounded-xl" />
+    </div>
+  </div>
+);
+
 const Dashboard = () => {
   const { user } = useAuth();
   const { projectId } = useActiveProject();
@@ -68,6 +99,7 @@ const Dashboard = () => {
   const [reportCount, setReportCount] = useState(0);
   const [displayName, setDisplayName] = useState("");
   const [teamMembers, setTeamMembers] = useState<{ user_id: string; display_name: string }[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const statusBadgeColors: Record<string, string> = {
     done: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
@@ -89,6 +121,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!projectId) return;
+    setLoading(true);
     Promise.all([
       supabase.from("tasks").select("*").eq("project_id", projectId),
       supabase.from("ideas").select("id", { count: "exact" }).eq("project_id", projectId),
@@ -104,8 +137,11 @@ const Dashboard = () => {
         const { data: profiles } = await supabase.from("profiles").select("user_id, display_name").in("user_id", userIds);
         setTeamMembers((profiles || []).map(p => ({ user_id: p.user_id, display_name: p.display_name || "Unknown" })));
       }
+      setLoading(false);
     });
   }, [projectId]);
+
+  if (loading) return <DashboardSkeleton />;
 
   const total = tasks.length || 1;
   const done = tasks.filter(t => t.status === "done").length;
@@ -162,10 +198,10 @@ const Dashboard = () => {
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-4 sm:space-y-6" dir={dir}>
       <motion.h3 variants={item} className={`font-display text-lg sm:text-xl font-bold text-foreground ${isRtl ? "text-right" : ""}`}>
-        {t("welcomeIn")} <span className="font-normal text-muted-foreground">{displayName}</span>
+        {getGreeting(t)} <span className="font-normal text-muted-foreground">{displayName}</span>
       </motion.h3>
 
-      {/* Status bars + stats — stack on mobile */}
+      {/* Status bars + stats */}
       <motion.div variants={item} className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 flex-1">
           {statusBars.map((bar, i) => (
@@ -197,7 +233,7 @@ const Dashboard = () => {
         </div>
       </motion.div>
 
-      {/* Main grid — responsive cols */}
+      {/* Main grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4">
         <motion.div variants={item} className="xl:col-span-2 glass p-4 rounded-xl">
           <h4 className="text-xs font-medium text-foreground mb-3">{t("summary")}</h4>
@@ -278,7 +314,7 @@ const Dashboard = () => {
         </motion.div>
       </div>
 
-      {/* Recent Tasks & Team — responsive */}
+      {/* Recent Tasks & Team */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <motion.div variants={item} className="lg:col-span-8 glass p-4 rounded-xl">
           <div className="flex items-center justify-between mb-3">
