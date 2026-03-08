@@ -937,6 +937,11 @@ export const translations: Record<string, Record<string, string>> = {
     allTasksLinked: "كل المهام مربوطة",
     targetDate: "التاريخ المستهدف",
     close: "إغلاق",
+
+    // Phase 28-30
+    automations: "الأتمتة",
+    teamMood: "مزاج الفريق",
+    colorTheme: "سمة الألوان",
   },
 } as const;
 
