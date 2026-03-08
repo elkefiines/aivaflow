@@ -286,6 +286,134 @@ const AdminPanel = () => {
           </motion.div>
         </div>
 
+        {/* Advanced Analytics Charts */}
+        <div className="grid lg:grid-cols-3 gap-4">
+          {/* Weekly Activity Area Chart */}
+          <motion.div custom={8} variants={fadeIn} initial="hidden" animate="visible" className="lg:col-span-2">
+            <Card className="h-full">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4 text-primary" />
+                    {isRtl ? "النشاط خلال 14 يوم" : "14-Day Activity"}
+                  </CardTitle>
+                  <Badge variant="outline" className="text-[10px]">{isRtl ? "أنشطة + مهام" : "Activities + Tasks"}</Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[260px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={weeklyActivityData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="actGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                          <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="taskGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
+                          <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                      <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                      <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} allowDecimals={false} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 12, fontSize: 12 }}
+                        labelStyle={{ color: "hsl(var(--foreground))" }}
+                      />
+                      <Area type="monotone" dataKey="activities" name={isRtl ? "أنشطة" : "Activities"} stroke="hsl(var(--primary))" fill="url(#actGrad)" strokeWidth={2} />
+                      <Area type="monotone" dataKey="tasks" name={isRtl ? "مهام جديدة" : "New Tasks"} stroke="#10b981" fill="url(#taskGrad)" strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Task Status Pie Chart */}
+          <motion.div custom={9} variants={fadeIn} initial="hidden" animate="visible">
+            <Card className="h-full">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <ListChecks className="h-4 w-4 text-primary" />
+                  {isRtl ? "توزيع حالة المهام" : "Task Status"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {statusData.length > 0 ? (
+                  <div className="h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={statusData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={50}
+                          outerRadius={80}
+                          paddingAngle={3}
+                          dataKey="value"
+                        >
+                          {statusData.map((entry, index) => (
+                            <Cell key={index} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 12, fontSize: 12 }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="h-[200px] flex items-center justify-center">
+                    <p className="text-sm text-muted-foreground">{isRtl ? "لا توجد مهام" : "No tasks"}</p>
+                  </div>
+                )}
+                <div className="flex flex-wrap gap-2 mt-2 justify-center">
+                  {statusData.map((s, i) => (
+                    <div key={i} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
+                      {s.name} ({s.value})
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Priority Distribution Bar Chart */}
+        {priorityData.length > 0 && (
+          <motion.div custom={10} variants={fadeIn} initial="hidden" animate="visible">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-amber-500" />
+                  {isRtl ? "توزيع أولويات المهام" : "Task Priority Distribution"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[180px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={priorityData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                      <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                      <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} allowDecimals={false} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 12, fontSize: 12 }}
+                      />
+                      <Bar dataKey="value" name={isRtl ? "عدد المهام" : "Tasks"} radius={[6, 6, 0, 0]}>
+                        {priorityData.map((entry, index) => (
+                          <Cell key={index} fill={entry.color} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
         {/* Tabs */}
         <Tabs defaultValue="projects" dir={dir}>
           <TabsList className="w-full justify-start bg-muted/50 p-1 rounded-xl">
