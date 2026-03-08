@@ -17,6 +17,7 @@ import { Trash2 } from "lucide-react";
 import TaskComments from "@/components/tasks/TaskComments";
 import TaskTimer from "@/components/tasks/TaskTimer";
 import SubtasksList from "@/components/tasks/SubtasksList";
+import TaskAttachments from "@/components/tasks/TaskAttachments";
 
 type Task = Tables<"tasks">;
 
@@ -202,6 +203,9 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
           </div>
           <div className="border-t border-border/30 pt-3">
             <SubtasksList taskId={task.id} />
+          </div>
+          <div className="border-t border-border/30 pt-3">
+            <TaskAttachments taskId={task.id} />
           </div>
           <div className="border-t border-border/30 pt-3">
             <TaskComments taskId={task.id} memberNames={Object.fromEntries(members.map(m => [m.user_id, m.display_name || m.user_id.slice(0, 8)]))} />
