@@ -12,6 +12,7 @@ import ProjectSwitcher from "@/components/layout/ProjectSwitcher";
 import ChatPanel from "@/components/chat/ChatPanel";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import ThemeToggle from "@/components/layout/ThemeToggle";
+import GlobalSearch from "@/components/search/GlobalSearch";
 
 const AppHeader = () => {
   const { user, signOut } = useAuth();
@@ -37,6 +38,7 @@ const AppHeader = () => {
         <ProjectSwitcher />
       </div>
       <div className="flex items-center gap-1.5 sm:gap-3">
+        <GlobalSearch />
         <ThemeToggle />
         <ChatPanel />
         <NotificationBell />

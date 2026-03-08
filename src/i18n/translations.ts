@@ -386,6 +386,16 @@ export const translations: Record<string, Record<string, string>> = {
     useTemplate: "Use Template",
     blankProject: "Blank Project",
     startFromScratch: "Start from scratch with an empty project",
+
+    // Global Search
+    globalSearch: "Search…",
+    searchPlaceholder: "Search tasks, ideas, messages…",
+    searching: "Searching…",
+    noResults: "No results found",
+
+    // Subtasks
+    subtasks: "Subtasks",
+    addSubtask: "Add subtask…",
   },
   ar: {
     dashboard: "لوحة التحكم",
@@ -762,6 +772,16 @@ export const translations: Record<string, Record<string, string>> = {
     useTemplate: "استخدام القالب",
     blankProject: "مشروع فارغ",
     startFromScratch: "ابدأ من الصفر بمشروع فارغ",
+
+    // Global Search
+    globalSearch: "بحث…",
+    searchPlaceholder: "ابحث في المهام والأفكار والرسائل…",
+    searching: "جاري البحث…",
+    noResults: "لا توجد نتائج",
+
+    // Subtasks
+    subtasks: "المهام الفرعية",
+    addSubtask: "أضف مهمة فرعية…",
   },
 } as const;
 

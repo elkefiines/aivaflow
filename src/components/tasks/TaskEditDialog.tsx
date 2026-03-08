@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import TaskComments from "@/components/tasks/TaskComments";
 import TaskTimer from "@/components/tasks/TaskTimer";
+import SubtasksList from "@/components/tasks/SubtasksList";
 
 type Task = Tables<"tasks">;
 
@@ -176,6 +177,9 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
             <Button variant="destructive" size="icon" onClick={handleDelete} title={t("deleteTask") || "Delete task"}>
               <Trash2 className="h-4 w-4" />
             </Button>
+          </div>
+          <div className="border-t border-border/30 pt-3">
+            <SubtasksList taskId={task.id} />
           </div>
           <div className="border-t border-border/30 pt-3">
             <TaskComments taskId={task.id} memberNames={Object.fromEntries(members.map(m => [m.user_id, m.display_name || m.user_id.slice(0, 8)]))} />
