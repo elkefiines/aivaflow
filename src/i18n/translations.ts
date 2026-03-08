@@ -430,6 +430,10 @@ export const translations: Record<string, Record<string, string>> = {
     daily: "Daily",
     weekly: "Weekly",
     monthly: "Monthly",
+
+    // Member Profile
+    completionRate: "Completion Rate",
+    memberProfile: "Member Profile",
   },
   ar: {
     dashboard: "لوحة التحكم",
