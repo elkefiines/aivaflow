@@ -161,31 +161,31 @@ const Dashboard = () => {
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6" dir={dir}>
-      <motion.h3 variants={item} className="font-display text-xl font-bold text-foreground">
+      <motion.h3 variants={item} className={`font-display text-xl font-bold text-foreground ${isRtl ? "text-right" : ""}`}>
         {t("welcomeIn")} <span className="font-normal text-muted-foreground">{displayName}</span>
       </motion.h3>
 
-      <motion.div variants={item} className={`flex items-center gap-6 ${isRtl ? "flex-row-reverse" : ""}`}>
-        <div className={`flex items-center gap-2 flex-1 ${isRtl ? "flex-row-reverse" : ""}`}>
+      <motion.div variants={item} className="flex items-center gap-6 flex-wrap">
+        <div className="flex items-center gap-2 flex-1">
           {statusBars.map((bar, i) => (
             <div key={bar.label} className="flex-1 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate(bar.route)}>
-              <div className={`flex items-center gap-2 mb-1 ${isRtl ? "flex-row-reverse" : ""}`}>
+              <div className="flex items-center gap-2 mb-1">
                 <span className="text-[10px] text-muted-foreground">{bar.label}</span>
               </div>
-              <div className={`h-6 bg-background rounded-lg overflow-hidden flex items-center px-2 ${isRtl ? "flex-row-reverse" : ""}`}>
+              <div className="h-6 bg-background rounded-lg overflow-hidden flex items-center px-2">
                 <AnimatedBar pct={bar.pct} color={bar.color} delay={400 + i * 150} isRtl={isRtl} />
-                <span className={`text-[10px] text-muted-foreground ${isRtl ? "me-2" : "ms-2"}`}>{bar.pct}%</span>
+                <span className="text-[10px] text-muted-foreground ms-2">{bar.pct}%</span>
               </div>
             </div>
           ))}
         </div>
-        <div className={`flex items-center gap-6 ${isRtl ? "flex-row-reverse" : ""}`}>
+        <div className="flex items-center gap-6">
           {stats.map((stat, i) => (
-            <motion.div key={stat.label} variants={item} className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
+            <motion.div key={stat.label} variants={item} className="flex items-center gap-2">
               <div className={`w-8 h-8 ${stat.bg} rounded-lg flex items-center justify-center`}>
                 <stat.icon className={`w-4 h-4 ${stat.color}`} />
               </div>
-              <div className={isRtl ? "text-end" : ""}>
+              <div>
                 <p className="text-xl font-display font-bold text-foreground leading-none">
                   <AnimatedNumber value={stat.value} delay={600 + i * 200} />
                 </p>
@@ -198,12 +198,12 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-12 gap-4">
         <motion.div variants={item} className="col-span-2 glass p-4 rounded-xl">
-          <h4 className={`text-xs font-medium text-foreground mb-3 ${isRtl ? "text-end" : ""}`}>{t("summary")}</h4>
+          <h4 className="text-xs font-medium text-foreground mb-3">{t("summary")}</h4>
           <div className="space-y-3">
             {summaryItems.map((si, i) => (
               <div key={si.label} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate("/tasks")}>
                 <div className="flex-1">
-                  <div className={`flex justify-between mb-1 ${isRtl ? "flex-row-reverse" : ""}`}>
+                  <div className="flex justify-between mb-1">
                     <span className="text-[10px] text-muted-foreground">{si.label}</span>
                     <span className="text-[10px] text-muted-foreground">{si.pct}%</span>
                   </div>
@@ -215,9 +215,9 @@ const Dashboard = () => {
         </motion.div>
 
         <motion.div variants={item} className="col-span-7 glass p-4 rounded-xl">
-          <div className={`flex items-center justify-between mb-3 ${isRtl ? "flex-row-reverse" : ""}`}>
+          <div className="flex items-center justify-between mb-3">
             <h4 className="text-xs font-medium text-foreground">{t("taskCompletion")}</h4>
-            <div className={`flex items-center gap-3 ${isRtl ? "flex-row-reverse" : ""}`}>
+            <div className="flex items-center gap-3">
               {[t("months12"), t("days30"), t("week1")].map((period, i) => (
                 <button key={period} className={`text-[10px] px-2 py-0.5 rounded ${i === 0 ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}>
                   {period}
@@ -228,8 +228,8 @@ const Dashboard = () => {
           <div className="h-36 relative">
             <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
               {[maxVal, Math.round(maxVal * 0.66), Math.round(maxVal * 0.33)].map(v => (
-                <div key={v} className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
-                  <span className={`text-[8px] text-muted-foreground/40 w-6 ${isRtl ? "text-start" : "text-end"}`}>{v}</span>
+                <div key={v} className="flex items-center gap-2">
+                  <span className="text-[8px] text-muted-foreground/40 w-6 text-end">{v}</span>
                   <div className="flex-1 h-px bg-border/10" />
                 </div>
               ))}
@@ -246,8 +246,8 @@ const Dashboard = () => {
         </motion.div>
 
         <motion.div variants={item} className="col-span-3 glass p-4 rounded-xl">
-          <div className={`flex items-center justify-between mb-3 ${isRtl ? "flex-row-reverse" : ""}`}>
-            <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-primary" />
               <h4 className="text-xs font-medium text-foreground">{t("aiInsights")}</h4>
             </div>
@@ -255,19 +255,19 @@ const Dashboard = () => {
               {isRtl ? <ChevronLeft className="w-3 h-3 text-primary" /> : <ChevronRight className="w-3 h-3 text-primary" />}
             </motion.div>
           </div>
-          <p className={`text-[10px] text-muted-foreground leading-relaxed mb-4 ${isRtl ? "text-end" : ""}`}>{t("aiInsightsDesc")}</p>
+          <p className="text-[10px] text-muted-foreground leading-relaxed mb-4">{t("aiInsightsDesc")}</p>
           <div className="space-y-3">
-            <div className={`flex items-center gap-3 ${isRtl ? "flex-row-reverse" : ""}`}>
+            <div className="flex items-center gap-3">
               <motion.div className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center" animate={{ boxShadow: ["0 0 0px hsl(var(--primary) / 0)", "0 0 12px hsl(var(--primary) / 0.4)", "0 0 0px hsl(var(--primary) / 0)"] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}>
                 <span className="text-[9px] font-medium text-primary">{t("priority")}</span>
               </motion.div>
             </div>
-            <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
+            <div className="flex items-center gap-2">
               {[{ color: "bg-primary", size: "w-8 h-8", delay: 0 }, { color: "bg-emerald-500", size: "w-6 h-6", delay: 0.15 }, { color: "bg-amber-400", size: "w-5 h-5", delay: 0.3 }].map((dot, i) => (
                 <motion.div key={i} className={`${dot.size} ${dot.color} rounded-full opacity-60`} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.2 + dot.delay, type: "spring", stiffness: 200 }} />
               ))}
             </div>
-            <div className={`flex items-center gap-3 mt-2 ${isRtl ? "flex-row-reverse" : ""}`}>
+            <div className="flex items-center gap-3 mt-2">
               <motion.div className="w-10 h-10 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center" initial={{ opacity: 0, rotate: -90 }} animate={{ opacity: 1, rotate: 0 }} transition={{ delay: 1.5, duration: 0.6 }}>
                 <span className="text-[9px] font-medium text-muted-foreground">{t("threats")}</span>
               </motion.div>
@@ -279,19 +279,19 @@ const Dashboard = () => {
       {/* Recent Tasks & Team */}
       <div className="grid grid-cols-12 gap-4">
         <motion.div variants={item} className="col-span-8 glass p-4 rounded-xl">
-          <div className={`flex items-center justify-between mb-3 ${isRtl ? "flex-row-reverse" : ""}`}>
+          <div className="flex items-center justify-between mb-3">
             <h4 className="text-xs font-medium text-foreground">{t("recentTasks")}</h4>
             <button className="text-[10px] text-primary hover:underline" onClick={() => navigate("/tasks")}>{t("viewAll")}</button>
           </div>
           <div className="space-y-2">
             {recentTasks.length === 0 && <p className="text-xs text-muted-foreground py-4 text-center">{t("noTasksYet")}</p>}
             {recentTasks.map((task) => (
-              <div key={task.id} className={`flex items-center justify-between p-2.5 rounded-lg bg-background/50 border border-border/20 hover:border-primary/30 transition-colors cursor-pointer ${isRtl ? "flex-row-reverse" : ""}`} onClick={() => navigate("/tasks")}>
-                <div className={`flex items-center gap-3 min-w-0 flex-1 ${isRtl ? "flex-row-reverse" : ""}`}>
+              <div key={task.id} className="flex items-center justify-between p-2.5 rounded-lg bg-background/50 border border-border/20 hover:border-primary/30 transition-colors cursor-pointer" onClick={() => navigate("/tasks")}>
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${task.priority === "critical" ? "bg-destructive" : task.priority === "high" ? "bg-amber-400" : task.priority === "medium" ? "bg-primary" : "bg-muted-foreground/40"}`} />
                   <span className="text-sm text-foreground truncate">{task.title}</span>
                 </div>
-                <Badge variant="outline" className={`text-[10px] shrink-0 ${isRtl ? "me-2" : "ms-2"} ${statusBadgeColors[task.status || "backlog"]}`}>
+                <Badge variant="outline" className={`text-[10px] shrink-0 ms-2 ${statusBadgeColors[task.status || "backlog"]}`}>
                   {statusLabels[task.status || "backlog"]}
                 </Badge>
               </div>
@@ -300,8 +300,8 @@ const Dashboard = () => {
         </motion.div>
 
         <motion.div variants={item} className="col-span-4 glass p-4 rounded-xl">
-          <div className={`flex items-center justify-between mb-3 ${isRtl ? "flex-row-reverse" : ""}`}>
-            <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-primary" />
               <h4 className="text-xs font-medium text-foreground">{t("team")}</h4>
             </div>
@@ -312,7 +312,7 @@ const Dashboard = () => {
             {teamMembers.map((member, i) => {
               const initials = (member.display_name || "U").split(/\s/).slice(0, 2).map(s => s[0]?.toUpperCase()).join("");
               return (
-                <div key={member.user_id} className={`flex items-center gap-3 p-2 rounded-lg hover:bg-background/50 transition-colors ${isRtl ? "flex-row-reverse" : ""}`}>
+                <div key={member.user_id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-background/50 transition-colors">
                   <Avatar className="h-7 w-7">
                     <AvatarFallback className={`text-[10px] font-semibold ${avatarColors[i % avatarColors.length]}`}>{initials}</AvatarFallback>
                   </Avatar>
