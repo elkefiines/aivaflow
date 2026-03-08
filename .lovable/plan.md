@@ -1,20 +1,53 @@
-## Plan: Complete Remaining Steps (10–16 + Settings)
 
-**All Steps Complete ✅**
 
-### Completed:
-1. ✅ Steps 1–9: Theme, Landing, DB Schema, Auth, Onboarding, Layout, Dashboard, Tasks/Kanban, Ideas Inbox
-2. ✅ Step 10: File Upload & Analysis — drag-drop zone on Ideas page + `analyze-file` edge function
-3. ✅ Steps 11–12: AI Chat Assistant — `chat` edge function with streaming SSE + slide-out panel in header
-4. ✅ Step 13: Team Tracker — `/team` route with member cards, workload visualization, invitation management
-5. ✅ Steps 14–15: Reports & Analytics — `generate-report` edge function + velocity charts with Recharts
-6. ✅ Step 16: i18n — English/Arabic with RTL support, language context, language selector in Settings
-7. ✅ Settings Page — profile editing, project settings, language preference
+## Plan: Dashboard Enhancements, Team Direct-Add, and Visual Polish
 
-### Technical Implementation:
-- Edge functions: `process-idea`, `chat`, `analyze-file`, `generate-report`
-- All AI features use Lovable AI gateway (google/gemini-3-flash-preview)
-- i18n via LanguageContext + translations file
-- RTL via `dir="rtl"` on document element
-- Storage bucket `project-files` for file uploads
-- UPDATE policy added on `project_members` for team management
+### Changes Overview
+
+**1. Dashboard — Clickable bars + new sections**
+- Make status bars navigate: "Projects" → `/tasks`, "Tasks done" → `/tasks`, "AI usage" → `/ideas`, "Reports" → `/reports`
+- Make summary items (In Progress/Review/Backlog) clickable → `/tasks`
+- Add **Recent Tasks** section (last 5 tasks, showing title, status badge with color, priority, assignee)
+- Add **Team Members** strip (avatars + names of project members, fetched from project_members + profiles)
+- Use `useNavigate` from react-router-dom for navigation
+
+**2. Team Page — Direct add by email+password (no email sending)**
+- Replace the invitation system with a **direct member add** flow:
+  - Owner enters email + password to create a new user account via `supabase.auth.signUp()` with auto-confirm behavior
+  - Then immediately insert into `project_members` table
+  - This bypasses email verification — user will need auto-confirm enabled
+- Keep existing member cards and removal logic
+
+**3. Visual color enhancements**
+- Task cards in Kanban: add left-border color coding by priority (critical=red, high=amber, medium=blue, low=gray)
+- Team member cards: add colored avatar backgrounds cycling through a palette
+- Dashboard recent tasks: color-coded status badges (emerald for done, amber for in_progress, purple for review, gray for backlog)
+
+### Files to modify
+
+| File | Changes |
+|------|---------|
+| `src/pages/Dashboard.tsx` | Add `useNavigate`, wrap bars/summary in clickable divs, fetch recent tasks (limit 5) and team members, render two new sections below the grid |
+| `src/pages/Team.tsx` | Replace invite form with email+password form, call `supabase.auth.signUp()` then insert into `project_members`, remove invitations section |
+| `src/components/tasks/KanbanBoard.tsx` | Add left-border color per priority on task cards |
+
+### Database changes
+- Need to enable auto-confirm for signups so the owner can create accounts directly (using `configure_auth` tool)
+- No schema changes needed
+
+### Technical details
+
+**Dashboard new sections layout** — Add a second row below the 12-col grid:
+- `col-span-8`: Recent Tasks — table-like list of 5 most recent tasks with colored status dots
+- `col-span-4`: Team — avatar stack with names, link to `/team`
+
+**Team direct-add flow:**
+```
+1. Owner fills email + password + display name
+2. Call supabase.auth.signUp({ email, password, data: { display_name } })
+3. On success, insert into project_members(project_id, user_id, role: 'member')
+4. Reload member list
+```
+
+Note: Auto-confirm must be enabled so the created user can sign in immediately without email verification. This will be configured via the auth tool.
+
