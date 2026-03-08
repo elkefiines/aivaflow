@@ -11,6 +11,7 @@ import { LogOut, User, Sparkles } from "lucide-react";
 import ProjectSwitcher from "@/components/layout/ProjectSwitcher";
 import ChatPanel from "@/components/chat/ChatPanel";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import ThemeToggle from "@/components/layout/ThemeToggle";
 
 const AppHeader = () => {
   const { user, signOut } = useAuth();
@@ -36,6 +37,7 @@ const AppHeader = () => {
         <ProjectSwitcher />
       </div>
       <div className="flex items-center gap-1.5 sm:gap-3">
+        <ThemeToggle />
         <ChatPanel />
         <NotificationBell />
         <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
