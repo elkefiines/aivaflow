@@ -1,33 +1,24 @@
 # خطة تطويرية شاملة لمنصة AIVA Flow
 
-## التقدم — جميع المراحل مكتملة ✅
+## التقدم — المراحل 1-12 مكتملة ✅
 
-### ✅ المرحلة 1: Activity Log
-- جدول `activity_logs` + تريغرز تلقائية + Timeline في Dashboard + Realtime
+### ✅ المرحلة 1-10: مكتملة سابقاً
 
-### ✅ المرحلة 2: Task Comments & Attachments
-- جدول `task_comments` + Storage bucket `task-attachments` + UI في TaskEditDialog
+### ✅ المرحلة 11: بحث شامل (⌘K)
+- شريط بحث في Header مع اختصار ⌘K
+- بحث فوري في المهام والأفكار والرسائل
+- نتائج مجمّعة حسب النوع مع أيقونات
 
-### ✅ المرحلة 3: Calendar View
-- صفحة `/calendar` بعرض شهري + ألوان أولويات + navigation بالسايدبار
+### ✅ المرحلة 12: مهام فرعية (Subtasks)
+- جدول `subtasks` مع RLS policies
+- مكون SubtasksList في TaskEditDialog
+- شريط تقدم تلقائي + إضافة/حذف/تبديل الإكمال
 
-### ✅ المرحلة 4: AI Smart Suggestions
-- Edge function `ai-suggest` + زر AI Suggest في صفحة المهام + structured output
-
-### ✅ المرحلة 5: Dark/Light Theme
-- ThemeToggle في Header + نظام ألوان فاتح كامل في CSS + localStorage persistence
-
-### ✅ المرحلة 6: Project Templates
-- جدول `project_templates` + 4 قوالب جاهزة + اختيار القالب في Onboarding
-
-### ✅ المرحلة 7: Time Tracking
-- جدول `time_entries` + TaskTimer مكون Start/Stop + عرض الوقت في TaskEditDialog
-
-### ✅ المرحلة 8: Tags System
-- جداول `tags` + `task_tags` مع RLS policies
-
-### ✅ المرحلة 9: Dashboard Widgets
-- Activity Timeline widget مضاف للداشبورد
-
-### ✅ المرحلة 10: Email Notifications (DB triggers)
-- الإشعارات تعمل عبر Realtime + triggers موجودة مسبقاً
+### 🔄 المرحلة 13: أدوار وصلاحيات (قادمة)
+### 📋 المرحلة 14: تحليلات متقدمة
+### 📋 المرحلة 15: مهام متكررة
+### 📋 المرحلة 16: تصدير/استيراد
+### 📋 المرحلة 17: إشعارات بريدية
+### 📋 المرحلة 18: وضع التركيز
+### 📋 المرحلة 19: تكاملات خارجية
+### 📋 المرحلة 20: ملف شخصي عام
