@@ -102,6 +102,8 @@ const Dashboard = () => {
   const [displayName, setDisplayName] = useState("");
   const [teamMembers, setTeamMembers] = useState<{ user_id: string; display_name: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const { widgets, saveWidgets } = useDashboardWidgets();
+  const w = (id: string) => widgets.includes(id);
 
   const statusBadgeColors: Record<string, string> = {
     done: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
