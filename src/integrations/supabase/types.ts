@@ -58,6 +58,53 @@ export type Database = {
           },
         ]
       }
+      automations: {
+        Row: {
+          action_type: string
+          action_value: string | null
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean | null
+          name: string
+          project_id: string
+          trigger_type: string
+          trigger_value: string | null
+        }
+        Insert: {
+          action_type?: string
+          action_value?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          project_id: string
+          trigger_type?: string
+          trigger_value?: string | null
+        }
+        Update: {
+          action_type?: string
+          action_value?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          project_id?: string
+          trigger_type?: string
+          trigger_value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goal_tasks: {
         Row: {
           goal_id: string
@@ -255,6 +302,44 @@ export type Database = {
           },
         ]
       }
+      mood_logs: {
+        Row: {
+          created_at: string
+          id: string
+          logged_date: string
+          mood: string
+          note: string | null
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logged_date?: string
+          mood?: string
+          note?: string | null
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logged_date?: string
+          mood?: string
+          note?: string | null
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mood_logs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -298,6 +383,7 @@ export type Database = {
           id: string
           language: string | null
           onboarding_completed: boolean | null
+          theme: string | null
           updated_at: string
           user_id: string
         }
@@ -310,6 +396,7 @@ export type Database = {
           id?: string
           language?: string | null
           onboarding_completed?: boolean | null
+          theme?: string | null
           updated_at?: string
           user_id: string
         }
@@ -322,6 +409,7 @@ export type Database = {
           id?: string
           language?: string | null
           onboarding_completed?: boolean | null
+          theme?: string | null
           updated_at?: string
           user_id?: string
         }
