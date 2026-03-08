@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Send, MessageSquare, SmilePlus } from "lucide-react";
+import EmptyState from "@/components/shared/EmptyState";
+import ErrorState from "@/components/shared/ErrorState";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
@@ -49,6 +51,7 @@ const Messages = () => {
   const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
   const bottomRef = useRef<HTMLDivElement>(null);
   const profileColorMap = useRef<Record<string, number>>({});
@@ -65,20 +68,26 @@ const Messages = () => {
   const loadMessages = async () => {
     if (!projectId) return;
     setLoading(true);
-    const [msgsRes, reactionsRes] = await Promise.all([
-      supabase.from("messages").select("*").eq("project_id", projectId).order("created_at", { ascending: true }).limit(200),
-      supabase.from("message_reactions" as any).select("*"),
-    ]);
-    const msgs = (msgsRes.data || []) as Message[];
-    setMessages(msgs);
-    setReactions((reactionsRes.data as any) || []);
+    setError(false);
+    try {
+      const [msgsRes, reactionsRes] = await Promise.all([
+        supabase.from("messages").select("*").eq("project_id", projectId).order("created_at", { ascending: true }).limit(200),
+        supabase.from("message_reactions" as any).select("*"),
+      ]);
+      if (msgsRes.error) throw msgsRes.error;
+      const msgs = (msgsRes.data || []) as Message[];
+      setMessages(msgs);
+      setReactions((reactionsRes.data as any) || []);
 
-    const senderIds = [...new Set(msgs.map((m) => m.sender_id))];
-    if (senderIds.length > 0) {
-      const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", senderIds);
-      const map: Record<string, string> = {};
-      profs?.forEach((p) => { map[p.user_id] = p.display_name || p.user_id.slice(0, 8); });
-      setProfiles(map);
+      const senderIds = [...new Set(msgs.map((m) => m.sender_id))];
+      if (senderIds.length > 0) {
+        const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", senderIds);
+        const map: Record<string, string> = {};
+        profs?.forEach((p) => { map[p.user_id] = p.display_name || p.user_id.slice(0, 8); });
+        setProfiles(map);
+      }
+    } catch {
+      setError(true);
     }
     setLoading(false);
   };
@@ -192,12 +201,14 @@ const Messages = () => {
           </div>
         )}
 
-        {!loading && messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center py-12">
-            <MessageSquare className="h-12 w-12 text-muted-foreground/20 mb-3" />
-            <p className="text-muted-foreground text-sm">{t("noMessages")}</p>
-            <p className="text-muted-foreground/60 text-xs mt-1">{t("startConversation")}</p>
-          </div>
+        {!loading && error && <ErrorState onRetry={loadMessages} />}
+
+        {!loading && !error && messages.length === 0 && (
+          <EmptyState
+            icon={MessageSquare}
+            title={t("noMessages")}
+            description={t("startConversation")}
+          />
         )}
 
         {messages.map((msg) => {

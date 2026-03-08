@@ -4,6 +4,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { Activity, CheckCircle2, Plus, Trash2, UserPlus, Lightbulb, ArrowRight, Filter } from "lucide-react";
+import EmptyState from "@/components/shared/EmptyState";
 import { formatDistanceToNow, format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -148,10 +149,11 @@ const ActivityFeed = () => {
       {loading ? (
         <div className="space-y-3">{[1,2,3,4,5].map(i => <Skeleton key={i} className="h-12 rounded-lg" />)}</div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-12">
-          <Activity className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-          <p className="text-muted-foreground">{t("noActivityYet")}</p>
-        </div>
+        <EmptyState
+          icon={Activity}
+          title={t("noActivityYet")}
+          description={lang === "ar" ? "ستظهر الأنشطة هنا عند إجراء تغييرات في المشروع" : "Activities will appear here when changes are made"}
+        />
       ) : (
         <div className="space-y-6">
           {Object.entries(grouped).map(([date, items]) => (

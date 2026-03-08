@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
+import EmptyState from "@/components/shared/EmptyState";
+import ErrorState from "@/components/shared/ErrorState";
 
 interface Goal {
   id: string;
@@ -39,6 +41,7 @@ const Goals = () => {
   const [tasks, setTasks] = useState<any[]>([]);
   const [goalTasks, setGoalTasks] = useState<GoalTask[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -48,17 +51,22 @@ const Goals = () => {
   const load = async () => {
     if (!projectId) return;
     setLoading(true);
-    const [goalsRes, tasksRes, goalTasksRes] = await Promise.all([
-      supabase.from("goals").select("*").eq("project_id", projectId).order("created_at", { ascending: false }),
-      supabase.from("tasks").select("id, title, status").eq("project_id", projectId),
-      supabase.rpc("is_project_member", { _project_id: projectId, _user_id: user?.id || "" }).then(() =>
-        // Just fetch goal_tasks for this project's goals
-        supabase.from("goal_tasks").select("*")
-      ),
-    ]);
-    setGoals((goalsRes.data as Goal[]) || []);
-    setTasks(tasksRes.data || []);
-    setGoalTasks((goalTasksRes.data as GoalTask[]) || []);
+    setError(false);
+    try {
+      const [goalsRes, tasksRes, goalTasksRes] = await Promise.all([
+        supabase.from("goals").select("*").eq("project_id", projectId).order("created_at", { ascending: false }),
+        supabase.from("tasks").select("id, title, status").eq("project_id", projectId),
+        supabase.rpc("is_project_member", { _project_id: projectId, _user_id: user?.id || "" }).then(() =>
+          supabase.from("goal_tasks").select("*")
+        ),
+      ]);
+      if (goalsRes.error) throw goalsRes.error;
+      setGoals((goalsRes.data as Goal[]) || []);
+      setTasks(tasksRes.data || []);
+      setGoalTasks((goalTasksRes.data as GoalTask[]) || []);
+    } catch {
+      setError(true);
+    }
     setLoading(false);
   };
 
@@ -115,6 +123,7 @@ const Goals = () => {
   };
 
   if (loading) return <div className="space-y-3">{[1,2,3].map(i => <Skeleton key={i} className="h-24 rounded-xl" />)}</div>;
+  if (error) return <ErrorState onRetry={load} />;
 
   return (
     <div className="space-y-6" dir={dir}>
@@ -158,10 +167,13 @@ const Goals = () => {
       </div>
 
       {goals.length === 0 ? (
-        <div className="text-center py-12">
-          <Target className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-          <p className="text-muted-foreground">{lang === "ar" ? "لا توجد أهداف بعد" : "No goals yet"}</p>
-        </div>
+        <EmptyState
+          icon={Target}
+          title={lang === "ar" ? "لا توجد أهداف بعد" : "No goals yet"}
+          description={lang === "ar" ? "أنشئ هدفاً استراتيجياً واربطه بالمهام" : "Create a strategic goal and link tasks to it"}
+          actionLabel={lang === "ar" ? "هدف جديد" : "New Goal"}
+          onAction={() => setDialogOpen(true)}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {goals.map((goal, i) => {

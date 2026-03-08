@@ -13,6 +13,8 @@ import {
   Lightbulb, Sparkles, Plus, Loader2, CheckCircle2, ArrowRight, Trash2,
 } from "lucide-react";
 import FileUploadZone from "@/components/ideas/FileUploadZone";
+import EmptyState from "@/components/shared/EmptyState";
+import ErrorState from "@/components/shared/ErrorState";
 
 type Idea = Tables<"ideas">;
 type AiTask = { title: string; description?: string; priority: string };
@@ -26,6 +28,7 @@ const Ideas = () => {
   const [newText, setNewText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [error, setError] = useState(false);
 
   const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
     raw: { label: t("draft"), color: "bg-muted/20 text-muted-foreground border-muted/30", icon: <Lightbulb className="h-3 w-3" /> },
@@ -47,8 +50,14 @@ const Ideas = () => {
 
   const loadIdeas = async () => {
     if (!projectId) return;
-    const { data } = await supabase.from("ideas").select("*").eq("project_id", projectId).order("created_at", { ascending: false });
-    setIdeas(data || []);
+    setError(false);
+    try {
+      const { data, error: err } = await supabase.from("ideas").select("*").eq("project_id", projectId).order("created_at", { ascending: false });
+      if (err) throw err;
+      setIdeas(data || []);
+    } catch {
+      setError(true);
+    }
   };
 
   useEffect(() => { loadIdeas(); }, [projectId]);
@@ -121,12 +130,15 @@ const Ideas = () => {
 
       {projectId && <FileUploadZone projectId={projectId} onComplete={loadIdeas} />}
 
+      {error && <ErrorState onRetry={loadIdeas} />}
+
       <div className="space-y-4">
-        {ideas.length === 0 && (
-          <div className="text-center py-12">
-            <Lightbulb className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-muted-foreground text-sm">{t("noIdeasYet")}</p>
-          </div>
+        {!error && ideas.length === 0 && (
+          <EmptyState
+            icon={Lightbulb}
+            title={t("noIdeasYet")}
+            description={isRtl ? "الصق بعض الملاحظات أعلاه للبدء" : "Paste some notes above to get started"}
+          />
         )}
 
         {ideas.map((idea) => {
