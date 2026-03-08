@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, FileBarChart, Sparkles, AlertTriangle, CheckCircle2, TrendingUp, Heart } from "lucide-react";
+import EmptyState from "@/components/shared/EmptyState";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 type Report = Tables<"reports">;
@@ -139,10 +140,11 @@ const Reports = () => {
 
       <div className="space-y-4">
         {reports.length === 0 && (
-          <div className="text-center py-12">
-            <FileBarChart className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-muted-foreground text-sm">{t("noReports")}</p>
-          </div>
+          <EmptyState
+            icon={FileBarChart}
+            title={t("noReports")}
+            description={isRtl ? "أنشئ تقريراً يومياً أو أسبوعياً أعلاه" : "Generate a daily or weekly report above"}
+          />
         )}
 
         {reports.map((report) => {
