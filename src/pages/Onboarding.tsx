@@ -23,20 +23,48 @@ const Onboarding = () => {
     t("aiIntro") || "AI Intro",
   ];
 
+  const [hasProject, setHasProject] = useState<boolean | null>(null);
+
   useEffect(() => {
     const checkOnboarding = async () => {
       if (!user) return;
-      const { data } = await supabase
+
+      // Check if onboarding already completed
+      const { data: profile } = await supabase
         .from("profiles")
         .select("onboarding_completed")
         .eq("user_id", user.id)
         .maybeSingle();
-      if (data?.onboarding_completed) navigate("/dashboard", { replace: true });
+      if (profile?.onboarding_completed) {
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+
+      // Check if user already belongs to a project (invited member)
+      const { data: memberships } = await supabase
+        .from("project_members")
+        .select("id")
+        .eq("user_id", user.id)
+        .limit(1);
+
+      const { data: ownedProjects } = await supabase
+        .from("projects")
+        .select("id")
+        .eq("owner_id", user.id)
+        .limit(1);
+
+      const alreadyHasProject = (memberships && memberships.length > 0) || (ownedProjects && ownedProjects.length > 0);
+      setHasProject(alreadyHasProject);
     };
     checkOnboarding();
   }, [user, navigate]);
 
-  const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
+  // If user already has a project, only show Profile + AI Intro
+  const FILTERED_STEPS = hasProject
+    ? [STEPS[0], STEPS[3]]
+    : STEPS;
+
+  const next = () => setStep((s) => Math.min(s + 1, FILTERED_STEPS.length - 1));
   const back = () => setStep((s) => Math.max(s - 1, 0));
 
   const finish = async () => {
@@ -48,15 +76,35 @@ const Onboarding = () => {
     navigate("/dashboard", { replace: true });
   };
 
+  if (hasProject === null) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  const renderStep = () => {
+    if (hasProject) {
+      // Simplified flow: Profile → AI Intro
+      if (step === 0) return <ProfileStep onNext={next} />;
+      if (step === 1) return <AIIntroStep onFinish={finish} onBack={back} />;
+    } else {
+      // Full flow: Profile → Project → Invite → AI Intro
+      if (step === 0) return <ProfileStep onNext={next} />;
+      if (step === 1) return <ProjectStep onNext={next} onBack={back} onProjectCreated={setProjectId} />;
+      if (step === 2) return <InviteStep onNext={next} onBack={back} projectId={projectId} />;
+      if (step === 3) return <AIIntroStep onFinish={finish} onBack={back} />;
+    }
+    return null;
+  };
+
   return (
     <div className="min-h-screen cosmic-bg flex items-center justify-center p-4" dir={dir}>
       <div className="w-full max-w-lg">
-        <OnboardingProgress steps={STEPS} current={step} />
+        <OnboardingProgress steps={FILTERED_STEPS} current={step} />
         <div className="glass-strong p-8 mt-6">
-          {step === 0 && <ProfileStep onNext={next} />}
-          {step === 1 && <ProjectStep onNext={next} onBack={back} onProjectCreated={setProjectId} />}
-          {step === 2 && <InviteStep onNext={next} onBack={back} projectId={projectId} />}
-          {step === 3 && <AIIntroStep onFinish={finish} onBack={back} />}
+          {renderStep()}
         </div>
       </div>
     </div>
