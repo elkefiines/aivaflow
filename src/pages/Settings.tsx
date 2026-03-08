@@ -22,6 +22,7 @@ import {
 import ThemeSelector from "@/components/settings/ThemeSelector";
 import ExportImport from "@/components/settings/ExportImport";
 import TagManager from "@/components/tags/TagManager";
+import SaveAsTemplate from "@/components/projects/SaveAsTemplate";
 
 type Profile = Tables<"profiles">;
 type Project = Tables<"projects">;
@@ -235,6 +236,9 @@ const Settings = () => {
 
           {/* Tag Management */}
           {projectId && <TagManager mode="manage" />}
+
+          {/* Save as Template */}
+          {projectId && <SaveAsTemplate />}
 
           {/* Danger Zone */}
           {projectId && (

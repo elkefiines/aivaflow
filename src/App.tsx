@@ -31,6 +31,7 @@ import Goals from "./pages/Goals";
 import Automations from "./pages/Automations";
 import TeamMood from "./pages/TeamMood";
 import MyStats from "./pages/MyStats";
+import AdminPanel from "./pages/AdminPanel";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => (
               <Route path="/automations" element={<Automations />} />
               <Route path="/team-mood" element={<TeamMood />} />
               <Route path="/my-stats" element={<MyStats />} />
+              <Route path="/admin" element={<AdminPanel />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
