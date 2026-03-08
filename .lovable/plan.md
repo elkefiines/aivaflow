@@ -1,87 +1,19 @@
-
-
 # خطة تطويرية شاملة لمنصة AIVA Flow
 
-## الميزات الحالية
-Dashboard, Tasks (Kanban/List), Ideas, Messages (Realtime), Team, Reports, Settings, AI Chat, Notifications, i18n (AR/EN), Auth, Onboarding.
+## التقدم
 
----
+### ✅ المرحلة 1: Activity Log / سجل النشاطات
+- جدول `activity_logs` مع RLS وتريغرز تلقائية
+- تريغرز: إنشاء/تعديل/حذف مهام، انضمام أعضاء، إضافة أفكار
+- مكون `ActivityTimeline` في Dashboard مع Realtime
+- ترجمات EN/AR
 
-## الإضافات المقترحة (مرتبة حسب التأثير)
-
-### 1. Activity Log / سجل النشاطات
-- جدول `activity_logs` يسجل كل عملية (إنشاء مهمة، تعديل، حذف، دعوة عضو...)
-- Timeline view في Dashboard يعرض آخر النشاطات
-- فلترة حسب النوع والعضو والتاريخ
-- **التأثير:** شفافية كاملة لما يحدث في المشروع
-
-### 2. Task Comments & Attachments / تعليقات ومرفقات المهام
-- جدول `task_comments` مرتبط بالمهام
-- إمكانية إرفاق ملفات على كل مهمة عبر Storage
-- عرض التعليقات داخل `TaskEditDialog`
-- **التأثير:** تواصل أفضل حول المهام بدل الاعتماد على الرسائل فقط
-
-### 3. Calendar View / عرض التقويم
-- صفحة `/calendar` جديدة تعرض المهام حسب `due_date`
-- عرض شهري/أسبوعي مع drag-and-drop لتغيير التواريخ
-- ألوان حسب الأولوية والحالة
-- **التأثير:** رؤية بصرية واضحة للجدول الزمني
-
-### 4. AI Smart Suggestions / اقتراحات ذكية
-- زر "Suggest" في صفحة المهام يستخدم AI لتحليل المهام الحالية واقتراح:
-  - توزيع أفضل للمهام على الأعضاء
-  - تقدير وقت الإنجاز
-  - تحديد المهام المتأخرة والمخاطر
-- Edge function جديدة `ai-suggest`
-- **التأثير:** قيمة مضافة حقيقية كمنصة AI-first
-
-### 5. Project Templates / قوالب المشاريع
-- عند إنشاء مشروع جديد، اختيار قالب جاهز (Software, Marketing, Event...)
-- كل قالب ينشئ مهام وتصنيفات افتراضية
-- **التأثير:** تسريع بدء المشاريع الجديدة
-
-### 6. Dashboard Widgets / ويدجتات قابلة للتخصيص
-- اختيار وترتيب الويدجتات في Dashboard (drag-and-drop)
-- ويدجتات: مخطط الإنجاز، آخر الرسائل، المهام القادمة، نشاط الفريق
-- حفظ التخصيص في `profiles`
-- **التأثير:** تجربة شخصية لكل مستخدم
-
-### 7. Time Tracking / تتبع الوقت
-- جدول `time_entries` مرتبط بالمهام
-- زر Start/Stop timer على كل مهمة
-- تقرير ساعات العمل لكل عضو في صفحة Reports
-- **التأثير:** إدارة إنتاجية الفريق
-
-### 8. Tags & Labels System / نظام وسوم متقدم
-- جدول `tags` منفصل مع ألوان قابلة للتخصيص
-- ربط Tags بالمهام والأفكار
-- فلترة متقدمة حسب Tags في كل الصفحات
-- **التأثير:** تنظيم أفضل عبر المشروع
-
-### 9. Email Notifications / إشعارات بريدية
-- Edge function ترسل إيميل عند: تعيين مهمة، رسالة جديدة، دعوة فريق
-- إعدادات تحكم في الإشعارات البريدية في Settings
-- **التأثير:** عدم تفويت التحديثات المهمة
-
-### 10. Dark/Light Theme Toggle / تبديل السمة
-- زر تبديل في Header بين الوضع الداكن والفاتح
-- حفظ التفضيل في `profiles` + localStorage
-- **التأثير:** راحة بصرية وتجربة مخصصة
-
----
-
-## ترتيب التنفيذ المقترح
-
-| المرحلة | الميزة | التعقيد |
-|---------|--------|---------|
-| 1 | Activity Log | متوسط |
-| 2 | Task Comments & Attachments | متوسط |
-| 3 | Calendar View | عالي |
-| 4 | AI Smart Suggestions | متوسط |
-| 5 | Dark/Light Theme | منخفض |
-| 6 | Project Templates | متوسط |
-| 7 | Time Tracking | عالي |
-| 8 | Tags System | متوسط |
-| 9 | Dashboard Widgets | عالي |
-| 10 | Email Notifications | متوسط |
-
+### 🔲 المرحلة 2: Task Comments & Attachments
+### 🔲 المرحلة 3: Calendar View
+### 🔲 المرحلة 4: AI Smart Suggestions
+### 🔲 المرحلة 5: Dark/Light Theme
+### 🔲 المرحلة 6: Project Templates
+### 🔲 المرحلة 7: Time Tracking
+### 🔲 المرحلة 8: Tags System
+### 🔲 المرحلة 9: Dashboard Widgets
+### 🔲 المرحلة 10: Email Notifications

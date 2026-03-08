@@ -320,6 +320,15 @@ export const translations: Record<string, Record<string, string>> = {
     featureIdeaExec: "Idea to Execution",
     featureIdeaExecDesc: "Type a rough idea, and AIVA converts it into epics, tasks, and subtasks with AI confidence scores.",
     coreFeature: "Core Feature",
+
+    // Activity Log
+    activityLog: "Activity Log",
+    noActivityYet: "No activity yet",
+    activityCreatedTask: "created task",
+    activityAddedIdea: "added idea",
+    activityMovedTask: "moved task",
+    activityDeletedTask: "deleted task",
+    activityJoinedProject: "joined the project",
   },
   ar: {
     dashboard: "لوحة التحكم",
@@ -630,6 +639,15 @@ export const translations: Record<string, Record<string, string>> = {
     featureIdeaExec: "من الفكرة إلى التنفيذ",
     featureIdeaExecDesc: "اكتب فكرة أولية وAIVA يحولها إلى ملاحم ومهام ومهام فرعية مع درجات ثقة.",
     coreFeature: "ميزة أساسية",
+
+    // Activity Log
+    activityLog: "سجل النشاطات",
+    noActivityYet: "لا توجد نشاطات بعد",
+    activityCreatedTask: "أنشأ مهمة",
+    activityAddedIdea: "أضاف فكرة",
+    activityMovedTask: "نقل مهمة",
+    activityDeletedTask: "حذف مهمة",
+    activityJoinedProject: "انضم للمشروع",
   },
 } as const;
 

@@ -6,10 +6,11 @@ import { useActiveProject } from "@/hooks/useActiveProject";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/useLanguage";
 import { motion, useInView } from "framer-motion";
-import { AlertTriangle, Clock, Moon, Shield, ChevronRight, Users, ChevronLeft } from "lucide-react";
+import { AlertTriangle, Clock, Moon, Shield, ChevronRight, Users, ChevronLeft, Activity } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import ActivityTimeline from "@/components/dashboard/ActivityTimeline";
 
 type Task = Tables<"tasks">;
 
@@ -314,9 +315,9 @@ const Dashboard = () => {
         </motion.div>
       </div>
 
-      {/* Recent Tasks & Team */}
+      {/* Recent Tasks, Team & Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <motion.div variants={item} className="lg:col-span-8 glass p-4 rounded-xl">
+        <motion.div variants={item} className="lg:col-span-5 glass p-4 rounded-xl">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-xs font-medium text-foreground">{t("recentTasks")}</h4>
             <button className="text-[10px] text-primary hover:underline" onClick={() => navigate("/tasks")}>{t("viewAll")}</button>
@@ -337,7 +338,7 @@ const Dashboard = () => {
           </div>
         </motion.div>
 
-        <motion.div variants={item} className="lg:col-span-4 glass p-4 rounded-xl">
+        <motion.div variants={item} className="lg:col-span-3 glass p-4 rounded-xl">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-primary" />
@@ -360,6 +361,16 @@ const Dashboard = () => {
             })}
           </div>
         </motion.div>
+
+        {projectId && (
+          <motion.div variants={item} className="lg:col-span-4 glass p-4 rounded-xl">
+            <div className="flex items-center gap-2 mb-3">
+              <Activity className="w-4 h-4 text-primary" />
+              <h4 className="text-xs font-medium text-foreground">{t("activityLog")}</h4>
+            </div>
+            <ActivityTimeline projectId={projectId} memberNames={Object.fromEntries(teamMembers.map(m => [m.user_id, m.display_name]))} />
+          </motion.div>
+        )}
       </div>
     </motion.div>
   );
