@@ -189,6 +189,11 @@ const Settings = () => {
               </Button>
             </CardContent>
           </Card>
+          <Card className="border-border/40 bg-card/80">
+            <CardContent className="pt-6">
+              <ThemeSelector />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="project" className="mt-4 space-y-4">
