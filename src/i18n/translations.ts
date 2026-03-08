@@ -396,6 +396,33 @@ export const translations: Record<string, Record<string, string>> = {
     // Subtasks
     subtasks: "Subtasks",
     addSubtask: "Add subtask…",
+
+    // Analytics
+    analytics: "Analytics",
+    analyticsDesc: "Advanced project analytics and performance insights",
+    velocity: "Velocity",
+    burndown: "Burndown",
+    timeDistribution: "Time Distribution",
+    priorityDist: "Priority Distribution",
+    velocityChart: "Task Velocity (14 days)",
+    burndownChart: "Burndown Chart (30 days)",
+    timeByMember: "Time by Member",
+    totalHours: "Total Hours",
+
+    // Focus Mode
+    focus: "Focus",
+    focusMode: "Focus Mode",
+    focusModeDesc: "Eliminate distractions with a Pomodoro timer",
+    workSession: "Work",
+    breakSession: "Break",
+    pause: "Pause",
+    start: "Start",
+    reset: "Reset",
+    completedCycles: "Completed cycles",
+
+    // Export
+    exportCSV: "Export CSV",
+    exportSuccess: "Exported successfully",
   },
   ar: {
     dashboard: "لوحة التحكم",
