@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import TaskComments from "@/components/tasks/TaskComments";
+import TaskTimer from "@/components/tasks/TaskTimer";
 
 type Task = Tables<"tasks">;
 
@@ -114,7 +115,10 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
       <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto" dir={dir}>
         <DialogHeader>
           <DialogTitle className="font-display">{t("editTask") || "Edit Task"}</DialogTitle>
-          <DialogDescription className="text-muted-foreground text-sm">{t("updateTaskDetails") || "Update task details, assign members, and set due dates."}</DialogDescription>
+          <div className="flex items-center justify-between">
+            <DialogDescription className="text-muted-foreground text-sm">{t("updateTaskDetails") || "Update task details, assign members, and set due dates."}</DialogDescription>
+            <TaskTimer taskId={task.id} />
+          </div>
         </DialogHeader>
         <div className="space-y-4 pt-2">
           <div className="space-y-2">
