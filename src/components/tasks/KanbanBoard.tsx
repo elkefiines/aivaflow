@@ -60,13 +60,13 @@ const KanbanBoard = ({ tasks, onStatusChange, onTaskClick, statuses, memberNames
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div className="flex gap-4 min-w-[800px] lg:min-w-0 lg:grid lg:grid-cols-5">
       {statuses.map((status) => {
         const columnTasks = tasks.filter((t) => t.status === status);
         return (
           <div
             key={status}
-            className={`rounded-xl border p-3 min-h-[200px] ${statusColors[status] || ""}`}
+            className={`rounded-xl border p-3 min-h-[200px] min-w-[200px] lg:min-w-0 flex-1 lg:flex-none ${statusColors[status] || ""}`}
             onDrop={(e) => handleDrop(e, status)}
             onDragOver={handleDragOver}
           >
@@ -94,7 +94,7 @@ const KanbanBoard = ({ tasks, onStatusChange, onTaskClick, statuses, memberNames
                       {task.description && (
                         <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{task.description}</p>
                       )}
-                      <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center gap-2 mt-2 flex-wrap">
                         <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${priorityBadge[task.priority || "medium"]}`}>
                           {task.priority}
                         </Badge>

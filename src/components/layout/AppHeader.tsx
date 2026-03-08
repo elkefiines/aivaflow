@@ -30,26 +30,26 @@ const AppHeader = () => {
   };
 
   return (
-    <header className="h-14 border-b border-border/40 flex items-center justify-between px-4 bg-card/30 backdrop-blur-sm" dir={dir}>
-      <div className="flex items-center gap-3">
+    <header className="h-14 border-b border-border/40 flex items-center justify-between px-2 sm:px-4 bg-card/30 backdrop-blur-sm" dir={dir}>
+      <div className="flex items-center gap-2 sm:gap-3">
         <SidebarTrigger />
         <ProjectSwitcher />
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-3">
         <ChatPanel />
         <NotificationBell />
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
+        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
           </span>
           <Sparkles className="h-3.5 w-3.5 text-primary" />
-          <span className="text-xs text-primary font-medium hidden sm:block">{t("aiReady")}</span>
+          <span className="text-xs text-primary font-medium hidden md:block">{t("aiReady")}</span>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <Avatar className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
+              <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
                 <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">{initials}</AvatarFallback>
               </Avatar>
             </Button>

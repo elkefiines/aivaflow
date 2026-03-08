@@ -103,17 +103,17 @@ const Settings = () => {
     .split(/[\s@]/).slice(0, 2).map((s: string) => s[0]?.toUpperCase()).join("");
 
   return (
-    <div className="space-y-6 max-w-2xl" dir={dir}>
+    <div className="space-y-4 sm:space-y-6 max-w-2xl" dir={dir}>
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">{t("settingsTitle")}</h1>
+        <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">{t("settingsTitle")}</h1>
         <p className="text-muted-foreground text-sm mt-1">{t("settingsSubtitle")}</p>
       </div>
 
       <Tabs defaultValue="profile" dir={dir}>
-        <TabsList className="bg-card/60 border border-border/30">
-          <TabsTrigger value="profile">{t("profile")}</TabsTrigger>
-          <TabsTrigger value="project">{t("project")}</TabsTrigger>
-          <TabsTrigger value="language">{t("language")}</TabsTrigger>
+        <TabsList className="bg-card/60 border border-border/30 w-full sm:w-auto">
+          <TabsTrigger value="profile" className="flex-1 sm:flex-none">{t("profile")}</TabsTrigger>
+          <TabsTrigger value="project" className="flex-1 sm:flex-none">{t("project")}</TabsTrigger>
+          <TabsTrigger value="language" className="flex-1 sm:flex-none">{t("language")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="mt-4">
@@ -123,7 +123,7 @@ const Settings = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
+                <Avatar className="h-14 w-14 sm:h-16 sm:w-16">
                   {avatarUrl && <AvatarImage src={avatarUrl} />}
                   <AvatarFallback className="bg-primary/10 text-primary text-lg font-semibold">{initials}</AvatarFallback>
                 </Avatar>
@@ -201,7 +201,7 @@ const Settings = () => {
               <div className="space-y-2">
                 <Label>{t("language")}</Label>
                 <Select value={lang} onValueChange={(v) => setLang(v as "en" | "ar")}>
-                  <SelectTrigger className="w-48 bg-background/50 border-border/50">
+                  <SelectTrigger className="w-full sm:w-48 bg-background/50 border-border/50">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

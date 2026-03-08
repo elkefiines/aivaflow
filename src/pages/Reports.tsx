@@ -43,21 +43,12 @@ const Reports = () => {
   const [tasks, setTasks] = useState<{ status: string | null; updated_at: string }[]>([]);
 
   const statusLabels: Record<string, string> = {
-    backlog: t("backlog"),
-    todo: t("todo"),
-    in_progress: t("inProgress"),
-    review: t("review"),
-    done: t("done"),
+    backlog: t("backlog"), todo: t("todo"), in_progress: t("inProgress"), review: t("review"), done: t("done"),
   };
 
   const loadReports = async () => {
     if (!projectId) return;
-    const { data } = await supabase
-      .from("reports")
-      .select("*")
-      .eq("project_id", projectId)
-      .order("created_at", { ascending: false })
-      .limit(10);
+    const { data } = await supabase.from("reports").select("*").eq("project_id", projectId).order("created_at", { ascending: false }).limit(10);
     setReports(data || []);
   };
 
@@ -72,9 +63,7 @@ const Reports = () => {
   const generateReport = async (type: "daily" | "weekly") => {
     if (!projectId) return;
     setGenerating(true);
-    const { error } = await supabase.functions.invoke("generate-report", {
-      body: { project_id: projectId, type },
-    });
+    const { error } = await supabase.functions.invoke("generate-report", { body: { project_id: projectId, type } });
     setGenerating(false);
     if (error) { toast.error("Failed to generate report"); return; }
     toast.success("Report generated!");
@@ -105,20 +94,20 @@ const Reports = () => {
   };
 
   return (
-    <div className="space-y-6" dir={dir}>
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6" dir={dir}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">{t("reportsTitle")}</h1>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">{t("reportsTitle")}</h1>
           <p className="text-muted-foreground text-sm mt-1">{t("reportsSubtitle")}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => generateReport("daily")} disabled={generating}>
             {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin me-1.5" /> : <Sparkles className="h-3.5 w-3.5 me-1.5" />}
-            {t("dailyReport")}
+            <span className="hidden sm:inline">{t("dailyReport")}</span><span className="sm:hidden">{t("daily") || "Daily"}</span>
           </Button>
           <Button size="sm" onClick={() => generateReport("weekly")} disabled={generating}>
             {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin me-1.5" /> : <Sparkles className="h-3.5 w-3.5 me-1.5" />}
-            {t("weeklyReport")}
+            <span className="hidden sm:inline">{t("weeklyReport")}</span><span className="sm:hidden">{t("weekly") || "Weekly"}</span>
           </Button>
         </div>
       </div>
@@ -131,15 +120,12 @@ const Reports = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-48">
+          <div className="h-40 sm:h-48">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={velocityData}>
-                <XAxis dataKey="day" tick={{ fill: "hsl(228, 20%, 50%)", fontSize: 11 }} axisLine={false} tickLine={false} reversed={isRtl} />
-                <YAxis tick={{ fill: "hsl(228, 20%, 50%)", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} orientation={isRtl ? "right" : "left"} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: "hsl(230, 50%, 9%)", border: "1px solid hsl(233, 50%, 23%)", borderRadius: "8px", fontSize: 12 }}
-                  labelStyle={{ color: "hsl(228, 33%, 95%)" }}
-                />
+                <XAxis dataKey="day" tick={{ fill: "hsl(228, 20%, 50%)", fontSize: 10 }} axisLine={false} tickLine={false} reversed={isRtl} interval="preserveStartEnd" />
+                <YAxis tick={{ fill: "hsl(228, 20%, 50%)", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} orientation={isRtl ? "right" : "left"} width={30} />
+                <Tooltip contentStyle={{ backgroundColor: "hsl(230, 50%, 9%)", border: "1px solid hsl(233, 50%, 23%)", borderRadius: "8px", fontSize: 12 }} labelStyle={{ color: "hsl(228, 33%, 95%)" }} />
                 <Bar dataKey="completed" radius={[4, 4, 0, 0]}>
                   {velocityData.map((_, i) => (
                     <Cell key={i} fill="hsl(233, 90%, 47%)" fillOpacity={0.8} />
@@ -172,7 +158,7 @@ const Reports = () => {
           return (
             <Card key={report.id} className="border-border/40 bg-card/80">
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <CardTitle className="text-base font-display">{content.title}</CardTitle>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -196,7 +182,7 @@ const Reports = () => {
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={statusData} layout="vertical">
                         <XAxis type="number" tick={{ fill: "hsl(228, 20%, 50%)", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                        <YAxis type="category" dataKey="name" tick={{ fill: "hsl(228, 20%, 50%)", fontSize: 11 }} axisLine={false} tickLine={false} width={80} orientation={isRtl ? "right" : "left"} />
+                        <YAxis type="category" dataKey="name" tick={{ fill: "hsl(228, 20%, 50%)", fontSize: 10 }} axisLine={false} tickLine={false} width={70} orientation={isRtl ? "right" : "left"} />
                         <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                           {statusData.map((entry, i) => (
                             <Cell key={i} fill={entry.fill} fillOpacity={0.8} />
