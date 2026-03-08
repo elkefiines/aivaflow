@@ -281,7 +281,7 @@ const Team = () => {
                         <Badge variant="outline" className="text-[10px] mt-0.5">{m.role || "member"}</Badge>
                       </div>
                     </div>
-                    {isOwner && m.user_id !== user?.id && (
+                    {isOwner && m.user_id !== user?.id && !m.id.startsWith("owner-") && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={(e) => e.stopPropagation()}>
