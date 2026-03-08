@@ -392,6 +392,10 @@ export const translations: Record<string, Record<string, string>> = {
     searchPlaceholder: "Search tasks, ideas, messages…",
     searching: "Searching…",
     noResults: "No results found",
+
+    // Subtasks
+    subtasks: "Subtasks",
+    addSubtask: "Add subtask…",
   },
   ar: {
     dashboard: "لوحة التحكم",
