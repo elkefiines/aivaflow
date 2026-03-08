@@ -23,20 +23,48 @@ const Onboarding = () => {
     t("aiIntro") || "AI Intro",
   ];
 
+  const [hasProject, setHasProject] = useState<boolean | null>(null);
+
   useEffect(() => {
     const checkOnboarding = async () => {
       if (!user) return;
-      const { data } = await supabase
+
+      // Check if onboarding already completed
+      const { data: profile } = await supabase
         .from("profiles")
         .select("onboarding_completed")
         .eq("user_id", user.id)
         .maybeSingle();
-      if (data?.onboarding_completed) navigate("/dashboard", { replace: true });
+      if (profile?.onboarding_completed) {
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+
+      // Check if user already belongs to a project (invited member)
+      const { data: memberships } = await supabase
+        .from("project_members")
+        .select("id")
+        .eq("user_id", user.id)
+        .limit(1);
+
+      const { data: ownedProjects } = await supabase
+        .from("projects")
+        .select("id")
+        .eq("owner_id", user.id)
+        .limit(1);
+
+      const alreadyHasProject = (memberships && memberships.length > 0) || (ownedProjects && ownedProjects.length > 0);
+      setHasProject(alreadyHasProject);
     };
     checkOnboarding();
   }, [user, navigate]);
 
-  const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
+  // If user already has a project, only show Profile + AI Intro
+  const FILTERED_STEPS = hasProject
+    ? [STEPS[0], STEPS[3]]
+    : STEPS;
+
+  const next = () => setStep((s) => Math.min(s + 1, FILTERED_STEPS.length - 1));
   const back = () => setStep((s) => Math.max(s - 1, 0));
 
   const finish = async () => {

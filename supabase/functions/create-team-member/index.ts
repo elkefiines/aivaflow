@@ -147,6 +147,12 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Mark onboarding as complete so invited members go straight to dashboard
+    await supabaseAdmin
+      .from("profiles")
+      .update({ onboarding_completed: true })
+      .eq("user_id", targetUserId);
+
     return new Response(JSON.stringify({ success: true, userId: targetUserId }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
