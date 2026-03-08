@@ -183,7 +183,6 @@ export const translations: Record<string, Record<string, string>> = {
     failedToRestoreProject: "Failed to restore project",
     deleteProjectConfirm: "Are you sure you want to permanently delete this project? This cannot be undone.",
     archive: "Archive",
-    saving: "Saving…",
     save: "Save",
     deleting: "Deleting…",
 
@@ -565,7 +564,6 @@ export const translations: Record<string, Record<string, string>> = {
     failedToRestoreProject: "فشل في استعادة المشروع",
     deleteProjectConfirm: "هل أنت متأكد من حذف هذا المشروع نهائياً؟ لا يمكن التراجع عن هذا الإجراء.",
     archive: "أرشفة",
-    saving: "جاري الحفظ…",
     save: "حفظ",
     deleting: "جاري الحذف…",
 
