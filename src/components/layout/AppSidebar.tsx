@@ -6,6 +6,7 @@ import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
 } from "@/components/ui/sidebar";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -18,10 +19,16 @@ const navItems = [
 
 const AppSidebar = () => {
   const { state } = useSidebar();
+  const { lang, t } = useLanguage();
   const collapsed = state === "collapsed";
+  const isRtl = lang === "ar";
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border/40">
+    <Sidebar 
+      collapsible="icon" 
+      side={isRtl ? "right" : "left"}
+      className={isRtl ? "border-l border-border/40" : "border-r border-border/40"}
+    >
       <div className="p-4 flex items-center gap-2">
         <FolderKanban className="h-7 w-7 text-primary shrink-0" />
         {!collapsed && (
@@ -32,15 +39,15 @@ const AppSidebar = () => {
       </div>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("navigation")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
+                  <SidebarMenuButton asChild tooltip={t(item.title.toLowerCase() as any)}>
                     <NavLink to={item.url} end className="hover:bg-accent/50" activeClassName="bg-accent text-primary font-medium">
                       <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      <span>{t(item.title.toLowerCase() as any)}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
