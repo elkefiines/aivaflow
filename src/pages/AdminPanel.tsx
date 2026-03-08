@@ -188,6 +188,13 @@ const AdminPanel = () => {
           <TabsList className="w-full justify-start">
             <TabsTrigger value="projects">{isRtl ? "المشاريع" : "Projects"}</TabsTrigger>
             <TabsTrigger value="users">{isRtl ? "المستخدمون" : "Users"}</TabsTrigger>
+            <TabsTrigger value="contacts" className="gap-1.5">
+              <Mail className="h-3.5 w-3.5" />
+              {isRtl ? "الرسائل" : "Contacts"}
+              {contacts.filter(c => c.status === "new").length > 0 && (
+                <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-4 min-w-4">{contacts.filter(c => c.status === "new").length}</Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="audit">{isRtl ? "سجل التدقيق" : "Audit Log"}</TabsTrigger>
           </TabsList>
 
