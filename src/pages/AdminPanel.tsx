@@ -9,12 +9,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 import {
   Shield, Users, FolderKanban, Activity, ListChecks, AlertTriangle,
-  ArrowLeft, ArrowRight, LogOut, BarChart3, TrendingUp, Clock, Mail, Eye, CheckCircle2
+  ArrowLeft, ArrowRight, LogOut, BarChart3, TrendingUp, Clock, Mail, Eye, CheckCircle2, Zap, Target
 } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { ar } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
+import { motion } from "framer-motion";
+
+const fadeIn = {
+  hidden: { opacity: 0, y: 16 },
+  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.06, duration: 0.4 } }),
+};
 
 const AdminPanel = () => {
   const { user, signOut } = useAuth();
@@ -87,7 +93,10 @@ const AdminPanel = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-muted-foreground animate-pulse">{isRtl ? "جاري التحميل..." : "Loading dashboard..."}</p>
+        </div>
       </div>
     );
   }
@@ -97,9 +106,9 @@ const AdminPanel = () => {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center text-center p-6" dir={dir}>
         <AlertTriangle className="h-20 w-20 text-destructive/40 mb-6" />
         <h2 className="text-2xl font-bold text-foreground mb-3">{isRtl ? "غير مصرح" : "Access Denied"}</h2>
-        <p className="text-muted-foreground mb-6 max-w-md">{isRtl ? "هذه الصفحة متاحة للمديرين فقط. تواصل مع المسؤول للحصول على صلاحيات." : "This page is restricted to administrators. Contact your admin for access."}</p>
+        <p className="text-muted-foreground mb-6 max-w-md">{isRtl ? "هذه الصفحة متاحة للمديرين فقط." : "This page is restricted to administrators."}</p>
         <Button onClick={() => navigate("/dashboard")} variant="outline">
-          <BackIcon className="h-4 w-4" />
+          <BackIcon className="h-4 w-4 me-2" />
           {isRtl ? "العودة للوحة التحكم" : "Back to Dashboard"}
         </Button>
       </div>
@@ -111,154 +120,237 @@ const AdminPanel = () => {
     return role?.role || "user";
   };
 
-  const recentProjects = [...projects].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 5);
   const last7daysLogs = recentLogs.filter(l => new Date(l.created_at) > subDays(new Date(), 7));
+
+  const statCards = [
+    { icon: FolderKanban, label: isRtl ? "المشاريع" : "Projects", value: stats.projects, gradient: "from-blue-500/10 to-blue-600/5", iconColor: "text-blue-500", borderColor: "border-blue-500/20" },
+    { icon: Users, label: isRtl ? "المستخدمون" : "Users", value: stats.users, gradient: "from-violet-500/10 to-violet-600/5", iconColor: "text-violet-500", borderColor: "border-violet-500/20" },
+    { icon: ListChecks, label: isRtl ? "المهام" : "Tasks", value: stats.tasks, gradient: "from-amber-500/10 to-amber-600/5", iconColor: "text-amber-500", borderColor: "border-amber-500/20" },
+    { icon: CheckCircle2, label: isRtl ? "المكتملة" : "Done", value: stats.doneTasks, gradient: "from-emerald-500/10 to-emerald-600/5", iconColor: "text-emerald-500", borderColor: "border-emerald-500/20" },
+    { icon: TrendingUp, label: isRtl ? "قيد التنفيذ" : "In Progress", value: stats.inProgress, gradient: "from-orange-500/10 to-orange-600/5", iconColor: "text-orange-500", borderColor: "border-orange-500/20" },
+    { icon: Clock, label: isRtl ? "متأخرة" : "Overdue", value: stats.overdue, gradient: "from-red-500/10 to-red-600/5", iconColor: "text-red-500", borderColor: "border-red-500/20" },
+  ];
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
-      {/* Top Bar */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
-              <BackIcon className="h-5 w-5" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Shield className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold text-foreground leading-tight">{isRtl ? "لوحة المدير" : "Admin Dashboard"}</h1>
-                <p className="text-xs text-muted-foreground leading-tight">{isRtl ? "إدارة شاملة للمنصة" : "Platform management"}</p>
-              </div>
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+        <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/20">
+              <Shield className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-foreground tracking-tight">{isRtl ? "لوحة المدير" : "Admin Dashboard"}</h1>
+              <p className="text-[11px] text-muted-foreground">{isRtl ? "إدارة شاملة للمنصة" : "Platform overview & management"}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <ThemeToggle />
-            <Button variant="ghost" size="icon" onClick={() => signOut()}>
+            <Button variant="ghost" size="icon" onClick={() => signOut()} className="text-muted-foreground hover:text-destructive">
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Overview Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {[
-            { icon: FolderKanban, label: isRtl ? "المشاريع" : "Projects", value: stats.projects, color: "text-primary" },
-            { icon: Users, label: isRtl ? "المستخدمون" : "Users", value: stats.users, color: "text-blue-500" },
-            { icon: ListChecks, label: isRtl ? "المهام" : "Total Tasks", value: stats.tasks, color: "text-amber-500" },
-            { icon: Activity, label: isRtl ? "المكتملة" : "Completed", value: stats.doneTasks, color: "text-green-500" },
-            { icon: TrendingUp, label: isRtl ? "قيد التنفيذ" : "In Progress", value: stats.inProgress, color: "text-orange-500" },
-            { icon: Clock, label: isRtl ? "متأخرة" : "Overdue", value: stats.overdue, color: "text-destructive" },
-          ].map((s, i) => (
-            <Card key={i} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <s.icon className={`h-5 w-5 ${s.color}`} />
-                  <span className="text-xs text-muted-foreground">{s.label}</span>
-                </div>
-                <p className="text-2xl font-bold text-foreground">{s.value}</p>
-              </CardContent>
-            </Card>
+      <main className="max-w-[1400px] mx-auto px-6 py-8 space-y-8">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {statCards.map((s, i) => (
+            <motion.div key={i} custom={i} variants={fadeIn} initial="hidden" animate="visible">
+              <Card className={`border ${s.borderColor} bg-gradient-to-br ${s.gradient} hover:scale-[1.02] transition-transform cursor-default`}>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className={`h-9 w-9 rounded-lg bg-background/80 flex items-center justify-center`}>
+                      <s.icon className={`h-4.5 w-4.5 ${s.iconColor}`} />
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold text-foreground tracking-tight">{s.value}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{s.label}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
         </div>
 
-        {/* Completion Rate */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-primary" />
-                <span className="font-semibold text-foreground">{isRtl ? "معدل الإنجاز العام" : "Overall Completion Rate"}</span>
-              </div>
-              <span className="text-2xl font-bold text-primary">{completionRate}%</span>
-            </div>
-            <Progress value={completionRate} className="h-3" />
-            <p className="text-xs text-muted-foreground mt-2">
-              {isRtl ? `${stats.doneTasks} من ${stats.tasks} مهمة مكتملة` : `${stats.doneTasks} of ${stats.tasks} tasks completed`}
-            </p>
-          </CardContent>
-        </Card>
+        {/* Completion Rate + Quick Stats Row */}
+        <div className="grid lg:grid-cols-3 gap-4">
+          <motion.div custom={6} variants={fadeIn} initial="hidden" animate="visible" className="lg:col-span-2">
+            <Card className="h-full">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Target className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground">{isRtl ? "معدل الإنجاز العام" : "Overall Completion Rate"}</p>
+                      <p className="text-xs text-muted-foreground">{isRtl ? `${stats.doneTasks} من ${stats.tasks} مهمة` : `${stats.doneTasks} of ${stats.tasks} tasks completed`}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-3xl font-bold text-primary">{completionRate}%</span>
+                  </div>
+                </div>
+                <Progress value={completionRate} className="h-3 rounded-full" />
+                <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-border/50">
+                  <div className="text-center">
+                    <p className="text-lg font-bold text-emerald-500">{stats.doneTasks}</p>
+                    <p className="text-[11px] text-muted-foreground">{isRtl ? "مكتملة" : "Completed"}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-lg font-bold text-orange-500">{stats.inProgress}</p>
+                    <p className="text-[11px] text-muted-foreground">{isRtl ? "قيد التنفيذ" : "In Progress"}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-lg font-bold text-red-500">{stats.overdue}</p>
+                    <p className="text-[11px] text-muted-foreground">{isRtl ? "متأخرة" : "Overdue"}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-        {/* Tabs Section */}
+          <motion.div custom={7} variants={fadeIn} initial="hidden" animate="visible">
+            <Card className="h-full">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Zap className="h-5 w-5 text-amber-500" />
+                  <p className="font-semibold text-foreground">{isRtl ? "نشاط سريع" : "Quick Activity"}</p>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">{isRtl ? "أنشطة آخر 7 أيام" : "Last 7 days activities"}</span>
+                    <Badge variant="secondary" className="font-bold">{last7daysLogs.length}</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">{isRtl ? "رسائل جديدة" : "New contacts"}</span>
+                    <Badge variant={contacts.filter(c => c.status === "new").length > 0 ? "destructive" : "secondary"} className="font-bold">
+                      {contacts.filter(c => c.status === "new").length}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">{isRtl ? "إجمالي المشاريع" : "Total projects"}</span>
+                    <Badge variant="secondary" className="font-bold">{stats.projects}</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">{isRtl ? "مستخدمون مسجلون" : "Registered users"}</span>
+                    <Badge variant="secondary" className="font-bold">{stats.users}</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Tabs */}
         <Tabs defaultValue="projects" dir={dir}>
-          <TabsList className="w-full justify-start">
-            <TabsTrigger value="projects">{isRtl ? "المشاريع" : "Projects"}</TabsTrigger>
-            <TabsTrigger value="users">{isRtl ? "المستخدمون" : "Users"}</TabsTrigger>
-            <TabsTrigger value="contacts" className="gap-1.5">
+          <TabsList className="w-full justify-start bg-muted/50 p-1 rounded-xl">
+            <TabsTrigger value="projects" className="rounded-lg gap-1.5 data-[state=active]:shadow-sm">
+              <FolderKanban className="h-3.5 w-3.5" />
+              {isRtl ? "المشاريع" : "Projects"}
+            </TabsTrigger>
+            <TabsTrigger value="users" className="rounded-lg gap-1.5 data-[state=active]:shadow-sm">
+              <Users className="h-3.5 w-3.5" />
+              {isRtl ? "المستخدمون" : "Users"}
+            </TabsTrigger>
+            <TabsTrigger value="contacts" className="rounded-lg gap-1.5 data-[state=active]:shadow-sm">
               <Mail className="h-3.5 w-3.5" />
               {isRtl ? "الرسائل" : "Contacts"}
               {contacts.filter(c => c.status === "new").length > 0 && (
-                <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-4 min-w-4">{contacts.filter(c => c.status === "new").length}</Badge>
+                <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-4 min-w-4 ms-1">{contacts.filter(c => c.status === "new").length}</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="audit">{isRtl ? "سجل التدقيق" : "Audit Log"}</TabsTrigger>
+            <TabsTrigger value="audit" className="rounded-lg gap-1.5 data-[state=active]:shadow-sm">
+              <Activity className="h-3.5 w-3.5" />
+              {isRtl ? "سجل التدقيق" : "Audit Log"}
+            </TabsTrigger>
           </TabsList>
 
           {/* Projects Tab */}
-          <TabsContent value="projects" className="mt-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              {projects.map(p => {
+          <TabsContent value="projects" className="mt-6">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {projects.map((p, i) => {
                 const projectTasks = recentLogs.filter(l => l.project_id === p.id).length;
+                const ownerProfile = profiles.find(pr => pr.user_id === p.owner_id);
                 return (
-                  <Card key={p.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style={{ backgroundColor: (p.color || "hsl(var(--primary))") + "20", color: p.color || "hsl(var(--primary))" }}>
-                            {p.icon || "📁"}
-                          </div>
-                          <div>
-                            <p className="font-semibold text-foreground">{p.name}</p>
-                            <p className="text-xs text-muted-foreground">{format(new Date(p.created_at), "yyyy-MM-dd")}</p>
+                  <motion.div key={p.id} custom={i} variants={fadeIn} initial="hidden" animate="visible">
+                    <Card className="hover:shadow-lg transition-all hover:border-primary/20 group">
+                      <CardContent className="p-5">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-11 h-11 rounded-xl flex items-center justify-center text-lg font-bold shadow-sm" style={{ backgroundColor: (p.color || "hsl(var(--primary))") + "15", color: p.color || "hsl(var(--primary))" }}>
+                              {p.name?.[0]?.toUpperCase() || "P"}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{p.name}</p>
+                              <p className="text-[11px] text-muted-foreground">{format(new Date(p.created_at), "MMM dd, yyyy")}</p>
+                            </div>
                           </div>
                         </div>
-                        <Badge variant="secondary" className="text-xs">
-                          {projectTasks} {isRtl ? "نشاط" : "activities"}
-                        </Badge>
-                      </div>
-                      {p.description && (
-                        <p className="text-xs text-muted-foreground line-clamp-2">{p.description}</p>
-                      )}
-                    </CardContent>
-                  </Card>
+                        {p.description && (
+                          <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{p.description}</p>
+                        )}
+                        <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <Users className="h-3 w-3" />
+                            {ownerProfile?.display_name || (isRtl ? "مالك" : "Owner")}
+                          </div>
+                          <Badge variant="outline" className="text-[10px]">
+                            {projectTasks} {isRtl ? "نشاط" : "activities"}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 );
               })}
               {projects.length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-8 col-span-2">{isRtl ? "لا توجد مشاريع" : "No projects yet"}</p>
+                <div className="col-span-full text-center py-16">
+                  <FolderKanban className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">{isRtl ? "لا توجد مشاريع بعد" : "No projects yet"}</p>
+                </div>
               )}
             </div>
           </TabsContent>
 
           {/* Users Tab */}
-          <TabsContent value="users" className="mt-4">
+          <TabsContent value="users" className="mt-6">
             <Card>
               <CardContent className="p-0">
-                <div className="divide-y divide-border">
-                  {profiles.map(p => {
+                <div className="divide-y divide-border/50">
+                  {profiles.map((p, i) => {
                     const role = getRoleForUser(p.user_id);
                     return (
-                      <div key={p.id} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
+                      <motion.div key={p.id} custom={i} variants={fadeIn} initial="hidden" animate="visible"
+                        className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
+                      >
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-sm font-bold text-primary ring-2 ring-primary/10">
                             {(p.display_name || "U")[0].toUpperCase()}
                           </div>
                           <div>
                             <p className="text-sm font-medium text-foreground">{p.display_name || (isRtl ? "مستخدم" : "User")}</p>
-                            <p className="text-xs text-muted-foreground">{format(new Date(p.created_at), "yyyy-MM-dd")}</p>
+                            <p className="text-[11px] text-muted-foreground">{isRtl ? "انضم في" : "Joined"} {format(new Date(p.created_at), "MMM dd, yyyy")}</p>
                           </div>
                         </div>
-                        <Badge variant={role === "admin" ? "default" : "secondary"} className="text-xs capitalize">
-                          {role}
+                        <Badge 
+                          variant={role === "admin" ? "default" : "secondary"} 
+                          className={`text-xs capitalize ${role === "admin" ? "bg-primary/90" : ""}`}
+                        >
+                          {role === "admin" ? (
+                            <><Shield className="h-3 w-3 me-1" />{role}</>
+                          ) : role}
                         </Badge>
-                      </div>
+                      </motion.div>
                     );
                   })}
                   {profiles.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-8">{isRtl ? "لا يوجد مستخدمون" : "No users"}</p>
+                    <div className="text-center py-16">
+                      <Users className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
+                      <p className="text-sm text-muted-foreground">{isRtl ? "لا يوجد مستخدمون" : "No users yet"}</p>
+                    </div>
                   )}
                 </div>
               </CardContent>
@@ -266,50 +358,51 @@ const AdminPanel = () => {
           </TabsContent>
 
           {/* Contacts Tab */}
-          <TabsContent value="contacts" className="mt-4">
+          <TabsContent value="contacts" className="mt-6">
             <Card>
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">{isRtl ? "رسائل التواصل" : "Contact Submissions"}</CardTitle>
-                  <Badge variant="outline" className="text-xs">
-                    {contacts.length} {isRtl ? "رسالة" : "total"}
-                  </Badge>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-primary" />
+                    {isRtl ? "رسائل التواصل" : "Contact Submissions"}
+                  </CardTitle>
+                  <Badge variant="outline" className="text-xs">{contacts.length} {isRtl ? "رسالة" : "total"}</Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                <div className="space-y-3 max-h-[600px] overflow-y-auto">
                   {contacts.map((c: any) => (
-                    <div key={c.id} className="p-4 rounded-lg border border-border/30 hover:bg-muted/20 transition-colors">
+                    <div key={c.id} className={`p-4 rounded-xl border transition-all hover:shadow-sm ${c.status === "new" ? "border-primary/30 bg-primary/[0.02]" : "border-border/30 hover:bg-muted/20"}`}>
                       <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
                             {(c.name || "?")[0].toUpperCase()}
                           </div>
                           <div>
                             <p className="text-sm font-medium text-foreground">{c.name}</p>
-                            <p className="text-xs text-muted-foreground">{c.email}</p>
+                            <p className="text-[11px] text-muted-foreground">{c.email}</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           <Badge variant={c.type === "demo" ? "default" : "secondary"} className="text-[10px]">
-                            {c.type === "demo" ? (isRtl ? "عرض تجريبي" : "Demo") : (isRtl ? "تواصل" : "Contact")}
+                            {c.type === "demo" ? (isRtl ? "عرض" : "Demo") : (isRtl ? "تواصل" : "Contact")}
                           </Badge>
                           <Badge variant={c.status === "new" ? "destructive" : "outline"} className="text-[10px]">
-                            {c.status === "new" ? (isRtl ? "جديد" : "New") : c.status === "read" ? (isRtl ? "مقروء" : "Read") : c.status}
+                            {c.status === "new" ? (isRtl ? "جديد" : "New") : (isRtl ? "مقروء" : "Read")}
                           </Badge>
                         </div>
                       </div>
-                      {c.company && <p className="text-xs text-muted-foreground mb-1">🏢 {c.company}</p>}
+                      {c.company && <p className="text-xs text-muted-foreground mb-1.5">🏢 {c.company}</p>}
                       <p className="text-sm text-foreground/80 leading-relaxed">{c.message}</p>
-                      <div className="flex items-center justify-between mt-3">
-                        <span className="text-xs text-muted-foreground">
-                          {format(new Date(c.created_at), "yyyy-MM-dd HH:mm", { locale: isRtl ? ar : undefined })}
+                      <div className="flex items-center justify-between mt-3 pt-2 border-t border-border/30">
+                        <span className="text-[11px] text-muted-foreground">
+                          {format(new Date(c.created_at), "MMM dd, yyyy HH:mm", { locale: isRtl ? ar : undefined })}
                         </span>
                         {c.status === "new" && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-7 text-xs gap-1"
+                            className="h-7 text-xs gap-1 text-primary hover:text-primary"
                             onClick={async () => {
                               await supabase.from("contact_submissions" as any).update({ status: "read" } as any).eq("id", c.id);
                               setContacts(prev => prev.map(x => x.id === c.id ? { ...x, status: "read" } : x));
@@ -323,8 +416,8 @@ const AdminPanel = () => {
                     </div>
                   ))}
                   {contacts.length === 0 && (
-                    <div className="text-center py-12">
-                      <Mail className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                    <div className="text-center py-16">
+                      <Mail className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
                       <p className="text-sm text-muted-foreground">{isRtl ? "لا توجد رسائل بعد" : "No submissions yet"}</p>
                     </div>
                   )}
@@ -334,33 +427,39 @@ const AdminPanel = () => {
           </TabsContent>
 
           {/* Audit Log Tab */}
-          <TabsContent value="audit" className="mt-4">
+          <TabsContent value="audit" className="mt-6">
             <Card>
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">{isRtl ? "سجل التدقيق" : "Audit Log"}</CardTitle>
-                  <Badge variant="outline" className="text-xs">
-                    {last7daysLogs.length} {isRtl ? "آخر 7 أيام" : "last 7 days"}
-                  </Badge>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-primary" />
+                    {isRtl ? "سجل التدقيق" : "Audit Log"}
+                  </CardTitle>
+                  <Badge variant="outline" className="text-xs">{last7daysLogs.length} {isRtl ? "آخر 7 أيام" : "last 7 days"}</Badge>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-1 max-h-[600px] overflow-y-auto">
-                  {recentLogs.map(log => (
-                    <div key={log.id} className="flex items-center gap-3 p-3 text-sm rounded-lg hover:bg-muted/30 transition-colors">
-                      <div className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                  {recentLogs.map((log, i) => (
+                    <motion.div key={log.id} custom={i} variants={fadeIn} initial="hidden" animate="visible"
+                      className="flex items-center gap-3 p-3 text-sm rounded-lg hover:bg-muted/30 transition-colors group"
+                    >
+                      <div className="h-2 w-2 rounded-full bg-primary shrink-0 group-hover:scale-125 transition-transform" />
                       <div className="flex-1 min-w-0">
                         <span className="text-foreground font-medium">{log.action}</span>
                         <span className="text-muted-foreground"> — {log.entity_type}</span>
-                        {log.entity_title && <span className="text-muted-foreground truncate"> "{log.entity_title}"</span>}
+                        {log.entity_title && <span className="text-muted-foreground/70 truncate"> "{log.entity_title}"</span>}
                       </div>
-                      <span className="text-xs text-muted-foreground shrink-0">
+                      <span className="text-[11px] text-muted-foreground shrink-0">
                         {format(new Date(log.created_at), "MM/dd HH:mm", { locale: isRtl ? ar : undefined })}
                       </span>
-                    </div>
+                    </motion.div>
                   ))}
                   {recentLogs.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-8">{isRtl ? "لا توجد سجلات" : "No activity logs"}</p>
+                    <div className="text-center py-16">
+                      <Activity className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
+                      <p className="text-sm text-muted-foreground">{isRtl ? "لا توجد سجلات بعد" : "No activity logs yet"}</p>
+                    </div>
                   )}
                 </div>
               </CardContent>
