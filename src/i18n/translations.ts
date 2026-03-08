@@ -146,6 +146,21 @@ export const translations = {
     markAllRead: "Mark all read",
     noNotifications: "No notifications",
 
+    // Onboarding
+    inviteTeam: "Invite your team",
+    inviteTeamDesc: "Create accounts for team members to collaborate",
+    invalidEmail: "Please enter a valid email",
+    passwordMinLength: "Password must be at least 6 characters",
+    emailAlreadyAdded: "This email is already added",
+    memberAdded: "Team member added successfully",
+    membersCreated: "team member(s) created",
+    minSixChars: "Min 6 characters",
+    passwordHint: "Share these credentials with your team members",
+    addedMembers: "Added Members",
+    back: "Back",
+    skip: "Skip",
+    continue: "Continue",
+
     // Auth
     signOut: "Sign out",
     aiReady: "AI Ready",
@@ -287,6 +302,20 @@ export const translations = {
     notifications: "الإشعارات",
     markAllRead: "تحديد الكل كمقروء",
     noNotifications: "لا توجد إشعارات",
+
+    inviteTeam: "دعوة فريقك",
+    inviteTeamDesc: "إنشاء حسابات لأعضاء الفريق للتعاون",
+    invalidEmail: "يرجى إدخال بريد إلكتروني صالح",
+    passwordMinLength: "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+    emailAlreadyAdded: "هذا البريد الإلكتروني مضاف بالفعل",
+    memberAdded: "تمت إضافة عضو الفريق بنجاح",
+    membersCreated: "عضو/أعضاء فريق تم إنشاؤهم",
+    minSixChars: "6 أحرف كحد أدنى",
+    passwordHint: "شارك بيانات الدخول هذه مع أعضاء فريقك",
+    addedMembers: "الأعضاء المضافون",
+    back: "رجوع",
+    skip: "تخطي",
+    continue: "متابعة",
 
     signOut: "تسجيل الخروج",
     aiReady: "الذكاء الاصطناعي جاهز",
