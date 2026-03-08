@@ -8,6 +8,8 @@ import {
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator, useSidebar,
 } from "@/components/ui/sidebar";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useSidebarBadges } from "@/hooks/useSidebarBadges";
+import { Badge } from "@/components/ui/badge";
 
 const groupColors: Record<string, string> = {
   Overview: "text-blue-400",
@@ -63,6 +65,13 @@ const AppSidebar = () => {
   const { lang, t } = useLanguage();
   const collapsed = state === "collapsed";
   const isRtl = lang === "ar";
+  const { unreadMessages, pendingTasks } = useSidebarBadges();
+
+  const getBadge = (title: string) => {
+    if (title === "Messages" && unreadMessages > 0) return unreadMessages;
+    if (title === "Tasks" && pendingTasks > 0) return pendingTasks;
+    return 0;
+  };
 
   return (
     <Sidebar 
@@ -86,16 +95,24 @@ const AppSidebar = () => {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={t(item.title.toLowerCase() as any)}>
-                      <NavLink to={item.url} end className="hover:bg-accent/50" activeClassName="bg-accent text-primary font-medium">
-                        <item.icon className={`h-4 w-4 ${groupColors[group.labelEn] || ""}`} />
-                        <span>{t(item.title.toLowerCase() as any)}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {group.items.map((item) => {
+                  const badge = getBadge(item.title);
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild tooltip={t(item.title.toLowerCase() as any)}>
+                        <NavLink to={item.url} end className="hover:bg-accent/50" activeClassName="bg-accent text-primary font-medium">
+                          <item.icon className={`h-4 w-4 ${groupColors[group.labelEn] || ""}`} />
+                          <span className="flex-1">{t(item.title.toLowerCase() as any)}</span>
+                          {badge > 0 && !collapsed && (
+                            <Badge variant="destructive" className="text-[9px] px-1.5 py-0 h-4 min-w-4 ms-auto">
+                              {badge > 99 ? "99+" : badge}
+                            </Badge>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
