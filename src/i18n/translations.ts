@@ -478,7 +478,6 @@ export const translations: Record<string, Record<string, string>> = {
     colorTheme: "Color Theme",
     mystats: "My Stats",
     admin: "Admin",
-    tags: "Tags",
   },
   ar: {
     dashboard: "لوحة التحكم",
@@ -946,6 +945,7 @@ export const translations: Record<string, Record<string, string>> = {
     teamMood: "مزاج الفريق",
     colorTheme: "سمة الألوان",
     mystats: "إحصائياتي",
+    admin: "لوحة المدير",
   },
 } as const;
 
