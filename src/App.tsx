@@ -26,6 +26,8 @@ import Analytics from "./pages/Analytics";
 import FocusMode from "./pages/FocusMode";
 import MemberProfile from "./pages/MemberProfile";
 import ActivityFeed from "./pages/ActivityFeed";
+import GanttChart from "./pages/GanttChart";
+import Goals from "./pages/Goals";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +58,8 @@ const App = () => (
               <Route path="/focus" element={<FocusMode />} />
               <Route path="/member/:userId" element={<MemberProfile />} />
               <Route path="/activity" element={<ActivityFeed />} />
+              <Route path="/gantt" element={<GanttChart />} />
+              <Route path="/goals" element={<Goals />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />

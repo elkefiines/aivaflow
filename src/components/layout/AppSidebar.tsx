@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, ListTodo, Lightbulb, FileBarChart, Settings, FolderKanban, Users, MessageSquare, Calendar, BarChart3, Crosshair, Activity,
+  LayoutDashboard, ListTodo, Lightbulb, FileBarChart, Settings, FolderKanban, Users, MessageSquare, Calendar, BarChart3, Crosshair, Activity, GanttChart, Target,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -18,6 +18,8 @@ const navItems = [
   { title: "Reports", url: "/reports", icon: FileBarChart },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Focus", url: "/focus", icon: Crosshair },
+  { title: "Gantt", url: "/gantt", icon: GanttChart },
+  { title: "Goals", url: "/goals", icon: Target },
   { title: "Activity", url: "/activity", icon: Activity },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
