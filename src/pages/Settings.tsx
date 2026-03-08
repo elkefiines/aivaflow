@@ -11,9 +11,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Loader2, Save, Upload, Globe } from "lucide-react";
+import { Loader2, Save, Upload, Globe, Shield, Trash2, AlertTriangle } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useNavigate } from "react-router-dom";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type Profile = Tables<"profiles">;
 type Project = Tables<"projects">;
@@ -22,6 +27,7 @@ const Settings = () => {
   const { user } = useAuth();
   const { lang, setLang, t, dir } = useLanguage();
   const { projectId } = useActiveProject();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [saving, setSaving] = useState(false);
@@ -33,6 +39,14 @@ const Settings = () => {
   const [projectName, setProjectName] = useState("");
   const [projectDesc, setProjectDesc] = useState("");
   const [projectColor, setProjectColor] = useState("#0A26E6");
+
+  // Password change
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+
+  // Delete project
+  const [deletingProject, setDeletingProject] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -88,15 +102,35 @@ const Settings = () => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
     if (file.size > 2 * 1024 * 1024) { toast.error("Max 2 MB"); return; }
-
     const ext = file.name.split(".").pop();
     const path = `${user.id}/avatar.${ext}`;
     const { error } = await supabase.storage.from("project-files").upload(path, file, { upsert: true });
     if (error) { toast.error("Upload failed"); return; }
-
     const { data: urlData } = supabase.storage.from("project-files").getPublicUrl(path);
     setAvatarUrl(urlData.publicUrl);
     toast.success("Avatar uploaded");
+  };
+
+  const changePassword = async () => {
+    if (newPassword.length < 6) { toast.error(t("passwordMinLength")); return; }
+    if (newPassword !== confirmPassword) { toast.error(t("passwordsDoNotMatch")); return; }
+    setChangingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setChangingPassword(false);
+    if (error) { toast.error(t("failedToChangePassword")); return; }
+    toast.success(t("passwordChanged"));
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
+  const deleteProject = async () => {
+    if (!projectId) return;
+    setDeletingProject(true);
+    const { error } = await supabase.from("projects").delete().eq("id", projectId);
+    setDeletingProject(false);
+    if (error) { toast.error(t("failedToDeleteProject")); return; }
+    toast.success(t("projectDeleted"));
+    navigate("/dashboard");
   };
 
   const initials = (displayName || user?.email || "U")
@@ -110,9 +144,10 @@ const Settings = () => {
       </div>
 
       <Tabs defaultValue="profile" dir={dir}>
-        <TabsList className="bg-card/60 border border-border/30 w-full sm:w-auto">
+        <TabsList className="bg-card/60 border border-border/30 w-full sm:w-auto flex-wrap">
           <TabsTrigger value="profile" className="flex-1 sm:flex-none">{t("profile")}</TabsTrigger>
           <TabsTrigger value="project" className="flex-1 sm:flex-none">{t("project")}</TabsTrigger>
+          <TabsTrigger value="security" className="flex-1 sm:flex-none">{t("security")}</TabsTrigger>
           <TabsTrigger value="language" className="flex-1 sm:flex-none">{t("language")}</TabsTrigger>
         </TabsList>
 
@@ -155,7 +190,7 @@ const Settings = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="project" className="mt-4">
+        <TabsContent value="project" className="mt-4 space-y-4">
           <Card className="border-border/40 bg-card/80">
             <CardHeader>
               <CardTitle className="text-base font-display">{t("projectSettings")}</CardTitle>
@@ -186,6 +221,65 @@ const Settings = () => {
                   </Button>
                 </>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Danger Zone */}
+          {projectId && (
+            <Card className="border-destructive/30 bg-destructive/5">
+              <CardHeader>
+                <CardTitle className="text-base font-display flex items-center gap-2 text-destructive">
+                  <AlertTriangle className="h-4 w-4" /> {t("dangerZone")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">{t("deleteProjectDesc")}</p>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm">
+                      <Trash2 className="h-4 w-4 me-2" /> {t("deleteProject")}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t("deleteProject")}</AlertDialogTitle>
+                      <AlertDialogDescription>{t("confirmDeleteProject")}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+                      <AlertDialogAction onClick={deleteProject} className="bg-destructive text-destructive-foreground hover:bg-destructive/90" disabled={deletingProject}>
+                        {deletingProject ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : null}
+                        {t("confirmDelete")}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="security" className="mt-4">
+          <Card className="border-border/40 bg-card/80">
+            <CardHeader>
+              <CardTitle className="text-base font-display flex items-center gap-2">
+                <Shield className="h-4 w-4" /> {t("changePassword")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">{t("changePasswordDesc")}</p>
+              <div className="space-y-2">
+                <Label>{t("newPassword")}</Label>
+                <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="bg-background/50 border-border/50" dir="ltr" placeholder="••••••••" />
+              </div>
+              <div className="space-y-2">
+                <Label>{t("confirmPassword")}</Label>
+                <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="bg-background/50 border-border/50" dir="ltr" placeholder="••••••••" />
+              </div>
+              <Button onClick={changePassword} disabled={changingPassword || !newPassword}>
+                {changingPassword ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : <Save className="h-4 w-4 me-2" />}
+                {t("updatePassword")}
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>

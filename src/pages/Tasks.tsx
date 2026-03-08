@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveProject } from "@/hooks/useActiveProject";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tables, TablesInsert } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, LayoutGrid, List } from "lucide-react";
+import { Plus, LayoutGrid, List, Search, X } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription,
 } from "@/components/ui/dialog";
@@ -16,6 +16,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 import KanbanBoard from "@/components/tasks/KanbanBoard";
 import TaskListView from "@/components/tasks/TaskListView";
 import TaskEditDialog from "@/components/tasks/TaskEditDialog";
@@ -36,11 +37,18 @@ const Tasks = () => {
   const [priority, setPriority] = useState<string>("medium");
   const [status, setStatus] = useState<string>("todo");
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [assigneeId, setAssigneeId] = useState<string>("unassigned");
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [memberNames, setMemberNames] = useState<Record<string, string>>({});
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterPriority, setFilterPriority] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterAssignee, setFilterAssignee] = useState<string>("all");
 
   const loadTasks = async () => {
     if (!projectId) return;
@@ -50,6 +58,7 @@ const Tasks = () => {
       .eq("project_id", projectId)
       .order("position", { ascending: true });
     setTasks(data || []);
+    setPageLoading(false);
   };
 
   const loadMembers = async () => {
@@ -67,6 +76,7 @@ const Tasks = () => {
   };
 
   useEffect(() => {
+    setPageLoading(true);
     loadTasks();
     loadMembers();
 
@@ -80,6 +90,28 @@ const Tasks = () => {
 
     return () => { supabase.removeChannel(channel); };
   }, [projectId]);
+
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      if (searchQuery && !task.title.toLowerCase().includes(searchQuery.toLowerCase()) && !(task.description || "").toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (filterPriority !== "all" && task.priority !== filterPriority) return false;
+      if (filterStatus !== "all" && task.status !== filterStatus) return false;
+      if (filterAssignee !== "all") {
+        if (filterAssignee === "unassigned" && task.assignee_id) return false;
+        if (filterAssignee !== "unassigned" && task.assignee_id !== filterAssignee) return false;
+      }
+      return true;
+    });
+  }, [tasks, searchQuery, filterPriority, filterStatus, filterAssignee]);
+
+  const hasFilters = searchQuery || filterPriority !== "all" || filterStatus !== "all" || filterAssignee !== "all";
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setFilterPriority("all");
+    setFilterStatus("all");
+    setFilterAssignee("all");
+  };
 
   const createTask = async () => {
     if (!user || !projectId || !title.trim()) return;
@@ -196,10 +228,64 @@ const Tasks = () => {
         </div>
       </div>
 
-      {view === "kanban" ? (
+      {/* Search & Filters */}
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t("searchTasks")}
+            className="ps-9 bg-background/50 border-border/40"
+          />
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          <Select value={filterPriority} onValueChange={setFilterPriority}>
+            <SelectTrigger className="w-[130px] bg-background/50 border-border/40 h-9">
+              <SelectValue placeholder={t("filterByPriority")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("allPriorities")}</SelectItem>
+              {PRIORITIES.map((p) => <SelectItem key={p} value={p}>{priorityLabels[p]}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-[130px] bg-background/50 border-border/40 h-9">
+              <SelectValue placeholder={t("filterByStatus")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("allStatuses")}</SelectItem>
+              {STATUSES.map((s) => <SelectItem key={s} value={s}>{statusLabels[s]}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={filterAssignee} onValueChange={setFilterAssignee}>
+            <SelectTrigger className="w-[130px] bg-background/50 border-border/40 h-9">
+              <SelectValue placeholder={t("filterByAssignee")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("allMembers")}</SelectItem>
+              <SelectItem value="unassigned">{t("unassigned")}</SelectItem>
+              {Object.entries(memberNames).map(([id, name]) => (
+                <SelectItem key={id} value={id}>{name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {hasFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9 px-2">
+              <X className="h-4 w-4 me-1" /> {t("clearFilters")}
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {pageLoading ? (
+        <div className="space-y-3">
+          {[1,2,3].map(i => <Skeleton key={i} className="h-24 rounded-xl" />)}
+        </div>
+      ) : view === "kanban" ? (
         <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
           <KanbanBoard
-            tasks={tasks}
+            tasks={filteredTasks}
             onStatusChange={updateTaskStatus}
             onTaskClick={handleTaskClick}
             statuses={STATUSES as unknown as string[]}
@@ -208,7 +294,7 @@ const Tasks = () => {
         </div>
       ) : (
         <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
-          <TaskListView tasks={tasks} onTaskClick={handleTaskClick} memberNames={memberNames} />
+          <TaskListView tasks={filteredTasks} onTaskClick={handleTaskClick} memberNames={memberNames} />
         </div>
       )}
 
