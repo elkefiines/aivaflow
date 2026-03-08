@@ -203,6 +203,10 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
             </Button>
           </div>
           <div className="border-t border-border/30 pt-3">
+            <Label className="text-sm mb-1 block">{t("tags") || "Tags"}</Label>
+            <TagManager taskId={task.id} mode="select" />
+          </div>
+          <div className="border-t border-border/30 pt-3">
             <SubtasksList taskId={task.id} />
           </div>
           <div className="border-t border-border/30 pt-3">
