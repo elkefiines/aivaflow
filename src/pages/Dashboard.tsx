@@ -6,10 +6,11 @@ import { useActiveProject } from "@/hooks/useActiveProject";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/useLanguage";
 import { motion, useInView } from "framer-motion";
-import { AlertTriangle, Clock, Moon, Shield, ChevronRight, Users, ChevronLeft } from "lucide-react";
+import { AlertTriangle, Clock, Moon, Shield, ChevronRight, Users, ChevronLeft, Activity } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import ActivityTimeline from "@/components/dashboard/ActivityTimeline";
 
 type Task = Tables<"tasks">;
 
