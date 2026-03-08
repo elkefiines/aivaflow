@@ -534,9 +534,11 @@ export type Database = {
           due_date: string | null
           id: string
           labels: string[] | null
+          next_recurrence_at: string | null
           position: number | null
           priority: Database["public"]["Enums"]["task_priority"] | null
           project_id: string
+          recurrence: string | null
           source_idea_id: string | null
           status: Database["public"]["Enums"]["task_status"] | null
           title: string
@@ -551,9 +553,11 @@ export type Database = {
           due_date?: string | null
           id?: string
           labels?: string[] | null
+          next_recurrence_at?: string | null
           position?: number | null
           priority?: Database["public"]["Enums"]["task_priority"] | null
           project_id: string
+          recurrence?: string | null
           source_idea_id?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title: string
@@ -568,9 +572,11 @@ export type Database = {
           due_date?: string | null
           id?: string
           labels?: string[] | null
+          next_recurrence_at?: string | null
           position?: number | null
           priority?: Database["public"]["Enums"]["task_priority"] | null
           project_id?: string
+          recurrence?: string | null
           source_idea_id?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title?: string

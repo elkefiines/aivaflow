@@ -396,6 +396,40 @@ export const translations: Record<string, Record<string, string>> = {
     // Subtasks
     subtasks: "Subtasks",
     addSubtask: "Add subtask…",
+
+    // Analytics
+    analytics: "Analytics",
+    analyticsDesc: "Advanced project analytics and performance insights",
+    velocity: "Velocity",
+    burndown: "Burndown",
+    timeDistribution: "Time Distribution",
+    priorityDist: "Priority Distribution",
+    velocityChart: "Task Velocity (14 days)",
+    burndownChart: "Burndown Chart (30 days)",
+    timeByMember: "Time by Member",
+    totalHours: "Total Hours",
+
+    // Focus Mode
+    focus: "Focus",
+    focusMode: "Focus Mode",
+    focusModeDesc: "Eliminate distractions with a Pomodoro timer",
+    workSession: "Work",
+    breakSession: "Break",
+    pause: "Pause",
+    start: "Start",
+    reset: "Reset",
+    completedCycles: "Completed cycles",
+
+    // Export
+    exportCSV: "Export CSV",
+    exportSuccess: "Exported successfully",
+
+    // Recurring
+    recurrence: "Recurrence",
+    noRecurrence: "None",
+    daily: "Daily",
+    weekly: "Weekly",
+    monthly: "Monthly",
   },
   ar: {
     dashboard: "لوحة التحكم",
@@ -782,6 +816,40 @@ export const translations: Record<string, Record<string, string>> = {
     // Subtasks
     subtasks: "المهام الفرعية",
     addSubtask: "أضف مهمة فرعية…",
+
+    // Analytics
+    analytics: "التحليلات",
+    analyticsDesc: "تحليلات متقدمة للمشروع ورؤى الأداء",
+    velocity: "السرعة",
+    burndown: "الإنجاز التراكمي",
+    timeDistribution: "توزيع الوقت",
+    priorityDist: "توزيع الأولويات",
+    velocityChart: "سرعة إنجاز المهام (14 يوم)",
+    burndownChart: "مخطط الإنجاز التراكمي (30 يوم)",
+    timeByMember: "الوقت حسب العضو",
+    totalHours: "إجمالي الساعات",
+
+    // Focus Mode
+    focus: "التركيز",
+    focusMode: "وضع التركيز",
+    focusModeDesc: "تخلص من التشتت مع مؤقت بومودورو",
+    workSession: "عمل",
+    breakSession: "استراحة",
+    pause: "إيقاف مؤقت",
+    start: "ابدأ",
+    reset: "إعادة تعيين",
+    completedCycles: "الدورات المكتملة",
+
+    // Export
+    exportCSV: "تصدير CSV",
+    exportSuccess: "تم التصدير بنجاح",
+
+    // Recurring
+    recurrence: "التكرار",
+    noRecurrence: "بدون",
+    daily: "يومي",
+    weekly: "أسبوعي",
+    monthly: "شهري",
   },
 } as const;
 

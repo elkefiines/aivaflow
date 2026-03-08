@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tables, TablesInsert } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, LayoutGrid, List, Search, X } from "lucide-react";
+import { Plus, LayoutGrid, List, Search, X, Download } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription,
 } from "@/components/ui/dialog";
@@ -163,6 +163,30 @@ const Tasks = () => {
           <div className="flex items-center rounded-lg border border-border/30 p-0.5">
             <AISuggestionsPanel tasks={tasks} memberNames={memberNames} />
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 px-2"
+            onClick={() => {
+              const headers = ["Title","Status","Priority","Assignee","Due Date","Created"];
+              const rows = filteredTasks.map(t => [
+                `"${t.title.replace(/"/g, '""')}"`,
+                t.status || "",
+                t.priority || "",
+                t.assignee_id ? (memberNames[t.assignee_id] || t.assignee_id) : "",
+                t.due_date ? t.due_date.split("T")[0] : "",
+                t.created_at.split("T")[0],
+              ].join(","));
+              const csv = [headers.join(","), ...rows].join("\n");
+              const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a"); a.href = url; a.download = "tasks.csv"; a.click();
+              URL.revokeObjectURL(url);
+              toast.success(t("exportSuccess"));
+            }}
+          >
+            <Download className="h-4 w-4" />
+          </Button>
           <div className="flex items-center rounded-lg border border-border/30 p-0.5">
             <Button variant={view === "kanban" ? "secondary" : "ghost"} size="sm" className="h-7 px-2" onClick={() => setView("kanban")}>
               <LayoutGrid className="h-4 w-4" />
