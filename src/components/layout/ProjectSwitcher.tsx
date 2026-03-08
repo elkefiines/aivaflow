@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,8 @@ type Project = Tables<"projects">;
 
 const ProjectSwitcher = () => {
   const { user } = useAuth();
+  const { t, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const [projects, setProjects] = useState<Project[]>([]);
   const [active, setActive] = useState<Project | null>(null);
 
@@ -57,16 +60,16 @@ const ProjectSwitcher = () => {
           <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-56">
+      <DropdownMenuContent align={isRtl ? "end" : "start"} className="w-56">
         {projects.map((p) => (
           <DropdownMenuItem key={p.id} onClick={() => switchProject(p)} className={p.id === active.id ? "bg-accent" : ""}>
-            <div className="w-4 h-4 rounded shrink-0 mr-2" style={{ backgroundColor: p.color || "hsl(var(--primary))" }} />
+            <div className="w-4 h-4 rounded shrink-0 me-2" style={{ backgroundColor: p.color || "hsl(var(--primary))" }} />
             <span className="truncate">{p.name}</span>
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
         <DropdownMenuItem className="text-muted-foreground">
-          <Plus className="h-4 w-4 mr-2" />New project
+          <Plus className="h-4 w-4 me-2" />{t("newProject") || "New project"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

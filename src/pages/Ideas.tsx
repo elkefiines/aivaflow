@@ -132,13 +132,12 @@ const Ideas = () => {
   };
 
   return (
-    <div className="space-y-6" dir={isRtl ? "rtl" : "ltr"}>
-      <div className={isRtl ? "text-end" : ""}>
+    <div className="space-y-6" dir={dir}>
+      <div>
         <h1 className="font-display text-2xl font-bold text-foreground">{t("ideasTitle")}</h1>
         <p className="text-muted-foreground text-sm mt-1">{t("ideasSubtitle")}</p>
       </div>
 
-      {/* Input area */}
       <Card className="p-4 border-border/40 bg-card/80">
         <Textarea
           value={newText}
@@ -146,20 +145,17 @@ const Ideas = () => {
           placeholder={t("pasteNotes")}
           rows={4}
           className="bg-background/50 border-border/50 resize-none mb-3"
-          dir={isRtl ? "rtl" : "ltr"}
         />
-        <div className={`flex ${isRtl ? "justify-start" : "justify-end"}`}>
-          <Button onClick={submitIdea} disabled={submitting || !newText.trim()} className={isRtl ? "flex-row-reverse" : ""}>
-            <Plus className={`h-4 w-4 ${isRtl ? "ms-2" : "me-2"}`} />
+        <div className="flex justify-end">
+          <Button onClick={submitIdea} disabled={submitting || !newText.trim()}>
+            <Plus className="h-4 w-4 me-2" />
             {submitting ? t("saving") : t("saveIdea")}
           </Button>
         </div>
       </Card>
 
-      {/* File upload */}
       {projectId && <FileUploadZone projectId={projectId} onComplete={loadIdeas} />}
 
-      {/* Ideas list */}
       <div className="space-y-4">
         {ideas.length === 0 && (
           <div className="text-center py-12">
@@ -175,16 +171,16 @@ const Ideas = () => {
 
           return (
             <Card key={idea.id} className="p-4 border-border/40 bg-card/80">
-              <div className={`flex items-start justify-between gap-3 mb-3 ${isRtl ? "flex-row-reverse" : ""}`}>
+              <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm text-foreground whitespace-pre-wrap line-clamp-4 ${isRtl ? "text-end" : ""}`}>
+                  <p className="text-sm text-foreground whitespace-pre-wrap line-clamp-4">
                     {idea.raw_text}
                   </p>
                 </div>
-                <div className={`flex items-center gap-2 shrink-0 ${isRtl ? "flex-row-reverse" : ""}`}>
-                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${status.color} ${isRtl ? "flex-row-reverse" : ""}`}>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${status.color}`}>
                     {status.icon}
-                    <span className={isRtl ? "me-1" : "ms-1"}>{status.label}</span>
+                    <span className="ms-1">{status.label}</span>
                   </Badge>
                   <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => deleteIdea(idea.id)}>
                     <Trash2 className="h-3.5 w-3.5" />
@@ -192,24 +188,22 @@ const Ideas = () => {
                 </div>
               </div>
 
-              {/* AI summary */}
               {idea.ai_summary && (
                 <div className="mb-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
-                  <p className={`text-xs font-medium text-primary mb-1 flex items-center gap-1 ${isRtl ? "flex-row-reverse" : ""}`}>
+                  <p className="text-xs font-medium text-primary mb-1 flex items-center gap-1">
                     <Sparkles className="h-3 w-3" /> {t("aiSummary")}
                   </p>
-                  <p className={`text-sm text-foreground/80 ${isRtl ? "text-end" : ""}`}>{idea.ai_summary}</p>
+                  <p className="text-sm text-foreground/80">{idea.ai_summary}</p>
                 </div>
               )}
 
-              {/* AI extracted tasks */}
               {aiTasks.length > 0 && (
                 <div className="mb-3 space-y-1.5">
-                  <p className={`text-xs font-medium text-muted-foreground ${isRtl ? "text-end" : ""}`}>{t("extractedTasks")}</p>
+                  <p className="text-xs font-medium text-muted-foreground">{t("extractedTasks")}</p>
                   {aiTasks.map((t, i) => (
-                    <div key={i} className={`flex items-center gap-2 p-2 rounded bg-background/50 border border-border/30 ${isRtl ? "flex-row-reverse" : ""}`}>
+                    <div key={i} className="flex items-center gap-2 p-2 rounded bg-background/50 border border-border/30">
                       <CheckCircle2 className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
-                      <span className={`text-sm text-foreground flex-1 ${isRtl ? "text-end" : ""}`}>{t.title}</span>
+                      <span className="text-sm text-foreground flex-1">{t.title}</span>
                       <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${priorityBadge[t.priority] || ""}`}>
                         {priorityLabels[t.priority] || t.priority}
                       </Badge>
@@ -218,20 +212,19 @@ const Ideas = () => {
                 </div>
               )}
 
-              {/* Actions */}
-              <div className={`flex gap-2 ${isRtl ? "justify-start" : "justify-end"}`}>
+              <div className="flex gap-2 justify-end">
                 {(idea.status === "raw" || idea.status === null) && (
-                  <Button size="sm" variant="outline" onClick={() => processIdea(idea.id)} disabled={isProcessing} className={isRtl ? "flex-row-reverse" : ""}>
+                  <Button size="sm" variant="outline" onClick={() => processIdea(idea.id)} disabled={isProcessing}>
                     {isProcessing ? (
-                      <><Loader2 className={`h-3.5 w-3.5 animate-spin ${isRtl ? "ms-1.5" : "me-1.5"}`} />{t("processing")}</>
+                      <><Loader2 className="h-3.5 w-3.5 animate-spin me-1.5" />{t("processing")}</>
                     ) : (
-                      <><Sparkles className={`h-3.5 w-3.5 ${isRtl ? "ms-1.5" : "me-1.5"}`} />{t("extractTasks")}</>
+                      <><Sparkles className="h-3.5 w-3.5 me-1.5" />{t("extractTasks")}</>
                     )}
                   </Button>
                 )}
                 {idea.status === "converted" && aiTasks.length > 0 && (
-                  <Button size="sm" onClick={() => convertToTasks(idea)} className={isRtl ? "flex-row-reverse" : ""}>
-                    <ArrowRight className={`h-3.5 w-3.5 ${isRtl ? "ms-1.5 rotate-180" : "me-1.5"}`} />
+                  <Button size="sm" onClick={() => convertToTasks(idea)}>
+                    <ArrowRight className={`h-3.5 w-3.5 me-1.5 ${isRtl ? "rotate-180" : ""}`} />
                     {t("createTask")} ({aiTasks.length})
                   </Button>
                 )}

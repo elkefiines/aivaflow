@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Tables, TablesUpdate } from "@/integrations/supabase/types";
+import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
@@ -33,6 +34,7 @@ interface TaskEditDialogProps {
 }
 
 const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEditDialogProps) => {
+  const { t, dir } = useLanguage();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("medium");
@@ -41,6 +43,14 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
   const [dueDate, setDueDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
+
+  const priorityLabels: Record<string, string> = {
+    low: t("low"), medium: t("medium"), high: t("high"), critical: t("critical"),
+  };
+
+  const statusLabels: Record<string, string> = {
+    backlog: t("backlog"), todo: t("todo"), in_progress: t("inProgress"), review: t("review"), done: t("done"),
+  };
 
   useEffect(() => {
     if (task) {
@@ -56,30 +66,13 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
   useEffect(() => {
     if (!projectId || !open) return;
     const loadMembers = async () => {
-      // Get project owner
-      const { data: proj } = await supabase
-        .from("projects")
-        .select("owner_id")
-        .eq("id", projectId)
-        .single();
-
-      // Get project members
-      const { data: pm } = await supabase
-        .from("project_members")
-        .select("user_id")
-        .eq("project_id", projectId);
-
+      const { data: proj } = await supabase.from("projects").select("owner_id").eq("id", projectId).single();
+      const { data: pm } = await supabase.from("project_members").select("user_id").eq("project_id", projectId);
       const userIds = new Set<string>();
       if (proj?.owner_id) userIds.add(proj.owner_id);
       pm?.forEach((m) => userIds.add(m.user_id));
-
       if (userIds.size === 0) { setMembers([]); return; }
-
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, display_name")
-        .in("user_id", Array.from(userIds));
-
+      const { data: profiles } = await supabase.from("profiles").select("user_id, display_name").in("user_id", Array.from(userIds));
       setMembers(profiles || []);
     };
     loadMembers();
@@ -98,8 +91,8 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
     };
     const { error } = await supabase.from("tasks").update(updates).eq("id", task.id);
     setLoading(false);
-    if (error) { toast.error("Failed to update task"); return; }
-    toast.success("Task updated");
+    if (error) { toast.error(t("failedToUpdateTask") || "Failed to update task"); return; }
+    toast.success(t("taskUpdated") || "Task updated");
     onSaved();
     onOpenChange(false);
   };
@@ -107,8 +100,8 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
   const handleDelete = async () => {
     if (!task) return;
     const { error } = await supabase.from("tasks").delete().eq("id", task.id);
-    if (error) { toast.error("Failed to delete task"); return; }
-    toast.success("Task deleted");
+    if (error) { toast.error(t("failedToDeleteTask") || "Failed to delete task"); return; }
+    toast.success(t("taskDeleted") || "Task deleted");
     onSaved();
     onOpenChange(false);
   };
@@ -117,47 +110,47 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg" dir={dir}>
         <DialogHeader>
-          <DialogTitle className="font-display">Edit Task</DialogTitle>
-          <DialogDescription className="text-muted-foreground text-sm">Update task details, assign members, and set due dates.</DialogDescription>
+          <DialogTitle className="font-display">{t("editTask") || "Edit Task"}</DialogTitle>
+          <DialogDescription className="text-muted-foreground text-sm">{t("updateTaskDetails") || "Update task details, assign members, and set due dates."}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 pt-2">
           <div className="space-y-2">
-            <Label>Title</Label>
+            <Label>{t("title")}</Label>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} className="bg-background/50 border-border/50" />
           </div>
           <div className="space-y-2">
-            <Label>Description</Label>
+            <Label>{t("description")}</Label>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="bg-background/50 border-border/50 resize-none" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Priority</Label>
+              <Label>{t("priority")}</Label>
               <Select value={priority} onValueChange={setPriority}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {PRIORITIES.map((p) => <SelectItem key={p} value={p} className="capitalize">{p}</SelectItem>)}
+                  {PRIORITIES.map((p) => <SelectItem key={p} value={p}>{priorityLabels[p]}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Status</Label>
+              <Label>{t("status")}</Label>
               <Select value={status} onValueChange={setStatus}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s.replace("_", " ")}</SelectItem>)}
+                  {STATUSES.map((s) => <SelectItem key={s} value={s}>{statusLabels[s]}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Assignee</Label>
+              <Label>{t("assignee")}</Label>
               <Select value={assigneeId} onValueChange={setAssigneeId}>
-                <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("unassigned")} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  <SelectItem value="unassigned">{t("unassigned")}</SelectItem>
                   {members.map((m) => (
                     <SelectItem key={m.user_id} value={m.user_id}>
                       {m.display_name || m.user_id.slice(0, 8)}
@@ -167,15 +160,15 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Due Date</Label>
+              <Label>{t("dueDate") || "Due Date"}</Label>
               <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="bg-background/50 border-border/50" />
             </div>
           </div>
           <div className="flex gap-2">
             <Button onClick={handleSave} disabled={loading || !title.trim()} className="flex-1">
-              {loading ? "Saving…" : "Save Changes"}
+              {loading ? t("saving") || "Saving…" : t("saveChanges") || "Save Changes"}
             </Button>
-            <Button variant="destructive" size="icon" onClick={handleDelete} title="Delete task">
+            <Button variant="destructive" size="icon" onClick={handleDelete} title={t("deleteTask") || "Delete task"}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>

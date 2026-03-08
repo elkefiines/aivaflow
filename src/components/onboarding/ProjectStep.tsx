@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ const COLORS = ["#0A26E6", "#2B39A6", "#8D5A74", "#22C55E", "#F59E0B", "#EF4444"
 
 const ProjectStep = ({ onNext, onBack, onProjectCreated }: ProjectStepProps) => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [color, setColor] = useState(COLORS[0]);
@@ -34,7 +36,7 @@ const ProjectStep = ({ onNext, onBack, onProjectCreated }: ProjectStepProps) => 
       .single();
     setLoading(false);
     if (error) {
-      toast.error("Failed to create project");
+      toast.error(t("failedToCreateProject") || "Failed to create project");
       return;
     }
     localStorage.setItem("active_project_id", data.id);
@@ -49,20 +51,20 @@ const ProjectStep = ({ onNext, onBack, onProjectCreated }: ProjectStepProps) => 
         <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto mb-4">
           <FolderPlus className="h-8 w-8 text-primary" />
         </div>
-        <h2 className="font-display text-xl font-bold text-foreground">Create your first project</h2>
-        <p className="text-muted-foreground text-sm mt-1">Projects organize your tasks and ideas</p>
+        <h2 className="font-display text-xl font-bold text-foreground">{t("createFirstProject") || "Create your first project"}</h2>
+        <p className="text-muted-foreground text-sm mt-1">{t("projectsOrganize") || "Projects organize your tasks and ideas"}</p>
       </div>
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="projectName">Project name</Label>
-          <Input id="projectName" value={name} onChange={(e) => setName(e.target.value)} placeholder="My Awesome Project" required className="bg-background/50 border-border/50" />
+          <Label htmlFor="projectName">{t("projectName")}</Label>
+          <Input id="projectName" value={name} onChange={(e) => setName(e.target.value)} placeholder={t("myAwesomeProject") || "My Awesome Project"} required className="bg-background/50 border-border/50" />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="projectDesc">Description <span className="text-muted-foreground">(optional)</span></Label>
-          <Textarea id="projectDesc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What's this project about?" rows={2} className="bg-background/50 border-border/50 resize-none" />
+          <Label htmlFor="projectDesc">{t("description")} <span className="text-muted-foreground">({t("optional") || "optional"})</span></Label>
+          <Textarea id="projectDesc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("whatIsProjectAbout") || "What's this project about?"} rows={2} className="bg-background/50 border-border/50 resize-none" />
         </div>
         <div className="space-y-2">
-          <Label>Color</Label>
+          <Label>{t("color")}</Label>
           <div className="flex gap-2">
             {COLORS.map((c) => (
               <button key={c} type="button" onClick={() => setColor(c)}
@@ -74,9 +76,9 @@ const ProjectStep = ({ onNext, onBack, onProjectCreated }: ProjectStepProps) => 
         </div>
       </div>
       <div className="flex gap-3">
-        <Button type="button" variant="ghost" onClick={onBack} className="flex-1">Back</Button>
+        <Button type="button" variant="ghost" onClick={onBack} className="flex-1">{t("back") || "Back"}</Button>
         <Button type="submit" className="flex-1" disabled={loading || !name.trim()}>
-          {loading ? "Creating…" : "Create & continue"}
+          {loading ? t("creating") || "Creating…" : t("createAndContinue") || "Create & continue"}
         </Button>
       </div>
     </form>

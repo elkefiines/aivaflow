@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/integrations/supabase/client";
 import ProfileStep from "@/components/onboarding/ProfileStep";
 import ProjectStep from "@/components/onboarding/ProjectStep";
@@ -8,13 +9,19 @@ import InviteStep from "@/components/onboarding/InviteStep";
 import AIIntroStep from "@/components/onboarding/AIIntroStep";
 import OnboardingProgress from "@/components/onboarding/OnboardingProgress";
 
-const STEPS = ["Profile", "Project", "Invite", "AI Intro"];
-
 const Onboarding = () => {
   const [step, setStep] = useState(0);
   const [projectId, setProjectId] = useState<string | null>(null);
   const { user } = useAuth();
+  const { t, dir } = useLanguage();
   const navigate = useNavigate();
+
+  const STEPS = [
+    t("profile") || "Profile",
+    t("project") || "Project",
+    t("inviteTeam") || "Invite",
+    t("aiIntro") || "AI Intro",
+  ];
 
   useEffect(() => {
     const checkOnboarding = async () => {
@@ -42,7 +49,7 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="min-h-screen cosmic-bg flex items-center justify-center p-4">
+    <div className="min-h-screen cosmic-bg flex items-center justify-center p-4" dir={dir}>
       <div className="w-full max-w-lg">
         <OnboardingProgress steps={STEPS} current={step} />
         <div className="glass-strong p-8 mt-6">
