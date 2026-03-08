@@ -434,6 +434,48 @@ export const translations: Record<string, Record<string, string>> = {
     // Member Profile
     completionRate: "Completion Rate",
     memberProfile: "Member Profile",
+
+    // Phase 21-23
+    customizeDashboard: "Customize Dashboard",
+    preferencesSaved: "Preferences saved",
+    activity: "Activity",
+    activityFeed: "Activity Feed",
+    allTypes: "All types",
+    allActions: "All actions",
+    created: "Created",
+    statusChanged: "Status changed",
+    deleted: "Deleted",
+    joined: "Joined",
+    templateCreated: "Template created",
+    createNewTemplate: "Create New Template",
+    noTemplatesYet: "No templates yet",
+    templateName: "Template name",
+    newTemplate: "New Template",
+    quickTemplates: "Pre-built templates for quick task creation",
+
+    // Phase 24-26
+    replyingTo: "Replying to",
+    youWereMentioned: "You were mentioned",
+    gantt: "Gantt",
+    ganttChart: "Gantt Chart",
+    ganttDesc: "View tasks on a timeline",
+    noTasksWithDates: "No tasks with dates",
+    goals: "Goals & OKRs",
+    goalsDesc: "Link tasks to strategic goals and track progress",
+    newGoal: "New Goal",
+    createGoal: "Create Goal",
+    goalCreated: "Goal created",
+    noGoalsYet: "No goals yet",
+    progress: "Progress",
+    linkTask: "Link Task",
+    allTasksLinked: "All tasks linked",
+    targetDate: "Target Date",
+    close: "Close",
+
+    // Phase 28-30
+    automations: "Automations",
+    teamMood: "Team Mood",
+    colorTheme: "Color Theme",
   },
   ar: {
     dashboard: "لوحة التحكم",
@@ -858,6 +900,48 @@ export const translations: Record<string, Record<string, string>> = {
     // Member Profile
     completionRate: "معدل الإنجاز",
     memberProfile: "الملف الشخصي",
+
+    // Phase 21-23
+    customizeDashboard: "تخصيص لوحة التحكم",
+    preferencesSaved: "تم حفظ التفضيلات",
+    activity: "النشاطات",
+    activityFeed: "سجل النشاطات",
+    allTypes: "كل الأنواع",
+    allActions: "كل الإجراءات",
+    created: "إنشاء",
+    statusChanged: "تغيير الحالة",
+    deleted: "حذف",
+    joined: "انضمام",
+    templateCreated: "تم إنشاء القالب",
+    createNewTemplate: "إنشاء قالب جديد",
+    noTemplatesYet: "لا توجد قوالب بعد",
+    templateName: "اسم القالب",
+    newTemplate: "قالب جديد",
+    quickTemplates: "قوالب جاهزة لإنشاء المهام بسرعة",
+
+    // Phase 24-26
+    replyingTo: "رد على",
+    youWereMentioned: "تمت الإشارة إليك",
+    gantt: "جانت",
+    ganttChart: "مخطط جانت",
+    ganttDesc: "عرض المهام على خط زمني",
+    noTasksWithDates: "لا توجد مهام بمواعيد",
+    goals: "الأهداف",
+    goalsDesc: "ربط المهام بأهداف استراتيجية وتتبع التقدم",
+    newGoal: "هدف جديد",
+    createGoal: "إنشاء هدف",
+    goalCreated: "تم إنشاء الهدف",
+    noGoalsYet: "لا توجد أهداف بعد",
+    progress: "التقدم",
+    linkTask: "ربط مهمة",
+    allTasksLinked: "كل المهام مربوطة",
+    targetDate: "التاريخ المستهدف",
+    close: "إغلاق",
+
+    // Phase 28-30
+    automations: "الأتمتة",
+    teamMood: "مزاج الفريق",
+    colorTheme: "سمة الألوان",
   },
 } as const;
 

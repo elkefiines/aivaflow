@@ -19,6 +19,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import ThemeSelector from "@/components/settings/ThemeSelector";
 
 type Profile = Tables<"profiles">;
 type Project = Tables<"projects">;
@@ -186,6 +187,11 @@ const Settings = () => {
                 {saving ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : <Save className="h-4 w-4 me-2" />}
                 {t("saveProfile")}
               </Button>
+            </CardContent>
+          </Card>
+          <Card className="border-border/40 bg-card/80">
+            <CardContent className="pt-6">
+              <ThemeSelector />
             </CardContent>
           </Card>
         </TabsContent>

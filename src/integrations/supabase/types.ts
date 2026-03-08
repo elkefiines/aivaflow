@@ -58,6 +58,130 @@ export type Database = {
           },
         ]
       }
+      automations: {
+        Row: {
+          action_type: string
+          action_value: string | null
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean | null
+          name: string
+          project_id: string
+          trigger_type: string
+          trigger_value: string | null
+        }
+        Insert: {
+          action_type?: string
+          action_value?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          project_id: string
+          trigger_type?: string
+          trigger_value?: string | null
+        }
+        Update: {
+          action_type?: string
+          action_value?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          project_id?: string
+          trigger_type?: string
+          trigger_value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goal_tasks: {
+        Row: {
+          goal_id: string
+          task_id: string
+        }
+        Insert: {
+          goal_id: string
+          task_id: string
+        }
+        Update: {
+          goal_id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_tasks_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goal_tasks_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          progress: number | null
+          project_id: string
+          status: string | null
+          target_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          progress?: number | null
+          project_id: string
+          status?: string | null
+          target_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          progress?: number | null
+          project_id?: string
+          status?: string | null
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ideas: {
         Row: {
           ai_summary: string | null
@@ -178,6 +302,44 @@ export type Database = {
           },
         ]
       }
+      mood_logs: {
+        Row: {
+          created_at: string
+          id: string
+          logged_date: string
+          mood: string
+          note: string | null
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logged_date?: string
+          mood?: string
+          note?: string | null
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logged_date?: string
+          mood?: string
+          note?: string | null
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mood_logs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -216,10 +378,12 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string
+          dashboard_widgets: Json | null
           display_name: string | null
           id: string
           language: string | null
           onboarding_completed: boolean | null
+          theme: string | null
           updated_at: string
           user_id: string
         }
@@ -227,10 +391,12 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          dashboard_widgets?: Json | null
           display_name?: string | null
           id?: string
           language?: string | null
           onboarding_completed?: boolean | null
+          theme?: string | null
           updated_at?: string
           user_id: string
         }
@@ -238,10 +404,12 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          dashboard_widgets?: Json | null
           display_name?: string | null
           id?: string
           language?: string | null
           onboarding_completed?: boolean | null
+          theme?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -465,6 +633,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          parent_id: string | null
           task_id: string
           user_id: string
         }
@@ -473,6 +642,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           task_id: string
           user_id: string
         }
@@ -481,12 +651,56 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           task_id?: string
           user_id?: string
         }
         Relationships: [
           {
+            foreignKeyName: "task_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "task_comments"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_dependencies: {
+        Row: {
+          created_at: string
+          depends_on_id: string
+          id: string
+          task_id: string
+        }
+        Insert: {
+          created_at?: string
+          depends_on_id: string
+          id?: string
+          task_id: string
+        }
+        Update: {
+          created_at?: string
+          depends_on_id?: string
+          id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_dependencies_depends_on_id_fkey"
+            columns: ["depends_on_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_dependencies_task_id_fkey"
             columns: ["task_id"]
             isOneToOne: false
             referencedRelation: "tasks"
@@ -524,6 +738,50 @@ export type Database = {
           },
         ]
       }
+      task_templates: {
+        Row: {
+          created_at: string
+          created_by: string
+          default_priority: string | null
+          default_status: string | null
+          description: string | null
+          id: string
+          name: string
+          project_id: string
+          subtask_titles: Json | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          default_priority?: string | null
+          default_status?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          project_id: string
+          subtask_titles?: Json | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          default_priority?: string | null
+          default_status?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          project_id?: string
+          subtask_titles?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_templates_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           ai_generated: boolean | null
@@ -532,6 +790,7 @@ export type Database = {
           created_by: string | null
           description: string | null
           due_date: string | null
+          goal_id: string | null
           id: string
           labels: string[] | null
           next_recurrence_at: string | null
@@ -551,6 +810,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           due_date?: string | null
+          goal_id?: string | null
           id?: string
           labels?: string[] | null
           next_recurrence_at?: string | null
@@ -570,6 +830,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           due_date?: string | null
+          goal_id?: string | null
           id?: string
           labels?: string[] | null
           next_recurrence_at?: string | null
@@ -583,6 +844,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tasks_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tasks_project_id_fkey"
             columns: ["project_id"]

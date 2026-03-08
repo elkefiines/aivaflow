@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import ActivityTimeline from "@/components/dashboard/ActivityTimeline";
+import DashboardWidgetManager, { useDashboardWidgets } from "@/components/dashboard/DashboardWidgetManager";
 
 type Task = Tables<"tasks">;
 
@@ -101,6 +102,8 @@ const Dashboard = () => {
   const [displayName, setDisplayName] = useState("");
   const [teamMembers, setTeamMembers] = useState<{ user_id: string; display_name: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const { widgets, saveWidgets } = useDashboardWidgets();
+  const w = (id: string) => widgets.includes(id);
 
   const statusBadgeColors: Record<string, string> = {
     done: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
@@ -198,12 +201,17 @@ const Dashboard = () => {
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-4 sm:space-y-6" dir={dir}>
-      <motion.h3 variants={item} className={`font-display text-lg sm:text-xl font-bold text-foreground ${isRtl ? "text-right" : ""}`}>
-        {getGreeting(t)} <span className="font-normal text-muted-foreground">{displayName}</span>
-      </motion.h3>
+      <div className="flex items-center justify-between">
+        <motion.h3 variants={item} className={`font-display text-lg sm:text-xl font-bold text-foreground ${isRtl ? "text-right" : ""}`}>
+          {getGreeting(t)} <span className="font-normal text-muted-foreground">{displayName}</span>
+        </motion.h3>
+        <DashboardWidgetManager widgets={widgets} onSave={saveWidgets} />
+      </div>
 
       {/* Status bars + stats */}
+      {(w("statusBars") || w("stats")) && (
       <motion.div variants={item} className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
+        {w("statusBars") && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 flex-1">
           {statusBars.map((bar, i) => (
             <div key={bar.label} className="cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate(bar.route)}>
@@ -217,6 +225,8 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
+        )}
+        {w("stats") && (
         <div className="flex items-center gap-4 sm:gap-6 flex-wrap">
           {stats.map((stat, i) => (
             <motion.div key={stat.label} variants={item} className="flex items-center gap-2">
@@ -232,10 +242,14 @@ const Dashboard = () => {
             </motion.div>
           ))}
         </div>
+        )}
       </motion.div>
+      )}
 
       {/* Main grid */}
+      {(w("summary") || w("chart") || w("aiInsights")) && (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4">
+        {w("summary") && (
         <motion.div variants={item} className="xl:col-span-2 glass p-4 rounded-xl">
           <h4 className="text-xs font-medium text-foreground mb-3">{t("summary")}</h4>
           <div className="space-y-3">
@@ -252,7 +266,9 @@ const Dashboard = () => {
             ))}
           </div>
         </motion.div>
+        )}
 
+        {w("chart") && (
         <motion.div variants={item} className="xl:col-span-7 glass p-4 rounded-xl">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-xs font-medium text-foreground">{t("taskCompletion")}</h4>
@@ -283,7 +299,9 @@ const Dashboard = () => {
             </div>
           </div>
         </motion.div>
+        )}
 
+        {w("aiInsights") && (
         <motion.div variants={item} className="xl:col-span-3 glass p-4 rounded-xl">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -313,10 +331,14 @@ const Dashboard = () => {
             </div>
           </div>
         </motion.div>
+        )}
       </div>
+      )}
 
       {/* Recent Tasks, Team & Activity */}
+      {(w("recentTasks") || w("team") || w("activity")) && (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {w("recentTasks") && (
         <motion.div variants={item} className="lg:col-span-5 glass p-4 rounded-xl">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-xs font-medium text-foreground">{t("recentTasks")}</h4>
@@ -337,7 +359,9 @@ const Dashboard = () => {
             ))}
           </div>
         </motion.div>
+        )}
 
+        {w("team") && (
         <motion.div variants={item} className="lg:col-span-3 glass p-4 rounded-xl">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -361,17 +385,22 @@ const Dashboard = () => {
             })}
           </div>
         </motion.div>
+        )}
 
-        {projectId && (
+        {w("activity") && projectId && (
           <motion.div variants={item} className="lg:col-span-4 glass p-4 rounded-xl">
-            <div className="flex items-center gap-2 mb-3">
-              <Activity className="w-4 h-4 text-primary" />
-              <h4 className="text-xs font-medium text-foreground">{t("activityLog")}</h4>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-primary" />
+                <h4 className="text-xs font-medium text-foreground">{t("activityLog")}</h4>
+              </div>
+              <button className="text-[10px] text-primary hover:underline" onClick={() => navigate("/activity")}>{t("viewAll")}</button>
             </div>
             <ActivityTimeline projectId={projectId} memberNames={Object.fromEntries(teamMembers.map(m => [m.user_id, m.display_name]))} />
           </motion.div>
         )}
       </div>
+      )}
     </motion.div>
   );
 };
