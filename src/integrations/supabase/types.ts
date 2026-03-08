@@ -558,6 +558,7 @@ export type Database = {
           category: string | null
           color: string | null
           created_at: string
+          created_by: string | null
           default_tasks: Json | null
           description: string | null
           icon: string | null
@@ -568,6 +569,7 @@ export type Database = {
           category?: string | null
           color?: string | null
           created_at?: string
+          created_by?: string | null
           default_tasks?: Json | null
           description?: string | null
           icon?: string | null
@@ -578,6 +580,7 @@ export type Database = {
           category?: string | null
           color?: string | null
           created_at?: string
+          created_by?: string | null
           default_tasks?: Json | null
           description?: string | null
           icon?: string | null
