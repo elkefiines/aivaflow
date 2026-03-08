@@ -20,6 +20,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import ThemeSelector from "@/components/settings/ThemeSelector";
+import ExportImport from "@/components/settings/ExportImport";
+import TagManager from "@/components/tags/TagManager";
 
 type Profile = Tables<"profiles">;
 type Project = Tables<"projects">;
@@ -145,11 +147,12 @@ const Settings = () => {
       </div>
 
       <Tabs defaultValue="profile" dir={dir}>
-        <TabsList className="bg-card/60 border border-border/30 w-full sm:w-auto flex-wrap">
+         <TabsList className="bg-card/60 border border-border/30 w-full sm:w-auto flex-wrap">
           <TabsTrigger value="profile" className="flex-1 sm:flex-none">{t("profile")}</TabsTrigger>
           <TabsTrigger value="project" className="flex-1 sm:flex-none">{t("project")}</TabsTrigger>
           <TabsTrigger value="security" className="flex-1 sm:flex-none">{t("security")}</TabsTrigger>
           <TabsTrigger value="language" className="flex-1 sm:flex-none">{t("language")}</TabsTrigger>
+          <TabsTrigger value="data" className="flex-1 sm:flex-none">{lang === "ar" ? "البيانات" : "Data"}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="mt-4">
@@ -229,6 +232,9 @@ const Settings = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Tag Management */}
+          {projectId && <TagManager mode="manage" />}
 
           {/* Danger Zone */}
           {projectId && (
@@ -312,6 +318,10 @@ const Settings = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="data" className="mt-4">
+          <ExportImport />
         </TabsContent>
       </Tabs>
     </div>
