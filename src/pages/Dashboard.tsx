@@ -117,12 +117,12 @@ const Dashboard = () => {
   };
   const item = {
     hidden: { opacity: 0, y: 15 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } },
-  };
+    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const } },
+  } as const;
   const chartLine = {
     hidden: { pathLength: 0, opacity: 0 },
-    show: { pathLength: 1, opacity: 1, transition: { duration: 1.8, delay: 0.3, ease: [0.37, 0, 0.63, 1] } },
-  };
+    show: { pathLength: 1, opacity: 1, transition: { duration: 1.8, delay: 0.3, ease: [0.37, 0, 0.63, 1] as const } },
+  } as const;
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
