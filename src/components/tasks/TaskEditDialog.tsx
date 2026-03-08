@@ -18,6 +18,7 @@ import TaskComments from "@/components/tasks/TaskComments";
 import TaskTimer from "@/components/tasks/TaskTimer";
 import SubtasksList from "@/components/tasks/SubtasksList";
 import TaskAttachments from "@/components/tasks/TaskAttachments";
+import TagManager from "@/components/tags/TagManager";
 
 type Task = Tables<"tasks">;
 
