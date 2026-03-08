@@ -52,7 +52,7 @@ const MemberProfile = forwardRef<HTMLDivElement>((_, ref) => {
     .join("");
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto" dir={dir}>
+    <div ref={ref} className="space-y-6 max-w-2xl mx-auto" dir={dir}>
       <Button variant="ghost" size="sm" onClick={() => navigate("/team")} className="gap-2">
         <ArrowLeft className="h-4 w-4" />
         {t("back")}
