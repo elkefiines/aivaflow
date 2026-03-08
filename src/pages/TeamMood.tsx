@@ -42,11 +42,14 @@ const TeamMood = () => {
   const load = async () => {
     if (!projectId) return;
     const weekAgo = format(subDays(new Date(), 7), "yyyy-MM-dd");
-    const [logsRes, membersRes] = await Promise.all([
+    const [logsRes, membersRes, projectRes] = await Promise.all([
       supabase.from("mood_logs").select("*").eq("project_id", projectId).gte("logged_date", weekAgo).order("logged_date", { ascending: false }),
       supabase.from("project_members").select("user_id").eq("project_id", projectId),
+      supabase.from("projects").select("owner_id").eq("id", projectId).single(),
     ]);
-    const userIds = (membersRes.data || []).map(m => m.user_id);
+    const memberIds = (membersRes.data || []).map(m => m.user_id);
+    const ownerId = projectRes.data?.owner_id;
+    const userIds = [...new Set([...memberIds, ...(ownerId ? [ownerId] : [])])];
     if (userIds.length > 0) {
       const { data: profiles } = await supabase.from("profiles").select("user_id, display_name").in("user_id", userIds);
       const names: Record<string, string> = {};
