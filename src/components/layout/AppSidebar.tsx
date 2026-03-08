@@ -90,7 +90,7 @@ const AppSidebar = () => {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={t(item.title.toLowerCase() as any)}>
                       <NavLink to={item.url} end className="hover:bg-accent/50" activeClassName="bg-accent text-primary font-medium">
-                        <item.icon className="h-4 w-4" />
+                        <item.icon className={`h-4 w-4 ${groupColors[group.labelEn] || ""}`} />
                         <span>{t(item.title.toLowerCase() as any)}</span>
                       </NavLink>
                     </SidebarMenuButton>
