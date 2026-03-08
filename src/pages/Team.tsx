@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveProject } from "@/hooks/useActiveProject";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,6 +35,7 @@ const avatarColors = [
 
 const Team = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { projectId } = useActiveProject();
   const { t, dir } = useLanguage();
   const [members, setMembers] = useState<Member[]>([]);
@@ -136,7 +138,7 @@ const Team = () => {
             const w = getWorkload(m.user_id);
             const initials = (m.display_name || "U").split(/\s/).slice(0, 2).map(s => s[0]?.toUpperCase()).join("");
             return (
-              <Card key={m.id} className="border-border/40 bg-card/80">
+              <Card key={m.id} className="border-border/40 bg-card/80 cursor-pointer hover:border-primary/30 transition-colors" onClick={() => navigate(`/member/${m.user_id}`)}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
