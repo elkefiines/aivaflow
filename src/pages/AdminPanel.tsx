@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 import {
   Shield, Users, FolderKanban, Activity, ListChecks, AlertTriangle,
-  ArrowLeft, ArrowRight, LogOut, BarChart3, TrendingUp, Clock
+  ArrowLeft, ArrowRight, LogOut, BarChart3, TrendingUp, Clock, Mail, Eye, CheckCircle2
 } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { ar } from "date-fns/locale";
@@ -28,6 +28,7 @@ const AdminPanel = () => {
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
   const [userRoles, setUserRoles] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
+  const [contacts, setContacts] = useState<any[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -36,11 +37,12 @@ const AdminPanel = () => {
       setIsAdmin(!!data);
       if (!data) { setLoading(false); return; }
 
-      const [projectsRes, tasksRes, profilesRes, rolesRes] = await Promise.all([
+      const [projectsRes, tasksRes, profilesRes, rolesRes, contactsRes] = await Promise.all([
         supabase.from("projects").select("id, name, color, icon, created_at, owner_id, description"),
         supabase.from("tasks").select("id, status, project_id, due_date, created_at, priority"),
         supabase.from("profiles").select("id, user_id, display_name, avatar_url, created_at"),
         supabase.from("user_roles").select("*"),
+        supabase.from("contact_submissions" as any).select("*").order("created_at", { ascending: false }).limit(100),
       ]);
 
       const allProjects = projectsRes.data || [];
@@ -53,6 +55,7 @@ const AdminPanel = () => {
       setProjects(allProjects);
       setProfiles(profilesRes.data || []);
       setUserRoles(rolesRes.data || []);
+      setContacts((contactsRes.data as any[]) || []);
       setStats({
         projects: allProjects.length,
         users: (profilesRes.data || []).length,
@@ -185,6 +188,13 @@ const AdminPanel = () => {
           <TabsList className="w-full justify-start">
             <TabsTrigger value="projects">{isRtl ? "المشاريع" : "Projects"}</TabsTrigger>
             <TabsTrigger value="users">{isRtl ? "المستخدمون" : "Users"}</TabsTrigger>
+            <TabsTrigger value="contacts" className="gap-1.5">
+              <Mail className="h-3.5 w-3.5" />
+              {isRtl ? "الرسائل" : "Contacts"}
+              {contacts.filter(c => c.status === "new").length > 0 && (
+                <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-4 min-w-4">{contacts.filter(c => c.status === "new").length}</Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="audit">{isRtl ? "سجل التدقيق" : "Audit Log"}</TabsTrigger>
           </TabsList>
 
@@ -249,6 +259,74 @@ const AdminPanel = () => {
                   })}
                   {profiles.length === 0 && (
                     <p className="text-sm text-muted-foreground text-center py-8">{isRtl ? "لا يوجد مستخدمون" : "No users"}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Contacts Tab */}
+          <TabsContent value="contacts" className="mt-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base">{isRtl ? "رسائل التواصل" : "Contact Submissions"}</CardTitle>
+                  <Badge variant="outline" className="text-xs">
+                    {contacts.length} {isRtl ? "رسالة" : "total"}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  {contacts.map((c: any) => (
+                    <div key={c.id} className="p-4 rounded-lg border border-border/30 hover:bg-muted/20 transition-colors">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                            {(c.name || "?")[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{c.name}</p>
+                            <p className="text-xs text-muted-foreground">{c.email}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={c.type === "demo" ? "default" : "secondary"} className="text-[10px]">
+                            {c.type === "demo" ? (isRtl ? "عرض تجريبي" : "Demo") : (isRtl ? "تواصل" : "Contact")}
+                          </Badge>
+                          <Badge variant={c.status === "new" ? "destructive" : "outline"} className="text-[10px]">
+                            {c.status === "new" ? (isRtl ? "جديد" : "New") : c.status === "read" ? (isRtl ? "مقروء" : "Read") : c.status}
+                          </Badge>
+                        </div>
+                      </div>
+                      {c.company && <p className="text-xs text-muted-foreground mb-1">🏢 {c.company}</p>}
+                      <p className="text-sm text-foreground/80 leading-relaxed">{c.message}</p>
+                      <div className="flex items-center justify-between mt-3">
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(c.created_at), "yyyy-MM-dd HH:mm", { locale: isRtl ? ar : undefined })}
+                        </span>
+                        {c.status === "new" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs gap-1"
+                            onClick={async () => {
+                              await supabase.from("contact_submissions" as any).update({ status: "read" } as any).eq("id", c.id);
+                              setContacts(prev => prev.map(x => x.id === c.id ? { ...x, status: "read" } : x));
+                            }}
+                          >
+                            <Eye className="h-3 w-3" />
+                            {isRtl ? "تحديد كمقروء" : "Mark Read"}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {contacts.length === 0 && (
+                    <div className="text-center py-12">
+                      <Mail className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                      <p className="text-sm text-muted-foreground">{isRtl ? "لا توجد رسائل بعد" : "No submissions yet"}</p>
+                    </div>
                   )}
                 </div>
               </CardContent>
