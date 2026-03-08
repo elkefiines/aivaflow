@@ -151,7 +151,7 @@ const Settings = () => {
           <TabsTrigger value="project" className="flex-1 sm:flex-none">{t("project")}</TabsTrigger>
           <TabsTrigger value="security" className="flex-1 sm:flex-none">{t("security")}</TabsTrigger>
           <TabsTrigger value="language" className="flex-1 sm:flex-none">{t("language")}</TabsTrigger>
-          <TabsTrigger value="data" className="flex-1 sm:flex-none">{isRtl ? "البيانات" : "Data"}</TabsTrigger>
+          <TabsTrigger value="data" className="flex-1 sm:flex-none">{lang === "ar" ? "البيانات" : "Data"}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="mt-4">
