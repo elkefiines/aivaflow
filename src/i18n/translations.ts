@@ -939,10 +939,11 @@ export const translations: Record<string, Record<string, string>> = {
     targetDate: "التاريخ المستهدف",
     close: "إغلاق",
 
-    // Phase 28-30
+    // Phase 28-31
     automations: "الأتمتة",
     teamMood: "مزاج الفريق",
     colorTheme: "سمة الألوان",
+    mystats: "إحصائياتي",
   },
 } as const;
 
