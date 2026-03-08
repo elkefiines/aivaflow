@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveProject } from "@/hooks/useActiveProject";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Users, Mail, Loader2, UserPlus, Trash2, ListTodo, Clock, CheckCircle2 } from "lucide-react";
+import { Users, Loader2, UserPlus, Trash2, ListTodo, Clock, CheckCircle2 } from "lucide-react";
 
 interface Member {
   id: string;
@@ -16,42 +16,39 @@ interface Member {
   role: string | null;
   joined_at: string;
   display_name?: string;
-  email?: string;
 }
 
-interface Invitation {
-  id: string;
-  invited_email: string;
-  role: string | null;
-  status: string | null;
-  created_at: string;
-}
+const avatarColors = [
+  "bg-primary/20 text-primary",
+  "bg-emerald-500/20 text-emerald-400",
+  "bg-amber-500/20 text-amber-400",
+  "bg-purple-500/20 text-purple-400",
+  "bg-rose-500/20 text-rose-400",
+];
 
 const Team = () => {
   const { user } = useAuth();
   const { projectId } = useActiveProject();
   const [members, setMembers] = useState<Member[]>([]);
-  const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [tasks, setTasks] = useState<{ assignee_id: string | null; status: string | null }[]>([]);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviting, setInviting] = useState(false);
+  const [addEmail, setAddEmail] = useState("");
+  const [addPassword, setAddPassword] = useState("");
+  const [addName, setAddName] = useState("");
+  const [adding, setAdding] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
 
   const load = async () => {
     if (!projectId || !user) return;
 
-    const [membersRes, invRes, tasksRes, projectRes] = await Promise.all([
+    const [membersRes, tasksRes, projectRes] = await Promise.all([
       supabase.from("project_members").select("*").eq("project_id", projectId),
-      supabase.from("invitations").select("*").eq("project_id", projectId).eq("status", "pending"),
       supabase.from("tasks").select("assignee_id, status").eq("project_id", projectId),
       supabase.from("projects").select("owner_id").eq("id", projectId).single(),
     ]);
 
     setIsOwner(projectRes.data?.owner_id === user.id);
     setTasks(tasksRes.data || []);
-    setInvitations(invRes.data || []);
 
-    // Enrich members with profile data
     const rawMembers = membersRes.data || [];
     const userIds = rawMembers.map(m => m.user_id);
     const { data: profiles } = await supabase.from("profiles").select("user_id, display_name").in("user_id", userIds);
@@ -65,25 +62,39 @@ const Team = () => {
 
   useEffect(() => { load(); }, [projectId, user]);
 
-  const sendInvite = async () => {
-    if (!projectId || !user || !inviteEmail.trim()) return;
-    setInviting(true);
-    const { error } = await supabase.from("invitations").insert({
-      project_id: projectId,
-      invited_by: user.id,
-      invited_email: inviteEmail.trim().toLowerCase(),
-      role: "member",
-    });
-    setInviting(false);
-    if (error) { toast.error("Failed to send invitation"); return; }
-    toast.success("Invitation sent");
-    setInviteEmail("");
-    load();
-  };
+  const addMember = async () => {
+    if (!projectId || !user || !addEmail.trim() || !addPassword.trim()) return;
+    if (addPassword.length < 6) { toast.error("Password must be at least 6 characters"); return; }
+    setAdding(true);
 
-  const deleteInvitation = async (id: string) => {
-    await supabase.from("invitations").delete().eq("id", id);
-    load();
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: addEmail.trim().toLowerCase(),
+        password: addPassword,
+        options: { data: { display_name: addName.trim() || addEmail.trim().split("@")[0] } },
+      });
+
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("Failed to create account");
+
+      const { error: memberError } = await supabase.from("project_members").insert({
+        project_id: projectId,
+        user_id: authData.user.id,
+        role: "member",
+      });
+
+      if (memberError) throw memberError;
+
+      toast.success("Member added successfully");
+      setAddEmail("");
+      setAddPassword("");
+      setAddName("");
+      load();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to add member");
+    } finally {
+      setAdding(false);
+    }
   };
 
   const removeMember = async (id: string) => {
@@ -108,30 +119,44 @@ const Team = () => {
         <p className="text-muted-foreground text-sm mt-1">Manage members and track workload</p>
       </div>
 
-      {/* Invite */}
       {isOwner && (
         <Card className="border-border/40 bg-card/80">
           <CardContent className="p-4">
-            <form onSubmit={(e) => { e.preventDefault(); sendInvite(); }} className="flex gap-2">
+            <form onSubmit={(e) => { e.preventDefault(); addMember(); }} className="flex gap-2">
               <Input
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                placeholder="teammate@email.com"
+                value={addName}
+                onChange={(e) => setAddName(e.target.value)}
+                placeholder="Display name"
+                className="bg-background/50 border-border/50 max-w-[160px]"
+              />
+              <Input
+                value={addEmail}
+                onChange={(e) => setAddEmail(e.target.value)}
+                placeholder="email@example.com"
                 type="email"
+                required
                 className="bg-background/50 border-border/50"
               />
-              <Button disabled={inviting || !inviteEmail.trim()}>
-                {inviting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <UserPlus className="h-4 w-4 mr-2" />}
-                Invite
+              <Input
+                value={addPassword}
+                onChange={(e) => setAddPassword(e.target.value)}
+                placeholder="Password"
+                type="password"
+                required
+                minLength={6}
+                className="bg-background/50 border-border/50 max-w-[160px]"
+              />
+              <Button disabled={adding || !addEmail.trim() || !addPassword.trim()}>
+                {adding ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <UserPlus className="h-4 w-4 mr-2" />}
+                Add
               </Button>
             </form>
           </CardContent>
         </Card>
       )}
 
-      {/* Members */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {members.map((m) => {
+        {members.map((m, idx) => {
           const w = getWorkload(m.user_id);
           const initials = (m.display_name || "U").split(/\s/).slice(0, 2).map(s => s[0]?.toUpperCase()).join("");
           return (
@@ -140,7 +165,7 @@ const Team = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">{initials}</AvatarFallback>
+                      <AvatarFallback className={`text-sm font-semibold ${avatarColors[idx % avatarColors.length]}`}>{initials}</AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="text-sm font-medium text-foreground">{m.display_name}</p>
@@ -169,31 +194,6 @@ const Team = () => {
           </div>
         )}
       </div>
-
-      {/* Pending invitations */}
-      {invitations.length > 0 && (
-        <Card className="border-border/40 bg-card/80">
-          <CardHeader>
-            <CardTitle className="text-base font-display">Pending Invitations</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {invitations.map((inv) => (
-              <div key={inv.id} className="flex items-center justify-between p-2.5 rounded-lg bg-background/50 border border-border/20">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-foreground">{inv.invited_email}</span>
-                  <Badge variant="outline" className="text-[10px]">{inv.role}</Badge>
-                </div>
-                {isOwner && (
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => deleteInvitation(inv.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                )}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };

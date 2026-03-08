@@ -32,6 +32,13 @@ const priorityBadge: Record<string, string> = {
   low: "bg-muted/20 text-muted-foreground border-muted/30",
 };
 
+const priorityBorder: Record<string, string> = {
+  critical: "border-l-destructive",
+  high: "border-l-amber-400",
+  medium: "border-l-primary",
+  low: "border-l-muted-foreground/40",
+};
+
 const KanbanBoard = ({ tasks, onStatusChange, onTaskClick, statuses, memberNames = {} }: KanbanBoardProps) => {
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
     e.dataTransfer.setData("taskId", taskId);
