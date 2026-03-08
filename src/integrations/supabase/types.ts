@@ -216,6 +216,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string
+          dashboard_widgets: Json | null
           display_name: string | null
           id: string
           language: string | null
@@ -227,6 +228,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          dashboard_widgets?: Json | null
           display_name?: string | null
           id?: string
           language?: string | null
@@ -238,6 +240,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          dashboard_widgets?: Json | null
           display_name?: string | null
           id?: string
           language?: string | null
@@ -520,6 +523,50 @@ export type Database = {
             columns: ["task_id"]
             isOneToOne: false
             referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_templates: {
+        Row: {
+          created_at: string
+          created_by: string
+          default_priority: string | null
+          default_status: string | null
+          description: string | null
+          id: string
+          name: string
+          project_id: string
+          subtask_titles: Json | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          default_priority?: string | null
+          default_status?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          project_id: string
+          subtask_titles?: Json | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          default_priority?: string | null
+          default_status?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          project_id?: string
+          subtask_titles?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_templates_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
