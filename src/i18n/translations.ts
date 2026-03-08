@@ -809,6 +809,33 @@ export const translations: Record<string, Record<string, string>> = {
     // Subtasks
     subtasks: "المهام الفرعية",
     addSubtask: "أضف مهمة فرعية…",
+
+    // Analytics
+    analytics: "التحليلات",
+    analyticsDesc: "تحليلات متقدمة للمشروع ورؤى الأداء",
+    velocity: "السرعة",
+    burndown: "الإنجاز التراكمي",
+    timeDistribution: "توزيع الوقت",
+    priorityDist: "توزيع الأولويات",
+    velocityChart: "سرعة إنجاز المهام (14 يوم)",
+    burndownChart: "مخطط الإنجاز التراكمي (30 يوم)",
+    timeByMember: "الوقت حسب العضو",
+    totalHours: "إجمالي الساعات",
+
+    // Focus Mode
+    focus: "التركيز",
+    focusMode: "وضع التركيز",
+    focusModeDesc: "تخلص من التشتت مع مؤقت بومودورو",
+    workSession: "عمل",
+    breakSession: "استراحة",
+    pause: "إيقاف مؤقت",
+    start: "ابدأ",
+    reset: "إعادة تعيين",
+    completedCycles: "الدورات المكتملة",
+
+    // Export
+    exportCSV: "تصدير CSV",
+    exportSuccess: "تم التصدير بنجاح",
   },
 } as const;
 
