@@ -691,6 +691,49 @@ export const translations: Record<string, Record<string, string>> = {
     activityMovedTask: "نقل مهمة",
     activityDeletedTask: "حذف مهمة",
     activityJoinedProject: "انضم للمشروع",
+
+    // Calendar
+    calendar: "التقويم",
+    calendarDesc: "عرض المهام حسب تاريخ الاستحقاق",
+    today: "اليوم",
+
+    // AI Suggestions
+    aiSuggest: "اقتراحات AI",
+    aiSuggestions: "اقتراحات ذكية",
+    aiSuggestionsDesc: "توصيات مدعومة بالذكاء الاصطناعي لمشروعك",
+    aiSuggestFailed: "فشل في الحصول على الاقتراحات",
+    analyzing: "جاري تحليل مشروعك...",
+    noSuggestions: "لا توجد اقتراحات",
+
+    // Comments
+    comments: "التعليقات",
+    writeComment: "اكتب تعليقاً...",
+    failedToComment: "فشل في إضافة التعليق",
+    failedToUpload: "فشل في رفع الملف",
+    attachment: "مرفق",
+
+    // Theme
+    lightMode: "الوضع الفاتح",
+    darkMode: "الوضع الداكن",
+
+    // Time Tracking
+    timeTracking: "تتبع الوقت",
+    startTimer: "بدء المؤقت",
+    stopTimer: "إيقاف المؤقت",
+    timeSpent: "الوقت المستغرق",
+    noTimeEntries: "لا توجد سجلات وقت",
+
+    // Tags
+    tags: "الوسوم",
+    addTag: "إضافة وسم",
+    createTag: "إنشاء وسم",
+    tagName: "اسم الوسم",
+
+    // Templates
+    templates: "القوالب",
+    useTemplate: "استخدام القالب",
+    blankProject: "مشروع فارغ",
+    startFromScratch: "ابدأ من الصفر بمشروع فارغ",
   },
 } as const;
 
