@@ -130,11 +130,21 @@ export const translations = {
     askAiva: "Ask AIVA…",
     aivaAssistant: "AIVA Assistant",
     askAnything: "Ask AIVA anything about your project",
+    askAivaAnything: "Ask AIVA anything about your project",
+    chatSummarizeTasks: "Summarize my tasks",
+    chatWhatFocus: "What should I focus on?",
+    chatBreakdownIdea: "Break down my latest idea",
+    chatShowOverdue: "Show overdue items",
     summarizeTasks: "Summarize my tasks",
     whatToFocus: "What should I focus on?",
     breakdownIdea: "Break down my latest idea",
     showOverdue: "Show overdue items",
     thinking: "Thinking…",
+
+    // Notifications
+    notifications: "Notifications",
+    markAllRead: "Mark all read",
+    noNotifications: "No notifications",
 
     // Auth
     signOut: "Sign out",
@@ -263,11 +273,20 @@ export const translations = {
     askAiva: "اسأل AIVA…",
     aivaAssistant: "مساعد AIVA",
     askAnything: "اسأل AIVA أي شيء عن مشروعك",
+    askAivaAnything: "اسأل AIVA أي شيء عن مشروعك",
+    chatSummarizeTasks: "لخص مهامي",
+    chatWhatFocus: "على ماذا يجب أن أركز؟",
+    chatBreakdownIdea: "حلل آخر فكرة لي",
+    chatShowOverdue: "أظهر العناصر المتأخرة",
     summarizeTasks: "لخص مهامي",
     whatToFocus: "على ماذا يجب أن أركز؟",
     breakdownIdea: "حلل آخر فكرة لي",
     showOverdue: "أظهر العناصر المتأخرة",
     thinking: "جاري التفكير…",
+
+    notifications: "الإشعارات",
+    markAllRead: "تحديد الكل كمقروء",
+    noNotifications: "لا توجد إشعارات",
 
     signOut: "تسجيل الخروج",
     aiReady: "الذكاء الاصطناعي جاهز",
