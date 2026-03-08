@@ -15,6 +15,8 @@ const typeIcons: Record<string, string> = {
   idea_converted: "💡",
   new_message: "💬",
   task_completed: "✅",
+  new_user: "👤",
+  new_contact: "📩",
   info: "ℹ️",
 };
 

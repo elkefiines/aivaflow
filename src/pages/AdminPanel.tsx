@@ -20,6 +20,7 @@ import { ar } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 16 },
@@ -191,6 +192,7 @@ const AdminPanel = () => {
             </div>
           </div>
           <div className="flex items-center gap-1">
+            <NotificationBell />
             <ThemeToggle />
             <Button variant="ghost" size="icon" onClick={() => signOut()} className="text-muted-foreground hover:text-destructive">
               <LogOut className="h-4 w-4" />
