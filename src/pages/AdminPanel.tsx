@@ -32,6 +32,9 @@ const AdminPanel = () => {
   const { lang, dir } = useLanguage();
   const navigate = useNavigate();
   const isRtl = lang === "ar";
+  const PAGE_SIZE = 20;
+  const [usersPage, setUsersPage] = useState(0);
+  const [auditPage, setAuditPage] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ projects: 0, users: 0, tasks: 0, doneTasks: 0, inProgress: 0, overdue: 0 });
@@ -203,7 +206,7 @@ const AdminPanel = () => {
 
       <main className="max-w-[1400px] mx-auto px-6 py-8 space-y-8">
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {statCards.map((s, i) => (
             <motion.div key={i} custom={i} variants={fadeIn} initial="hidden" animate="visible">
               <Card className={`border ${s.borderColor} bg-gradient-to-br ${s.gradient} hover:scale-[1.02] transition-transform cursor-default`}>
@@ -490,17 +493,16 @@ const AdminPanel = () => {
             </div>
           </TabsContent>
 
-          {/* Users Tab */}
           <TabsContent value="users" className="mt-6">
             <Card>
               <CardContent className="p-0">
                 <div className="divide-y divide-border/50">
-                  {profiles.map((p, i) => {
+                  {profiles.slice(usersPage * PAGE_SIZE, (usersPage + 1) * PAGE_SIZE).map((p, i) => {
                     const role = getRoleForUser(p.user_id);
                     const isSelf = p.user_id === user?.id;
                     return (
                       <motion.div key={p.id} custom={i} variants={fadeIn} initial="hidden" animate="visible"
-                        className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
+                        className="flex flex-col sm:flex-row sm:items-center justify-between p-4 hover:bg-muted/30 transition-colors gap-3"
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-sm font-bold text-primary ring-2 ring-primary/10">
@@ -514,7 +516,7 @@ const AdminPanel = () => {
                             <p className="text-[11px] text-muted-foreground">{isRtl ? "انضم في" : "Joined"} {format(new Date(p.created_at), "MMM dd, yyyy")}</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 ms-13 sm:ms-0">
                           <Select
                             value={role}
                             disabled={isSelf}
@@ -596,6 +598,21 @@ const AdminPanel = () => {
                     </div>
                   )}
                 </div>
+                {profiles.length > PAGE_SIZE && (
+                  <div className="flex items-center justify-between p-4 border-t border-border/50">
+                    <span className="text-xs text-muted-foreground">
+                      {usersPage * PAGE_SIZE + 1}–{Math.min((usersPage + 1) * PAGE_SIZE, profiles.length)} / {profiles.length}
+                    </span>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" disabled={usersPage === 0} onClick={() => setUsersPage(p => p - 1)}>
+                        {isRtl ? "التالي" : "Previous"}
+                      </Button>
+                      <Button variant="outline" size="sm" disabled={(usersPage + 1) * PAGE_SIZE >= profiles.length} onClick={() => setUsersPage(p => p + 1)}>
+                        {isRtl ? "السابق" : "Next"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -682,8 +699,8 @@ const AdminPanel = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-1 max-h-[600px] overflow-y-auto">
-                  {recentLogs.map((log, i) => (
+                <div className="space-y-1">
+                  {recentLogs.slice(auditPage * PAGE_SIZE, (auditPage + 1) * PAGE_SIZE).map((log, i) => (
                     <motion.div key={log.id} custom={i} variants={fadeIn} initial="hidden" animate="visible"
                       className="flex items-center gap-3 p-3 text-sm rounded-lg hover:bg-muted/30 transition-colors group"
                     >
@@ -705,6 +722,21 @@ const AdminPanel = () => {
                     </div>
                   )}
                 </div>
+                {recentLogs.length > PAGE_SIZE && (
+                  <div className="flex items-center justify-between pt-4 mt-4 border-t border-border/50">
+                    <span className="text-xs text-muted-foreground">
+                      {auditPage * PAGE_SIZE + 1}–{Math.min((auditPage + 1) * PAGE_SIZE, recentLogs.length)} / {recentLogs.length}
+                    </span>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" disabled={auditPage === 0} onClick={() => setAuditPage(p => p - 1)}>
+                        {isRtl ? "التالي" : "Previous"}
+                      </Button>
+                      <Button variant="outline" size="sm" disabled={(auditPage + 1) * PAGE_SIZE >= recentLogs.length} onClick={() => setAuditPage(p => p + 1)}>
+                        {isRtl ? "السابق" : "Next"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

@@ -478,6 +478,13 @@ export const translations: Record<string, Record<string, string>> = {
     colorTheme: "Color Theme",
     mystats: "My Stats",
     admin: "Admin",
+
+    // Empty & Error states
+    somethingWentWrong: "Something went wrong",
+    failedToLoadData: "Failed to load data. Please try again.",
+    retry: "Retry",
+    previous: "Previous",
+    next: "Next",
   },
   ar: {
     dashboard: "لوحة التحكم",
@@ -946,6 +953,13 @@ export const translations: Record<string, Record<string, string>> = {
     colorTheme: "سمة الألوان",
     mystats: "إحصائياتي",
     admin: "لوحة المدير",
+
+    // Empty & Error states
+    somethingWentWrong: "حدث خطأ",
+    failedToLoadData: "تعذر تحميل البيانات. حاول مرة أخرى.",
+    retry: "إعادة المحاولة",
+    previous: "السابق",
+    next: "التالي",
   },
 } as const;
 
