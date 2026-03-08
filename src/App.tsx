@@ -28,6 +28,8 @@ import MemberProfile from "./pages/MemberProfile";
 import ActivityFeed from "./pages/ActivityFeed";
 import GanttChart from "./pages/GanttChart";
 import Goals from "./pages/Goals";
+import Automations from "./pages/Automations";
+import TeamMood from "./pages/TeamMood";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +62,8 @@ const App = () => (
               <Route path="/activity" element={<ActivityFeed />} />
               <Route path="/gantt" element={<GanttChart />} />
               <Route path="/goals" element={<Goals />} />
+              <Route path="/automations" element={<Automations />} />
+              <Route path="/team-mood" element={<TeamMood />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
