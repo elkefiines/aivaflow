@@ -5,11 +5,13 @@ import { useNavigate, Outlet } from "react-router-dom";
 import AppSidebar from "@/components/layout/AppSidebar";
 import AppHeader from "@/components/layout/AppHeader";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 const AppLayout = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
+  useKeyboardShortcuts();
 
   useEffect(() => {
     const check = async () => {
