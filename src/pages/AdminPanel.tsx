@@ -11,7 +11,8 @@ import {
   Shield, Users, FolderKanban, Activity, ListChecks, AlertTriangle,
   ArrowLeft, ArrowRight, LogOut, BarChart3, TrendingUp, Clock, Mail, Eye, CheckCircle2, Zap, Target
 } from "lucide-react";
-import { format, subDays } from "date-fns";
+import { format, subDays, eachDayOfInterval, startOfDay } from "date-fns";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, CartesianGrid } from "recharts";
 import { ar } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
@@ -121,6 +122,45 @@ const AdminPanel = () => {
   };
 
   const last7daysLogs = recentLogs.filter(l => new Date(l.created_at) > subDays(new Date(), 7));
+
+  // Weekly activity chart data (last 14 days)
+  const last14days = eachDayOfInterval({ start: subDays(new Date(), 13), end: new Date() });
+  const weeklyActivityData = last14days.map(day => {
+    const dayStart = startOfDay(day);
+    const dayEnd = new Date(dayStart.getTime() + 86400000);
+    const dayLogs = recentLogs.filter(l => {
+      const d = new Date(l.created_at);
+      return d >= dayStart && d < dayEnd;
+    });
+    const dayTasks = (tasksAll || []).filter((t: any) => {
+      const d = new Date(t.created_at);
+      return d >= dayStart && d < dayEnd;
+    });
+    return {
+      date: format(day, "MM/dd"),
+      day: format(day, "EEE"),
+      activities: dayLogs.length,
+      tasks: dayTasks.length,
+    };
+  });
+
+  // Task status distribution for pie chart
+  const allTasks = tasksAll || [];
+  const statusData = [
+    { name: isRtl ? "معلقة" : "Backlog", value: allTasks.filter((t: any) => t.status === "backlog").length, color: "#94a3b8" },
+    { name: isRtl ? "للتنفيذ" : "Todo", value: allTasks.filter((t: any) => t.status === "todo").length, color: "#3b82f6" },
+    { name: isRtl ? "قيد التنفيذ" : "In Progress", value: allTasks.filter((t: any) => t.status === "in_progress").length, color: "#f59e0b" },
+    { name: isRtl ? "مراجعة" : "Review", value: allTasks.filter((t: any) => t.status === "review").length, color: "#8b5cf6" },
+    { name: isRtl ? "مكتملة" : "Done", value: allTasks.filter((t: any) => t.status === "done").length, color: "#10b981" },
+  ].filter(s => s.value > 0);
+
+  // Priority distribution
+  const priorityData = [
+    { name: isRtl ? "منخفضة" : "Low", value: allTasks.filter((t: any) => t.priority === "low").length, color: "#94a3b8" },
+    { name: isRtl ? "متوسطة" : "Medium", value: allTasks.filter((t: any) => t.priority === "medium").length, color: "#3b82f6" },
+    { name: isRtl ? "عالية" : "High", value: allTasks.filter((t: any) => t.priority === "high").length, color: "#f59e0b" },
+    { name: isRtl ? "حرجة" : "Critical", value: allTasks.filter((t: any) => t.priority === "critical").length, color: "#ef4444" },
+  ].filter(s => s.value > 0);
 
   const statCards = [
     { icon: FolderKanban, label: isRtl ? "المشاريع" : "Projects", value: stats.projects, gradient: "from-blue-500/10 to-blue-600/5", iconColor: "text-blue-500", borderColor: "border-blue-500/20" },
