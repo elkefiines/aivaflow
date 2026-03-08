@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, User, LayoutDashboard, Globe } from "lucide-react";
+import { Menu, X, LogOut, User, LayoutDashboard, Globe, FolderKanban } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -40,10 +40,10 @@ const Navbar = () => {
       <div className="absolute inset-0 bg-background/70 backdrop-blur-xl" />
       <div className="relative max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center glow-blue-sm">
-            <span className="text-primary-foreground font-display font-bold text-sm">A</span>
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <FolderKanban className="h-5 w-5 text-primary" />
           </div>
-          <span className="font-display font-bold text-lg text-foreground">AIVA Flow</span>
+          <span className="font-display font-bold text-lg text-foreground">AIVA <span className="text-primary">Flow</span></span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
