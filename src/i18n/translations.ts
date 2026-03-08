@@ -329,6 +329,49 @@ export const translations: Record<string, Record<string, string>> = {
     activityMovedTask: "moved task",
     activityDeletedTask: "deleted task",
     activityJoinedProject: "joined the project",
+
+    // Calendar
+    calendar: "Calendar",
+    calendarDesc: "View tasks by due date",
+    today: "Today",
+
+    // AI Suggestions
+    aiSuggest: "AI Suggest",
+    aiSuggestions: "AI Suggestions",
+    aiSuggestionsDesc: "AI-powered recommendations for your project",
+    aiSuggestFailed: "Failed to get AI suggestions",
+    analyzing: "Analyzing your project...",
+    noSuggestions: "No suggestions available",
+
+    // Comments
+    comments: "Comments",
+    writeComment: "Write a comment...",
+    failedToComment: "Failed to add comment",
+    failedToUpload: "Failed to upload file",
+    attachment: "Attachment",
+
+    // Theme
+    lightMode: "Light Mode",
+    darkMode: "Dark Mode",
+
+    // Time Tracking
+    timeTracking: "Time Tracking",
+    startTimer: "Start Timer",
+    stopTimer: "Stop Timer",
+    timeSpent: "Time Spent",
+    noTimeEntries: "No time entries yet",
+
+    // Tags
+    tags: "Tags",
+    addTag: "Add Tag",
+    createTag: "Create Tag",
+    tagName: "Tag Name",
+
+    // Templates
+    templates: "Templates",
+    useTemplate: "Use Template",
+    blankProject: "Blank Project",
+    startFromScratch: "Start from scratch with an empty project",
   },
   ar: {
     dashboard: "لوحة التحكم",
