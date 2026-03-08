@@ -19,6 +19,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import ThemeSelector from "@/components/settings/ThemeSelector";
 
 type Profile = Tables<"profiles">;
 type Project = Tables<"projects">;
