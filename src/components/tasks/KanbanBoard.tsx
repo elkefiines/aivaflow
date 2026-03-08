@@ -78,7 +78,7 @@ const KanbanBoard = ({ tasks, onStatusChange, onTaskClick, statuses, memberNames
                   draggable
                   onDragStart={(e) => handleDragStart(e, task.id)}
                   onClick={() => onTaskClick(task)}
-                  className="p-3 cursor-pointer active:cursor-grabbing bg-card/80 border-border/30 hover:border-primary/30 transition-colors"
+                  className={`p-3 cursor-pointer active:cursor-grabbing bg-card/80 border-border/30 hover:border-primary/30 transition-colors border-l-[3px] ${priorityBorder[task.priority || "medium"]}`}
                 >
                   <div className="flex items-start gap-2">
                     <GripVertical className="h-4 w-4 text-muted-foreground/40 mt-0.5 shrink-0" />
