@@ -21,6 +21,7 @@ import KanbanBoard from "@/components/tasks/KanbanBoard";
 import TaskListView from "@/components/tasks/TaskListView";
 import TaskEditDialog from "@/components/tasks/TaskEditDialog";
 import AISuggestionsPanel from "@/components/tasks/AISuggestionsPanel";
+import TaskTemplateManager from "@/components/tasks/TaskTemplateManager";
 
 type Task = Tables<"tasks">;
 
@@ -163,6 +164,17 @@ const Tasks = () => {
           <div className="flex items-center rounded-lg border border-border/30 p-0.5">
             <AISuggestionsPanel tasks={tasks} memberNames={memberNames} />
           </div>
+          {projectId && (
+            <TaskTemplateManager
+              projectId={projectId}
+              onUseTemplate={(tmpl) => {
+                setTitle(tmpl.name);
+                setDescription(tmpl.description || "");
+                setPriority(tmpl.default_priority || "medium");
+                setDialogOpen(true);
+              }}
+            />
+          )}
           <Button
             variant="outline"
             size="sm"

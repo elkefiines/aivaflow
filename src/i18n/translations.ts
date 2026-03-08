@@ -434,6 +434,24 @@ export const translations: Record<string, Record<string, string>> = {
     // Member Profile
     completionRate: "Completion Rate",
     memberProfile: "Member Profile",
+
+    // Phase 21-23
+    customizeDashboard: "Customize Dashboard",
+    preferencesSaved: "Preferences saved",
+    activity: "Activity",
+    activityFeed: "Activity Feed",
+    allTypes: "All types",
+    allActions: "All actions",
+    created: "Created",
+    statusChanged: "Status changed",
+    deleted: "Deleted",
+    joined: "Joined",
+    templateCreated: "Template created",
+    createNewTemplate: "Create New Template",
+    noTemplatesYet: "No templates yet",
+    templateName: "Template name",
+    newTemplate: "New Template",
+    quickTemplates: "Pre-built templates for quick task creation",
   },
   ar: {
     dashboard: "لوحة التحكم",
@@ -858,6 +876,24 @@ export const translations: Record<string, Record<string, string>> = {
     // Member Profile
     completionRate: "معدل الإنجاز",
     memberProfile: "الملف الشخصي",
+
+    // Phase 21-23
+    customizeDashboard: "تخصيص لوحة التحكم",
+    preferencesSaved: "تم حفظ التفضيلات",
+    activity: "النشاطات",
+    activityFeed: "سجل النشاطات",
+    allTypes: "كل الأنواع",
+    allActions: "كل الإجراءات",
+    created: "إنشاء",
+    statusChanged: "تغيير الحالة",
+    deleted: "حذف",
+    joined: "انضمام",
+    templateCreated: "تم إنشاء القالب",
+    createNewTemplate: "إنشاء قالب جديد",
+    noTemplatesYet: "لا توجد قوالب بعد",
+    templateName: "اسم القالب",
+    newTemplate: "قالب جديد",
+    quickTemplates: "قوالب جاهزة لإنشاء المهام بسرعة",
   },
 } as const;
 
