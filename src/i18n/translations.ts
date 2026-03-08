@@ -471,6 +471,11 @@ export const translations: Record<string, Record<string, string>> = {
     allTasksLinked: "All tasks linked",
     targetDate: "Target Date",
     close: "Close",
+
+    // Phase 28-30
+    automations: "Automations",
+    teamMood: "Team Mood",
+    colorTheme: "Color Theme",
   },
   ar: {
     dashboard: "لوحة التحكم",
