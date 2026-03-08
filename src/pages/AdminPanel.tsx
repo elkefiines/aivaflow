@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import ThemeToggle from "@/components/layout/ThemeToggle";
 import {
   Shield, Users, FolderKanban, Activity, ListChecks, AlertTriangle,
   ArrowLeft, ArrowRight, LogOut, BarChart3, TrendingUp, Clock
