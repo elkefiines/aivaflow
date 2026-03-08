@@ -47,39 +47,28 @@ const InviteStep = ({ onNext, onBack, projectId }: InviteStepProps) => {
     
     setAddingMember(true);
     
-    // Create the user account
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email: trimmedEmail,
-      password: password,
-      options: {
-        data: { display_name: trimmedEmail.split("@")[0] }
-      }
-    });
-    
-    if (signUpError) {
-      toast.error(signUpError.message);
-      setAddingMember(false);
-      return;
-    }
-    
-    if (signUpData.user && projectId) {
-      // Add user to project members
-      const { error: memberError } = await supabase.from("project_members").insert({
-        project_id: projectId,
-        user_id: signUpData.user.id,
-        role: "member"
+    try {
+      const { data, error } = await supabase.functions.invoke("create-team-member", {
+        body: {
+          email: trimmedEmail,
+          password: password,
+          displayName: trimmedEmail.split("@")[0],
+          projectId,
+        },
       });
-      
-      if (memberError) {
-        console.error("Failed to add to project:", memberError);
-      }
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setMembers([...members, { email: trimmedEmail, password }]);
+      setEmail("");
+      setPassword("");
+      toast.success(t("memberAdded"));
+    } catch (err: any) {
+      toast.error(err.message || t("failedToAddMember"));
+    } finally {
+      setAddingMember(false);
     }
-    
-    setMembers([...members, { email: trimmedEmail, password }]);
-    setEmail("");
-    setPassword("");
-    toast.success(t("memberAdded"));
-    setAddingMember(false);
   };
 
   const removeMember = (e: string) => setMembers(members.filter((m) => m.email !== e));

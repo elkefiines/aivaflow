@@ -67,34 +67,29 @@ const Team = () => {
 
   const addMember = async () => {
     if (!projectId || !user || !addEmail.trim() || !addPassword.trim()) return;
-    if (addPassword.length < 6) { toast.error("Password must be at least 6 characters"); return; }
+    if (addPassword.length < 6) { toast.error(t("passwordMinLength")); return; }
     setAdding(true);
 
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: addEmail.trim().toLowerCase(),
-        password: addPassword,
-        options: { data: { display_name: addName.trim() || addEmail.trim().split("@")[0] } },
+      const { data, error } = await supabase.functions.invoke("create-team-member", {
+        body: {
+          email: addEmail.trim().toLowerCase(),
+          password: addPassword,
+          displayName: addName.trim() || addEmail.trim().split("@")[0],
+          projectId,
+        },
       });
 
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("Failed to create account");
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
-      const { error: memberError } = await supabase.from("project_members").insert({
-        project_id: projectId,
-        user_id: authData.user.id,
-        role: "member",
-      });
-
-      if (memberError) throw memberError;
-
-      toast.success("Member added successfully");
+      toast.success(t("memberAdded"));
       setAddEmail("");
       setAddPassword("");
       setAddName("");
       load();
     } catch (err: any) {
-      toast.error(err.message || "Failed to add member");
+      toast.error(err.message || t("failedToAddMember"));
     } finally {
       setAdding(false);
     }
