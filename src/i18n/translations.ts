@@ -843,6 +843,13 @@ export const translations: Record<string, Record<string, string>> = {
     // Export
     exportCSV: "تصدير CSV",
     exportSuccess: "تم التصدير بنجاح",
+
+    // Recurring
+    recurrence: "التكرار",
+    noRecurrence: "بدون",
+    daily: "يومي",
+    weekly: "أسبوعي",
+    monthly: "شهري",
   },
 } as const;
 
