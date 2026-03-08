@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Menu, X, LogOut, User, LayoutDashboard } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navLinks = [
   { label: "Features", href: "#features" },
@@ -11,6 +16,21 @@ const navLinks = [
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const initials = user
+    ? (user.user_metadata?.display_name || user.email || "U")
+        .split(/[\s@]/)
+        .slice(0, 2)
+        .map((s: string) => s[0]?.toUpperCase())
+        .join("")
+    : "";
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/20">
@@ -39,12 +59,43 @@ const Navbar = () => {
 
         {/* Right buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground border border-border/40 rounded-full px-5" asChild>
-            <Link to="/login">Login</Link>
-          </Button>
-          <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-5 glow-blue-sm" asChild>
-            <Link to="/signup">Get Started</Link>
-          </Button>
+          {user ? (
+            <>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground border border-border/40 rounded-full px-5" asChild>
+                <Link to="/dashboard">Dashboard</Link>
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">{initials}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    <LayoutDashboard className="h-4 w-4 me-2" />Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/settings")}>
+                    <User className="h-4 w-4 me-2" />Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 me-2" />Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground border border-border/40 rounded-full px-5" asChild>
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-5 glow-blue-sm" asChild>
+                <Link to="/signup">Get Started</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -70,12 +121,25 @@ const Navbar = () => {
             </a>
           ))}
           <div className="flex gap-3 pt-2">
-            <Button variant="ghost" size="sm" className="border border-border/40 rounded-full" asChild>
-              <Link to="/login">Login</Link>
-            </Button>
-            <Button size="sm" className="bg-primary rounded-full" asChild>
-              <Link to="/signup">Get Started</Link>
-            </Button>
+            {user ? (
+              <>
+                <Button variant="ghost" size="sm" className="border border-border/40 rounded-full" asChild>
+                  <Link to="/dashboard" onClick={() => setMobileOpen(false)}>Dashboard</Link>
+                </Button>
+                <Button size="sm" variant="destructive" className="rounded-full" onClick={handleSignOut}>
+                  Sign out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" className="border border-border/40 rounded-full" asChild>
+                  <Link to="/login">Login</Link>
+                </Button>
+                <Button size="sm" className="bg-primary rounded-full" asChild>
+                  <Link to="/signup">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
