@@ -265,6 +265,74 @@ const AdminPanel = () => {
             </Card>
           </TabsContent>
 
+          {/* Contacts Tab */}
+          <TabsContent value="contacts" className="mt-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base">{isRtl ? "رسائل التواصل" : "Contact Submissions"}</CardTitle>
+                  <Badge variant="outline" className="text-xs">
+                    {contacts.length} {isRtl ? "رسالة" : "total"}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  {contacts.map((c: any) => (
+                    <div key={c.id} className="p-4 rounded-lg border border-border/30 hover:bg-muted/20 transition-colors">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                            {(c.name || "?")[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{c.name}</p>
+                            <p className="text-xs text-muted-foreground">{c.email}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={c.type === "demo" ? "default" : "secondary"} className="text-[10px]">
+                            {c.type === "demo" ? (isRtl ? "عرض تجريبي" : "Demo") : (isRtl ? "تواصل" : "Contact")}
+                          </Badge>
+                          <Badge variant={c.status === "new" ? "destructive" : "outline"} className="text-[10px]">
+                            {c.status === "new" ? (isRtl ? "جديد" : "New") : c.status === "read" ? (isRtl ? "مقروء" : "Read") : c.status}
+                          </Badge>
+                        </div>
+                      </div>
+                      {c.company && <p className="text-xs text-muted-foreground mb-1">🏢 {c.company}</p>}
+                      <p className="text-sm text-foreground/80 leading-relaxed">{c.message}</p>
+                      <div className="flex items-center justify-between mt-3">
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(c.created_at), "yyyy-MM-dd HH:mm", { locale: isRtl ? ar : undefined })}
+                        </span>
+                        {c.status === "new" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs gap-1"
+                            onClick={async () => {
+                              await supabase.from("contact_submissions" as any).update({ status: "read" } as any).eq("id", c.id);
+                              setContacts(prev => prev.map(x => x.id === c.id ? { ...x, status: "read" } : x));
+                            }}
+                          >
+                            <Eye className="h-3 w-3" />
+                            {isRtl ? "تحديد كمقروء" : "Mark Read"}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {contacts.length === 0 && (
+                    <div className="text-center py-12">
+                      <Mail className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                      <p className="text-sm text-muted-foreground">{isRtl ? "لا توجد رسائل بعد" : "No submissions yet"}</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Audit Log Tab */}
           <TabsContent value="audit" className="mt-4">
             <Card>
