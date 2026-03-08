@@ -477,6 +477,8 @@ export const translations: Record<string, Record<string, string>> = {
     teamMood: "Team Mood",
     colorTheme: "Color Theme",
     mystats: "My Stats",
+    admin: "Admin",
+    tags: "Tags",
   },
   ar: {
     dashboard: "لوحة التحكم",
