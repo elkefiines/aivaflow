@@ -58,6 +58,83 @@ export type Database = {
           },
         ]
       }
+      goal_tasks: {
+        Row: {
+          goal_id: string
+          task_id: string
+        }
+        Insert: {
+          goal_id: string
+          task_id: string
+        }
+        Update: {
+          goal_id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_tasks_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goal_tasks_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          progress: number | null
+          project_id: string
+          status: string | null
+          target_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          progress?: number | null
+          project_id: string
+          status?: string | null
+          target_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          progress?: number | null
+          project_id?: string
+          status?: string | null
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ideas: {
         Row: {
           ai_summary: string | null
@@ -468,6 +545,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          parent_id: string | null
           task_id: string
           user_id: string
         }
@@ -476,6 +554,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           task_id: string
           user_id: string
         }
@@ -484,12 +563,56 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           task_id?: string
           user_id?: string
         }
         Relationships: [
           {
+            foreignKeyName: "task_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "task_comments"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_dependencies: {
+        Row: {
+          created_at: string
+          depends_on_id: string
+          id: string
+          task_id: string
+        }
+        Insert: {
+          created_at?: string
+          depends_on_id: string
+          id?: string
+          task_id: string
+        }
+        Update: {
+          created_at?: string
+          depends_on_id?: string
+          id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_dependencies_depends_on_id_fkey"
+            columns: ["depends_on_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_dependencies_task_id_fkey"
             columns: ["task_id"]
             isOneToOne: false
             referencedRelation: "tasks"
@@ -579,6 +702,7 @@ export type Database = {
           created_by: string | null
           description: string | null
           due_date: string | null
+          goal_id: string | null
           id: string
           labels: string[] | null
           next_recurrence_at: string | null
@@ -598,6 +722,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           due_date?: string | null
+          goal_id?: string | null
           id?: string
           labels?: string[] | null
           next_recurrence_at?: string | null
@@ -617,6 +742,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           due_date?: string | null
+          goal_id?: string | null
           id?: string
           labels?: string[] | null
           next_recurrence_at?: string | null
@@ -630,6 +756,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tasks_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tasks_project_id_fkey"
             columns: ["project_id"]
