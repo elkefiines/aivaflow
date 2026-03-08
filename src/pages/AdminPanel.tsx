@@ -32,6 +32,7 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ projects: 0, users: 0, tasks: 0, doneTasks: 0, inProgress: 0, overdue: 0 });
   const [projects, setProjects] = useState<any[]>([]);
+  const [tasksAll, setTasksAll] = useState<any[]>([]);
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
   const [userRoles, setUserRoles] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
@@ -60,6 +61,7 @@ const AdminPanel = () => {
       const overdueTasks = allTasks.filter(t => t.due_date && new Date(t.due_date) < now && t.status !== "done");
 
       setProjects(allProjects);
+      setTasksAll(allTasks);
       setProfiles(profilesRes.data || []);
       setUserRoles(rolesRes.data || []);
       setContacts((contactsRes.data as any[]) || []);
