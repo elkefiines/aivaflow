@@ -67,9 +67,9 @@ const App = () => (
               <Route path="/automations" element={<Automations />} />
               <Route path="/team-mood" element={<TeamMood />} />
               <Route path="/my-stats" element={<MyStats />} />
-              <Route path="/admin" element={<AdminPanel />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
+            <Route path="/admin" element={<AuthGuard><AdminPanel /></AuthGuard>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           </LanguageProvider>
