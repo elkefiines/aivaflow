@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveProject } from "@/hooks/useActiveProject";
+import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,8 @@ const avatarColors = [
 const Team = () => {
   const { user } = useAuth();
   const { projectId } = useActiveProject();
+  const { t, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const [members, setMembers] = useState<Member[]>([]);
   const [tasks, setTasks] = useState<{ assignee_id: string | null; status: string | null }[]>([]);
   const [addEmail, setAddEmail] = useState("");
@@ -113,42 +116,45 @@ const Team = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">Team</h1>
-        <p className="text-muted-foreground text-sm mt-1">Manage members and track workload</p>
+    <div className="space-y-6" dir={isRtl ? "rtl" : "ltr"}>
+      <div className={isRtl ? "text-end" : ""}>
+        <h1 className="font-display text-2xl font-bold text-foreground">{t("teamTitle")}</h1>
+        <p className="text-muted-foreground text-sm mt-1">{t("teamSubtitle")}</p>
       </div>
 
       {isOwner && (
         <Card className="border-border/40 bg-card/80">
           <CardContent className="p-4">
-            <form onSubmit={(e) => { e.preventDefault(); addMember(); }} className="flex gap-2">
+            <form onSubmit={(e) => { e.preventDefault(); addMember(); }} className={`flex gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
               <Input
                 value={addName}
                 onChange={(e) => setAddName(e.target.value)}
-                placeholder="Display name"
+                placeholder={t("displayName")}
                 className="bg-background/50 border-border/50 max-w-[160px]"
+                dir={isRtl ? "rtl" : "ltr"}
               />
               <Input
                 value={addEmail}
                 onChange={(e) => setAddEmail(e.target.value)}
-                placeholder="email@example.com"
+                placeholder={t("emailAddress")}
                 type="email"
                 required
                 className="bg-background/50 border-border/50"
+                dir="ltr"
               />
               <Input
                 value={addPassword}
                 onChange={(e) => setAddPassword(e.target.value)}
-                placeholder="Password"
+                placeholder={t("password")}
                 type="password"
                 required
                 minLength={6}
                 className="bg-background/50 border-border/50 max-w-[160px]"
+                dir="ltr"
               />
-              <Button disabled={adding || !addEmail.trim() || !addPassword.trim()}>
-                {adding ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <UserPlus className="h-4 w-4 mr-2" />}
-                Add
+              <Button disabled={adding || !addEmail.trim() || !addPassword.trim()} className={isRtl ? "flex-row-reverse" : ""}>
+                {adding ? <Loader2 className={`h-4 w-4 animate-spin ${isRtl ? "ms-2" : "me-2"}`} /> : <UserPlus className={`h-4 w-4 ${isRtl ? "ms-2" : "me-2"}`} />}
+                {t("add")}
               </Button>
             </form>
           </CardContent>
@@ -162,12 +168,12 @@ const Team = () => {
           return (
             <Card key={m.id} className="border-border/40 bg-card/80">
               <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
+                <div className={`flex items-start justify-between ${isRtl ? "flex-row-reverse" : ""}`}>
+                  <div className={`flex items-center gap-3 ${isRtl ? "flex-row-reverse" : ""}`}>
                     <Avatar className="h-10 w-10">
                       <AvatarFallback className={`text-sm font-semibold ${avatarColors[idx % avatarColors.length]}`}>{initials}</AvatarFallback>
                     </Avatar>
-                    <div>
+                    <div className={isRtl ? "text-end" : ""}>
                       <p className="text-sm font-medium text-foreground">{m.display_name}</p>
                       <Badge variant="outline" className="text-[10px] mt-0.5">{m.role || "member"}</Badge>
                     </div>
@@ -178,10 +184,10 @@ const Team = () => {
                     </Button>
                   )}
                 </div>
-                <div className="mt-3 flex gap-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><ListTodo className="h-3 w-3" />{w.total} tasks</span>
-                  <span className="flex items-center gap-1"><Clock className="h-3 w-3 text-amber-400" />{w.inProgress}</span>
-                  <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-emerald-400" />{w.done}</span>
+                <div className={`mt-3 flex gap-3 text-xs text-muted-foreground ${isRtl ? "flex-row-reverse" : ""}`}>
+                  <span className={`flex items-center gap-1 ${isRtl ? "flex-row-reverse" : ""}`}><ListTodo className="h-3 w-3" />{w.total} {t("tasksCount")}</span>
+                  <span className={`flex items-center gap-1 ${isRtl ? "flex-row-reverse" : ""}`}><Clock className="h-3 w-3 text-amber-400" />{w.inProgress}</span>
+                  <span className={`flex items-center gap-1 ${isRtl ? "flex-row-reverse" : ""}`}><CheckCircle2 className="h-3 w-3 text-emerald-400" />{w.done}</span>
                 </div>
               </CardContent>
             </Card>
@@ -190,7 +196,7 @@ const Team = () => {
         {members.length === 0 && (
           <div className="col-span-full text-center py-12">
             <Users className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-muted-foreground text-sm">No team members yet.</p>
+            <p className="text-muted-foreground text-sm">{t("noMembers")}</p>
           </div>
         )}
       </div>

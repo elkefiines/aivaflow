@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveProject } from "@/hooks/useActiveProject";
+import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables, TablesInsert } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,8 @@ const PRIORITIES = ["low", "medium", "high", "critical"] as const;
 const Tasks = () => {
   const { user } = useAuth();
   const { projectId } = useActiveProject();
+  const { t, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const [tasks, setTasks] = useState<Task[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -109,14 +112,29 @@ const Tasks = () => {
     setEditOpen(true);
   };
 
+  const priorityLabels: Record<string, string> = {
+    low: t("low"),
+    medium: t("medium"),
+    high: t("high"),
+    critical: t("critical"),
+  };
+
+  const statusLabels: Record<string, string> = {
+    backlog: t("backlog"),
+    todo: t("todo"),
+    in_progress: t("inProgress"),
+    review: t("review"),
+    done: t("done"),
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Tasks</h1>
-          <p className="text-muted-foreground text-sm mt-1">{tasks.length} tasks in project</p>
+    <div className="space-y-6" dir={isRtl ? "rtl" : "ltr"}>
+      <div className={`flex items-center justify-between ${isRtl ? "flex-row-reverse" : ""}`}>
+        <div className={isRtl ? "text-end" : ""}>
+          <h1 className="font-display text-2xl font-bold text-foreground">{t("tasks")}</h1>
+          <p className="text-muted-foreground text-sm mt-1">{tasks.length} {t("tasksInProject")}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
           <div className="flex items-center rounded-lg border border-border/30 p-0.5">
             <Button
               variant={view === "kanban" ? "secondary" : "ghost"}
@@ -137,48 +155,50 @@ const Tasks = () => {
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button><Plus className="h-4 w-4 mr-2" />New Task</Button>
+              <Button className={isRtl ? "flex-row-reverse" : ""}>
+                <Plus className={`h-4 w-4 ${isRtl ? "ms-2" : "me-2"}`} />{t("newTask")}
+              </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md" dir={isRtl ? "rtl" : "ltr"}>
               <DialogHeader>
-                <DialogTitle className="font-display">Create Task</DialogTitle>
-                <DialogDescription className="text-muted-foreground text-sm">Add a new task to your project.</DialogDescription>
+                <DialogTitle className="font-display">{t("createTask")}</DialogTitle>
+                <DialogDescription className="text-muted-foreground text-sm">{t("addTaskToProject")}</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 pt-2">
                 <div className="space-y-2">
-                  <Label>Title</Label>
-                  <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Task title" className="bg-background/50 border-border/50" />
+                  <Label>{t("title")}</Label>
+                  <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t("taskTitle")} className="bg-background/50 border-border/50" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Description</Label>
-                  <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional details" rows={3} className="bg-background/50 border-border/50 resize-none" />
+                  <Label>{t("description")}</Label>
+                  <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("optionalDetails")} rows={3} className="bg-background/50 border-border/50 resize-none" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label>Priority</Label>
+                    <Label>{t("priority")}</Label>
                     <Select value={priority} onValueChange={setPriority}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        {PRIORITIES.map((p) => <SelectItem key={p} value={p} className="capitalize">{p}</SelectItem>)}
+                        {PRIORITIES.map((p) => <SelectItem key={p} value={p}>{priorityLabels[p]}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Status</Label>
+                    <Label>{t("status")}</Label>
                     <Select value={status} onValueChange={setStatus}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        {STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s.replace("_", " ")}</SelectItem>)}
+                        {STATUSES.map((s) => <SelectItem key={s} value={s}>{statusLabels[s]}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Assignee</Label>
+                  <Label>{t("assignee")}</Label>
                   <Select value={assigneeId} onValueChange={setAssigneeId}>
-                    <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("unassigned")} /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="unassigned">Unassigned</SelectItem>
+                      <SelectItem value="unassigned">{t("unassigned")}</SelectItem>
                       {Object.entries(memberNames).map(([id, name]) => (
                         <SelectItem key={id} value={id}>{name}</SelectItem>
                       ))}
@@ -186,7 +206,7 @@ const Tasks = () => {
                   </Select>
                 </div>
                 <Button onClick={createTask} disabled={loading || !title.trim()} className="w-full">
-                  {loading ? "Creating…" : "Create Task"}
+                  {loading ? t("creating") : t("createTask")}
                 </Button>
               </div>
             </DialogContent>
