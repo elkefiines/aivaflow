@@ -38,6 +38,8 @@ const Tasks = () => {
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<string>("medium");
   const [status, setStatus] = useState<string>("todo");
+  const [dueDate, setDueDate] = useState("");
+  const [startDate, setStartDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [assigneeId, setAssigneeId] = useState<string>("unassigned");
@@ -126,13 +128,15 @@ const Tasks = () => {
       project_id: projectId,
       created_by: user.id,
       assignee_id: assigneeId === "unassigned" ? null : assigneeId,
+      due_date: dueDate || null,
       position: tasks.length,
-    };
+    } as any;
+    if (startDate) (newTask as any).start_date = startDate;
     const { error } = await supabase.from("tasks").insert(newTask);
     setLoading(false);
     if (error) { toast.error("Failed to create task"); return; }
     toast.success("Task created");
-    setTitle(""); setDescription(""); setPriority("medium"); setStatus("todo"); setAssigneeId("unassigned");
+    setTitle(""); setDescription(""); setPriority("medium"); setStatus("todo"); setAssigneeId("unassigned"); setDueDate(""); setStartDate("");
     setDialogOpen(false);
   };
 
@@ -258,6 +262,16 @@ const Tasks = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label>{t("startDate") || "Start Date"}</Label>
+                    <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-background/50 border-border/50" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t("dueDate") || "Due Date"}</Label>
+                    <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="bg-background/50 border-border/50" />
+                  </div>
                 </div>
                 <Button onClick={createTask} disabled={loading || !title.trim()} className="w-full">
                   {loading ? t("creating") : t("createTask")}

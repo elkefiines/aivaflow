@@ -799,6 +799,7 @@ export type Database = {
           project_id: string
           recurrence: string | null
           source_idea_id: string | null
+          start_date: string | null
           status: Database["public"]["Enums"]["task_status"] | null
           title: string
           updated_at: string
@@ -819,6 +820,7 @@ export type Database = {
           project_id: string
           recurrence?: string | null
           source_idea_id?: string | null
+          start_date?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title: string
           updated_at?: string
@@ -839,6 +841,7 @@ export type Database = {
           project_id?: string
           recurrence?: string | null
           source_idea_id?: string | null
+          start_date?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title?: string
           updated_at?: string
