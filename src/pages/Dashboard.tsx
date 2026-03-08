@@ -4,8 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import { useActiveProject } from "@/hooks/useActiveProject";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/hooks/useLanguage";
 import { motion, useInView } from "framer-motion";
-import { AlertTriangle, Clock, Moon, Shield, ChevronRight, Users } from "lucide-react";
+import { AlertTriangle, Clock, Moon, Shield, ChevronRight, Users, ChevronLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -35,29 +36,17 @@ const AnimatedNumber = ({ value, delay = 0 }: { value: number; delay?: number })
   return <span ref={ref}>{count}</span>;
 };
 
-const AnimatedBar = ({ pct, color, delay = 0 }: { pct: number; color: string; delay?: number }) => {
+const AnimatedBar = ({ pct, color, delay = 0, isRtl = false }: { pct: number; color: string; delay?: number; isRtl?: boolean }) => {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true });
   return (
     <div ref={ref} className="h-3 bg-background rounded-full overflow-hidden flex-1">
       <div
-        className={`h-full ${color} rounded-full transition-all duration-1000 ease-out`}
+        className={`h-full ${color} rounded-full transition-all duration-1000 ease-out ${isRtl ? "ms-auto" : ""}`}
         style={{ width: inView ? `${Math.min(pct * 2.5, 100)}%` : "0%", transitionDelay: `${delay}ms` }}
       />
     </div>
   );
-};
-
-const statusBadgeColors: Record<string, string> = {
-  done: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-  in_progress: "bg-amber-500/15 text-amber-400 border-amber-500/30",
-  review: "bg-purple-500/15 text-purple-400 border-purple-500/30",
-  todo: "bg-primary/15 text-primary border-primary/30",
-  backlog: "bg-muted/20 text-muted-foreground border-muted/30",
-};
-
-const statusLabels: Record<string, string> = {
-  done: "Done", in_progress: "In Progress", review: "Review", todo: "To Do", backlog: "Backlog",
 };
 
 const avatarColors = [
@@ -72,11 +61,25 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { projectId } = useActiveProject();
   const navigate = useNavigate();
+  const { t, lang, dir } = useLanguage();
+  const isRtl = dir === "rtl";
   const [tasks, setTasks] = useState<Task[]>([]);
   const [ideaCount, setIdeaCount] = useState(0);
   const [reportCount, setReportCount] = useState(0);
   const [displayName, setDisplayName] = useState("");
   const [teamMembers, setTeamMembers] = useState<{ user_id: string; display_name: string }[]>([]);
+
+  const statusBadgeColors: Record<string, string> = {
+    done: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+    in_progress: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+    review: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+    todo: "bg-primary/15 text-primary border-primary/30",
+    backlog: "bg-muted/20 text-muted-foreground border-muted/30",
+  };
+
+  const statusLabels: Record<string, string> = {
+    done: t("done"), in_progress: t("inProgress"), review: t("review"), todo: t("todo"), backlog: t("backlog"),
+  };
 
   useEffect(() => {
     if (!user?.id) return;
@@ -113,22 +116,22 @@ const Dashboard = () => {
   const recentTasks = [...tasks].sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()).slice(0, 5);
 
   const statusBars = [
-    { label: "Projects", pct: Math.round((done / total) * 100), color: "bg-emerald-500", route: "/tasks" },
-    { label: "Tasks done", pct: Math.round((done / total) * 100), color: "bg-primary", route: "/tasks" },
-    { label: "AI usage", pct: Math.round((ideaCount / Math.max(total, 1)) * 100), color: "bg-rose-400", route: "/ideas" },
-    { label: "Reports", pct: Math.min(reportCount * 10, 100), color: "bg-amber-400", route: "/reports" },
+    { label: t("projects"), pct: Math.round((done / total) * 100), color: "bg-emerald-500", route: "/tasks" },
+    { label: t("tasksDone"), pct: Math.round((done / total) * 100), color: "bg-primary", route: "/tasks" },
+    { label: t("aiUsage"), pct: Math.round((ideaCount / Math.max(total, 1)) * 100), color: "bg-rose-400", route: "/ideas" },
+    { label: t("reports"), pct: Math.min(reportCount * 10, 100), color: "bg-amber-400", route: "/reports" },
   ];
 
   const stats = [
-    { icon: AlertTriangle, label: "Overdue Tasks", value: overdue, color: "text-red-400", bg: "bg-red-400/10" },
-    { icon: Clock, label: "Days saved", value: done, color: "text-amber-400", bg: "bg-amber-400/10" },
-    { icon: Moon, label: "AI Actions", value: ideaCount, color: "text-blue-400", bg: "bg-blue-400/10" },
+    { icon: AlertTriangle, label: t("overdueTasks"), value: overdue, color: "text-red-400", bg: "bg-red-400/10" },
+    { icon: Clock, label: t("daysSaved"), value: done, color: "text-amber-400", bg: "bg-amber-400/10" },
+    { icon: Moon, label: t("aiActions"), value: ideaCount, color: "text-blue-400", bg: "bg-blue-400/10" },
   ];
 
   const summaryItems = [
-    { label: "In Progress", pct: Math.round((inProgress / total) * 100), color: "bg-emerald-500" },
-    { label: "Review", pct: Math.round((review / total) * 100), color: "bg-primary" },
-    { label: "Backlog", pct: Math.round((backlog / total) * 100), color: "bg-amber-400" },
+    { label: t("inProgress"), pct: Math.round((inProgress / total) * 100), color: "bg-emerald-500" },
+    { label: t("review"), pct: Math.round((review / total) * 100), color: "bg-primary" },
+    { label: t("backlog"), pct: Math.round((backlog / total) * 100), color: "bg-amber-400" },
   ];
 
   const now = new Date();
@@ -157,32 +160,32 @@ const Dashboard = () => {
   } as const;
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6" dir={dir}>
       <motion.h3 variants={item} className="font-display text-xl font-bold text-foreground">
-        Welcome in, <span className="font-normal text-muted-foreground">{displayName}</span>
+        {t("welcomeIn")} <span className="font-normal text-muted-foreground">{displayName}</span>
       </motion.h3>
 
-      <motion.div variants={item} className="flex items-center gap-6">
-        <div className="flex items-center gap-2 flex-1">
+      <motion.div variants={item} className={`flex items-center gap-6 ${isRtl ? "flex-row-reverse" : ""}`}>
+        <div className={`flex items-center gap-2 flex-1 ${isRtl ? "flex-row-reverse" : ""}`}>
           {statusBars.map((bar, i) => (
             <div key={bar.label} className="flex-1 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate(bar.route)}>
-              <div className="flex items-center gap-2 mb-1">
+              <div className={`flex items-center gap-2 mb-1 ${isRtl ? "flex-row-reverse" : ""}`}>
                 <span className="text-[10px] text-muted-foreground">{bar.label}</span>
               </div>
-              <div className="h-6 bg-background rounded-lg overflow-hidden flex items-center px-2">
-                <AnimatedBar pct={bar.pct} color={bar.color} delay={400 + i * 150} />
-                <span className="ml-2 text-[10px] text-muted-foreground">{bar.pct}%</span>
+              <div className={`h-6 bg-background rounded-lg overflow-hidden flex items-center px-2 ${isRtl ? "flex-row-reverse" : ""}`}>
+                <AnimatedBar pct={bar.pct} color={bar.color} delay={400 + i * 150} isRtl={isRtl} />
+                <span className={`text-[10px] text-muted-foreground ${isRtl ? "me-2" : "ms-2"}`}>{bar.pct}%</span>
               </div>
             </div>
           ))}
         </div>
-        <div className="flex items-center gap-6">
+        <div className={`flex items-center gap-6 ${isRtl ? "flex-row-reverse" : ""}`}>
           {stats.map((stat, i) => (
-            <motion.div key={stat.label} variants={item} className="flex items-center gap-2">
+            <motion.div key={stat.label} variants={item} className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
               <div className={`w-8 h-8 ${stat.bg} rounded-lg flex items-center justify-center`}>
                 <stat.icon className={`w-4 h-4 ${stat.color}`} />
               </div>
-              <div>
+              <div className={isRtl ? "text-end" : ""}>
                 <p className="text-xl font-display font-bold text-foreground leading-none">
                   <AnimatedNumber value={stat.value} delay={600 + i * 200} />
                 </p>
@@ -195,16 +198,16 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-12 gap-4">
         <motion.div variants={item} className="col-span-2 glass p-4 rounded-xl">
-          <h4 className="text-xs font-medium text-foreground mb-3">Summary</h4>
+          <h4 className={`text-xs font-medium text-foreground mb-3 ${isRtl ? "text-end" : ""}`}>{t("summary")}</h4>
           <div className="space-y-3">
             {summaryItems.map((si, i) => (
               <div key={si.label} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate("/tasks")}>
                 <div className="flex-1">
-                  <div className="flex justify-between mb-1">
+                  <div className={`flex justify-between mb-1 ${isRtl ? "flex-row-reverse" : ""}`}>
                     <span className="text-[10px] text-muted-foreground">{si.label}</span>
                     <span className="text-[10px] text-muted-foreground">{si.pct}%</span>
                   </div>
-                  <AnimatedBar pct={si.pct * 4} color={si.color} delay={800 + i * 150} />
+                  <AnimatedBar pct={si.pct * 4} color={si.color} delay={800 + i * 150} isRtl={isRtl} />
                 </div>
               </div>
             ))}
@@ -212,10 +215,10 @@ const Dashboard = () => {
         </motion.div>
 
         <motion.div variants={item} className="col-span-7 glass p-4 rounded-xl">
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="text-xs font-medium text-foreground">Task completion</h4>
-            <div className="flex items-center gap-3">
-              {["12 months", "30 days", "1 week"].map((period, i) => (
+          <div className={`flex items-center justify-between mb-3 ${isRtl ? "flex-row-reverse" : ""}`}>
+            <h4 className="text-xs font-medium text-foreground">{t("taskCompletion")}</h4>
+            <div className={`flex items-center gap-3 ${isRtl ? "flex-row-reverse" : ""}`}>
+              {[t("months12"), t("days30"), t("week1")].map((period, i) => (
                 <button key={period} className={`text-[10px] px-2 py-0.5 rounded ${i === 0 ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}>
                   {period}
                 </button>
@@ -225,16 +228,16 @@ const Dashboard = () => {
           <div className="h-36 relative">
             <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
               {[maxVal, Math.round(maxVal * 0.66), Math.round(maxVal * 0.33)].map(v => (
-                <div key={v} className="flex items-center gap-2">
-                  <span className="text-[8px] text-muted-foreground/40 w-6 text-right">{v}</span>
+                <div key={v} className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
+                  <span className={`text-[8px] text-muted-foreground/40 w-6 ${isRtl ? "text-start" : "text-end"}`}>{v}</span>
                   <div className="flex-1 h-px bg-border/10" />
                 </div>
               ))}
             </div>
-            <motion.svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="none" initial="hidden" animate="show">
+            <motion.svg viewBox="0 0 100 100" className={`w-full h-full ${isRtl ? "scale-x-[-1]" : ""}`} preserveAspectRatio="none" initial="hidden" animate="show">
               <motion.polyline points={chartPath} fill="none" stroke="hsl(var(--primary))" strokeWidth="0.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" variants={chartLine} />
             </motion.svg>
-            <div className="flex justify-between mt-1">
+            <div className={`flex justify-between mt-1 ${isRtl ? "flex-row-reverse" : ""}`}>
               {monthLabels.map((m, i) => (
                 <span key={i} className="text-[7px] text-muted-foreground/40">{m}</span>
               ))}
@@ -243,30 +246,30 @@ const Dashboard = () => {
         </motion.div>
 
         <motion.div variants={item} className="col-span-3 glass p-4 rounded-xl">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
+          <div className={`flex items-center justify-between mb-3 ${isRtl ? "flex-row-reverse" : ""}`}>
+            <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
               <Shield className="w-4 h-4 text-primary" />
-              <h4 className="text-xs font-medium text-foreground">AI Insights</h4>
+              <h4 className="text-xs font-medium text-foreground">{t("aiInsights")}</h4>
             </div>
             <motion.div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center" animate={{ scale: [1, 1.15, 1] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}>
-              <ChevronRight className="w-3 h-3 text-primary" />
+              {isRtl ? <ChevronLeft className="w-3 h-3 text-primary" /> : <ChevronRight className="w-3 h-3 text-primary" />}
             </motion.div>
           </div>
-          <p className="text-[10px] text-muted-foreground leading-relaxed mb-4">AI-powered analysis keeps your projects secure and on track.</p>
+          <p className={`text-[10px] text-muted-foreground leading-relaxed mb-4 ${isRtl ? "text-end" : ""}`}>{t("aiInsightsDesc")}</p>
           <div className="space-y-3">
-            <div className="flex items-center gap-3">
+            <div className={`flex items-center gap-3 ${isRtl ? "flex-row-reverse" : ""}`}>
               <motion.div className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center" animate={{ boxShadow: ["0 0 0px hsl(var(--primary) / 0)", "0 0 12px hsl(var(--primary) / 0.4)", "0 0 0px hsl(var(--primary) / 0)"] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}>
-                <span className="text-[9px] font-medium text-primary">Priority</span>
+                <span className="text-[9px] font-medium text-primary">{t("priority")}</span>
               </motion.div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
               {[{ color: "bg-primary", size: "w-8 h-8", delay: 0 }, { color: "bg-emerald-500", size: "w-6 h-6", delay: 0.15 }, { color: "bg-amber-400", size: "w-5 h-5", delay: 0.3 }].map((dot, i) => (
                 <motion.div key={i} className={`${dot.size} ${dot.color} rounded-full opacity-60`} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.2 + dot.delay, type: "spring", stiffness: 200 }} />
               ))}
             </div>
-            <div className="flex items-center gap-3 mt-2">
+            <div className={`flex items-center gap-3 mt-2 ${isRtl ? "flex-row-reverse" : ""}`}>
               <motion.div className="w-10 h-10 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center" initial={{ opacity: 0, rotate: -90 }} animate={{ opacity: 1, rotate: 0 }} transition={{ delay: 1.5, duration: 0.6 }}>
-                <span className="text-[9px] font-medium text-muted-foreground">Threats</span>
+                <span className="text-[9px] font-medium text-muted-foreground">{t("threats")}</span>
               </motion.div>
             </div>
           </div>
@@ -276,19 +279,19 @@ const Dashboard = () => {
       {/* Recent Tasks & Team */}
       <div className="grid grid-cols-12 gap-4">
         <motion.div variants={item} className="col-span-8 glass p-4 rounded-xl">
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="text-xs font-medium text-foreground">Recent Tasks</h4>
-            <button className="text-[10px] text-primary hover:underline" onClick={() => navigate("/tasks")}>View all</button>
+          <div className={`flex items-center justify-between mb-3 ${isRtl ? "flex-row-reverse" : ""}`}>
+            <h4 className="text-xs font-medium text-foreground">{t("recentTasks")}</h4>
+            <button className="text-[10px] text-primary hover:underline" onClick={() => navigate("/tasks")}>{t("viewAll")}</button>
           </div>
           <div className="space-y-2">
-            {recentTasks.length === 0 && <p className="text-xs text-muted-foreground py-4 text-center">No tasks yet</p>}
+            {recentTasks.length === 0 && <p className="text-xs text-muted-foreground py-4 text-center">{t("noTasksYet")}</p>}
             {recentTasks.map((task) => (
-              <div key={task.id} className="flex items-center justify-between p-2.5 rounded-lg bg-background/50 border border-border/20 hover:border-primary/30 transition-colors cursor-pointer" onClick={() => navigate("/tasks")}>
-                <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div key={task.id} className={`flex items-center justify-between p-2.5 rounded-lg bg-background/50 border border-border/20 hover:border-primary/30 transition-colors cursor-pointer ${isRtl ? "flex-row-reverse" : ""}`} onClick={() => navigate("/tasks")}>
+                <div className={`flex items-center gap-3 min-w-0 flex-1 ${isRtl ? "flex-row-reverse" : ""}`}>
                   <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${task.priority === "critical" ? "bg-destructive" : task.priority === "high" ? "bg-amber-400" : task.priority === "medium" ? "bg-primary" : "bg-muted-foreground/40"}`} />
                   <span className="text-sm text-foreground truncate">{task.title}</span>
                 </div>
-                <Badge variant="outline" className={`text-[10px] shrink-0 ml-2 ${statusBadgeColors[task.status || "backlog"]}`}>
+                <Badge variant="outline" className={`text-[10px] shrink-0 ${isRtl ? "me-2" : "ms-2"} ${statusBadgeColors[task.status || "backlog"]}`}>
                   {statusLabels[task.status || "backlog"]}
                 </Badge>
               </div>
@@ -297,19 +300,19 @@ const Dashboard = () => {
         </motion.div>
 
         <motion.div variants={item} className="col-span-4 glass p-4 rounded-xl">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
+          <div className={`flex items-center justify-between mb-3 ${isRtl ? "flex-row-reverse" : ""}`}>
+            <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
               <Users className="w-4 h-4 text-primary" />
-              <h4 className="text-xs font-medium text-foreground">Team</h4>
+              <h4 className="text-xs font-medium text-foreground">{t("team")}</h4>
             </div>
-            <button className="text-[10px] text-primary hover:underline" onClick={() => navigate("/team")}>Manage</button>
+            <button className="text-[10px] text-primary hover:underline" onClick={() => navigate("/team")}>{t("manage")}</button>
           </div>
           <div className="space-y-2">
-            {teamMembers.length === 0 && <p className="text-xs text-muted-foreground py-4 text-center">No members yet</p>}
+            {teamMembers.length === 0 && <p className="text-xs text-muted-foreground py-4 text-center">{t("noMembersYet")}</p>}
             {teamMembers.map((member, i) => {
               const initials = (member.display_name || "U").split(/\s/).slice(0, 2).map(s => s[0]?.toUpperCase()).join("");
               return (
-                <div key={member.user_id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-background/50 transition-colors">
+                <div key={member.user_id} className={`flex items-center gap-3 p-2 rounded-lg hover:bg-background/50 transition-colors ${isRtl ? "flex-row-reverse" : ""}`}>
                   <Avatar className="h-7 w-7">
                     <AvatarFallback className={`text-[10px] font-semibold ${avatarColors[i % avatarColors.length]}`}>{initials}</AvatarFallback>
                   </Avatar>
