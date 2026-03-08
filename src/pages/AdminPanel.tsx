@@ -11,7 +11,8 @@ import {
   Shield, Users, FolderKanban, Activity, ListChecks, AlertTriangle,
   ArrowLeft, ArrowRight, LogOut, BarChart3, TrendingUp, Clock, Mail, Eye, CheckCircle2, Zap, Target
 } from "lucide-react";
-import { format, subDays } from "date-fns";
+import { format, subDays, eachDayOfInterval, startOfDay } from "date-fns";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, CartesianGrid } from "recharts";
 import { ar } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
@@ -31,6 +32,7 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ projects: 0, users: 0, tasks: 0, doneTasks: 0, inProgress: 0, overdue: 0 });
   const [projects, setProjects] = useState<any[]>([]);
+  const [tasksAll, setTasksAll] = useState<any[]>([]);
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
   const [userRoles, setUserRoles] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
@@ -59,6 +61,7 @@ const AdminPanel = () => {
       const overdueTasks = allTasks.filter(t => t.due_date && new Date(t.due_date) < now && t.status !== "done");
 
       setProjects(allProjects);
+      setTasksAll(allTasks);
       setProfiles(profilesRes.data || []);
       setUserRoles(rolesRes.data || []);
       setContacts((contactsRes.data as any[]) || []);
@@ -121,6 +124,45 @@ const AdminPanel = () => {
   };
 
   const last7daysLogs = recentLogs.filter(l => new Date(l.created_at) > subDays(new Date(), 7));
+
+  // Weekly activity chart data (last 14 days)
+  const last14days = eachDayOfInterval({ start: subDays(new Date(), 13), end: new Date() });
+  const weeklyActivityData = last14days.map(day => {
+    const dayStart = startOfDay(day);
+    const dayEnd = new Date(dayStart.getTime() + 86400000);
+    const dayLogs = recentLogs.filter(l => {
+      const d = new Date(l.created_at);
+      return d >= dayStart && d < dayEnd;
+    });
+    const dayTasks = (tasksAll || []).filter((t: any) => {
+      const d = new Date(t.created_at);
+      return d >= dayStart && d < dayEnd;
+    });
+    return {
+      date: format(day, "MM/dd"),
+      day: format(day, "EEE"),
+      activities: dayLogs.length,
+      tasks: dayTasks.length,
+    };
+  });
+
+  // Task status distribution for pie chart
+  const allTasks = tasksAll || [];
+  const statusData = [
+    { name: isRtl ? "معلقة" : "Backlog", value: allTasks.filter((t: any) => t.status === "backlog").length, color: "#94a3b8" },
+    { name: isRtl ? "للتنفيذ" : "Todo", value: allTasks.filter((t: any) => t.status === "todo").length, color: "#3b82f6" },
+    { name: isRtl ? "قيد التنفيذ" : "In Progress", value: allTasks.filter((t: any) => t.status === "in_progress").length, color: "#f59e0b" },
+    { name: isRtl ? "مراجعة" : "Review", value: allTasks.filter((t: any) => t.status === "review").length, color: "#8b5cf6" },
+    { name: isRtl ? "مكتملة" : "Done", value: allTasks.filter((t: any) => t.status === "done").length, color: "#10b981" },
+  ].filter(s => s.value > 0);
+
+  // Priority distribution
+  const priorityData = [
+    { name: isRtl ? "منخفضة" : "Low", value: allTasks.filter((t: any) => t.priority === "low").length, color: "#94a3b8" },
+    { name: isRtl ? "متوسطة" : "Medium", value: allTasks.filter((t: any) => t.priority === "medium").length, color: "#3b82f6" },
+    { name: isRtl ? "عالية" : "High", value: allTasks.filter((t: any) => t.priority === "high").length, color: "#f59e0b" },
+    { name: isRtl ? "حرجة" : "Critical", value: allTasks.filter((t: any) => t.priority === "critical").length, color: "#ef4444" },
+  ].filter(s => s.value > 0);
 
   const statCards = [
     { icon: FolderKanban, label: isRtl ? "المشاريع" : "Projects", value: stats.projects, gradient: "from-blue-500/10 to-blue-600/5", iconColor: "text-blue-500", borderColor: "border-blue-500/20" },
@@ -243,6 +285,134 @@ const AdminPanel = () => {
             </Card>
           </motion.div>
         </div>
+
+        {/* Advanced Analytics Charts */}
+        <div className="grid lg:grid-cols-3 gap-4">
+          {/* Weekly Activity Area Chart */}
+          <motion.div custom={8} variants={fadeIn} initial="hidden" animate="visible" className="lg:col-span-2">
+            <Card className="h-full">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4 text-primary" />
+                    {isRtl ? "النشاط خلال 14 يوم" : "14-Day Activity"}
+                  </CardTitle>
+                  <Badge variant="outline" className="text-[10px]">{isRtl ? "أنشطة + مهام" : "Activities + Tasks"}</Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[260px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={weeklyActivityData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="actGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                          <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="taskGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
+                          <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                      <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                      <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} allowDecimals={false} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 12, fontSize: 12 }}
+                        labelStyle={{ color: "hsl(var(--foreground))" }}
+                      />
+                      <Area type="monotone" dataKey="activities" name={isRtl ? "أنشطة" : "Activities"} stroke="hsl(var(--primary))" fill="url(#actGrad)" strokeWidth={2} />
+                      <Area type="monotone" dataKey="tasks" name={isRtl ? "مهام جديدة" : "New Tasks"} stroke="#10b981" fill="url(#taskGrad)" strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Task Status Pie Chart */}
+          <motion.div custom={9} variants={fadeIn} initial="hidden" animate="visible">
+            <Card className="h-full">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <ListChecks className="h-4 w-4 text-primary" />
+                  {isRtl ? "توزيع حالة المهام" : "Task Status"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {statusData.length > 0 ? (
+                  <div className="h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={statusData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={50}
+                          outerRadius={80}
+                          paddingAngle={3}
+                          dataKey="value"
+                        >
+                          {statusData.map((entry, index) => (
+                            <Cell key={index} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 12, fontSize: 12 }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="h-[200px] flex items-center justify-center">
+                    <p className="text-sm text-muted-foreground">{isRtl ? "لا توجد مهام" : "No tasks"}</p>
+                  </div>
+                )}
+                <div className="flex flex-wrap gap-2 mt-2 justify-center">
+                  {statusData.map((s, i) => (
+                    <div key={i} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
+                      {s.name} ({s.value})
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Priority Distribution Bar Chart */}
+        {priorityData.length > 0 && (
+          <motion.div custom={10} variants={fadeIn} initial="hidden" animate="visible">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-amber-500" />
+                  {isRtl ? "توزيع أولويات المهام" : "Task Priority Distribution"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[180px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={priorityData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                      <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                      <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} allowDecimals={false} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 12, fontSize: 12 }}
+                      />
+                      <Bar dataKey="value" name={isRtl ? "عدد المهام" : "Tasks"} radius={[6, 6, 0, 0]}>
+                        {priorityData.map((entry, index) => (
+                          <Cell key={index} fill={entry.color} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Tabs */}
         <Tabs defaultValue="projects" dir={dir}>
