@@ -10,8 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Users, Loader2, UserPlus, Trash2, ListTodo, Clock, CheckCircle2 } from "lucide-react";
+import { Users, Loader2, UserPlus, Trash2, ListTodo, Clock, CheckCircle2, UserCheck, Plus } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -37,7 +38,8 @@ const Team = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { projectId } = useActiveProject();
-  const { t, dir } = useLanguage();
+  const { t, lang, dir } = useLanguage();
+  const isRtl = lang === "ar";
   const [members, setMembers] = useState<Member[]>([]);
   const [tasks, setTasks] = useState<{ assignee_id: string | null; status: string | null }[]>([]);
   const [addEmail, setAddEmail] = useState("");
@@ -46,6 +48,11 @@ const Team = () => {
   const [adding, setAdding] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [addTab, setAddTab] = useState<"new" | "existing">("new");
+
+  // Existing members from other projects owned by this user
+  const [otherMembers, setOtherMembers] = useState<{ user_id: string; display_name: string }[]>([]);
+  const [addingExisting, setAddingExisting] = useState<string | null>(null);
 
   const load = async () => {
     if (!projectId || !user) return;
@@ -57,18 +64,46 @@ const Team = () => {
       supabase.from("projects").select("owner_id").eq("id", projectId).single(),
     ]);
 
-    setIsOwner(projectRes.data?.owner_id === user.id);
+    const ownerCheck = projectRes.data?.owner_id === user.id;
+    setIsOwner(ownerCheck);
     setTasks(tasksRes.data || []);
 
     const rawMembers = membersRes.data || [];
-    const userIds = rawMembers.map(m => m.user_id);
-    if (userIds.length > 0) {
-      const { data: profiles } = await supabase.from("profiles").select("user_id, display_name").in("user_id", userIds);
+    const memberUserIds = rawMembers.map(m => m.user_id);
+
+    if (memberUserIds.length > 0) {
+      const { data: profiles } = await supabase.from("profiles").select("user_id, display_name").in("user_id", memberUserIds);
       const profileMap = new Map((profiles || []).map(p => [p.user_id, p.display_name]));
       setMembers(rawMembers.map(m => ({ ...m, display_name: profileMap.get(m.user_id) || "Unknown" })));
     } else {
       setMembers([]);
     }
+
+    // Load members from other projects owned by user (for "add existing" feature)
+    if (ownerCheck) {
+      const { data: myProjects } = await supabase.from("projects").select("id").eq("owner_id", user.id);
+      const otherProjectIds = (myProjects || []).map(p => p.id).filter(id => id !== projectId);
+
+      if (otherProjectIds.length > 0) {
+        const { data: otherMembersData } = await supabase
+          .from("project_members")
+          .select("user_id")
+          .in("project_id", otherProjectIds);
+
+        const otherUserIds = [...new Set((otherMembersData || []).map(m => m.user_id))]
+          .filter(uid => uid !== user.id && !memberUserIds.includes(uid));
+
+        if (otherUserIds.length > 0) {
+          const { data: profiles } = await supabase.from("profiles").select("user_id, display_name").in("user_id", otherUserIds);
+          setOtherMembers((profiles || []).map(p => ({ user_id: p.user_id, display_name: p.display_name || "User" })));
+        } else {
+          setOtherMembers([]);
+        }
+      } else {
+        setOtherMembers([]);
+      }
+    }
+
     setLoading(false);
   };
 
@@ -94,6 +129,24 @@ const Team = () => {
     }
   };
 
+  const addExistingMember = async (userId: string) => {
+    if (!projectId || !user) return;
+    setAddingExisting(userId);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-team-member", {
+        body: { projectId, existingUserId: userId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success(isRtl ? "تمت إضافة العضو للمشروع" : "Member added to project");
+      load();
+    } catch (err: any) {
+      toast.error(err.message || (isRtl ? "فشل في إضافة العضو" : "Failed to add member"));
+    } finally {
+      setAddingExisting(null);
+    }
+  };
+
   const removeMember = async (id: string) => {
     await supabase.from("project_members").delete().eq("id", id);
     toast.success("Member removed");
@@ -115,15 +168,74 @@ const Team = () => {
       {isOwner && (
         <Card className="border-border/40 bg-card/80">
           <CardContent className="p-3 sm:p-4">
-            <form onSubmit={(e) => { e.preventDefault(); addMember(); }} className="flex flex-col sm:flex-row gap-2">
-              <Input value={addName} onChange={(e) => setAddName(e.target.value)} placeholder={t("displayName")} className="bg-background/50 border-border/50 sm:max-w-[160px]" />
-              <Input value={addEmail} onChange={(e) => setAddEmail(e.target.value)} placeholder={t("emailAddress")} type="email" required className="bg-background/50 border-border/50" dir="ltr" />
-              <Input value={addPassword} onChange={(e) => setAddPassword(e.target.value)} placeholder={t("password")} type="password" required minLength={6} className="bg-background/50 border-border/50 sm:max-w-[160px]" dir="ltr" />
-              <Button disabled={adding || !addEmail.trim() || !addPassword.trim()} className="shrink-0">
-                {adding ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : <UserPlus className="h-4 w-4 me-2" />}
-                {t("add")}
-              </Button>
-            </form>
+            <Tabs value={addTab} onValueChange={(v) => setAddTab(v as "new" | "existing")} dir={dir}>
+              <TabsList className="mb-3 w-full justify-start">
+                <TabsTrigger value="new" className="gap-1.5 text-xs">
+                  <UserPlus className="h-3.5 w-3.5" />
+                  {isRtl ? "عضو جديد" : "New Member"}
+                </TabsTrigger>
+                <TabsTrigger value="existing" className="gap-1.5 text-xs">
+                  <UserCheck className="h-3.5 w-3.5" />
+                  {isRtl ? "عضو موجود" : "Existing Member"}
+                  {otherMembers.length > 0 && (
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 ms-1">{otherMembers.length}</Badge>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="new" className="mt-0">
+                <form onSubmit={(e) => { e.preventDefault(); addMember(); }} className="flex flex-col sm:flex-row gap-2">
+                  <Input value={addName} onChange={(e) => setAddName(e.target.value)} placeholder={t("displayName")} className="bg-background/50 border-border/50 sm:max-w-[160px]" />
+                  <Input value={addEmail} onChange={(e) => setAddEmail(e.target.value)} placeholder={t("emailAddress")} type="email" required className="bg-background/50 border-border/50" dir="ltr" />
+                  <Input value={addPassword} onChange={(e) => setAddPassword(e.target.value)} placeholder={t("password")} type="password" required minLength={6} className="bg-background/50 border-border/50 sm:max-w-[160px]" dir="ltr" />
+                  <Button disabled={adding || !addEmail.trim() || !addPassword.trim()} className="shrink-0">
+                    {adding ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : <UserPlus className="h-4 w-4 me-2" />}
+                    {t("add")}
+                  </Button>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="existing" className="mt-0">
+                {otherMembers.length > 0 ? (
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {otherMembers.map((m, idx) => {
+                      const initials = (m.display_name || "U").split(/\s/).slice(0, 2).map(s => s[0]?.toUpperCase()).join("");
+                      return (
+                        <div key={m.user_id} className="flex items-center justify-between p-2.5 rounded-lg bg-background/50 border border-border/30">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className={`text-xs font-semibold ${avatarColors[idx % avatarColors.length]}`}>{initials}</AvatarFallback>
+                            </Avatar>
+                            <span className="text-sm font-medium text-foreground">{m.display_name}</span>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs gap-1"
+                            disabled={addingExisting === m.user_id}
+                            onClick={() => addExistingMember(m.user_id)}
+                          >
+                            {addingExisting === m.user_id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Plus className="h-3 w-3" />
+                            )}
+                            {isRtl ? "إضافة" : "Add"}
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <UserCheck className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      {isRtl ? "لا يوجد أعضاء من مشاريع أخرى يمكن إضافتهم" : "No members from other projects to add"}
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       )}
@@ -153,7 +265,7 @@ const Team = () => {
                     {isOwner && m.user_id !== user?.id && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive">
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={(e) => e.stopPropagation()}>
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </AlertDialogTrigger>
