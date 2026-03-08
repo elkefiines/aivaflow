@@ -639,6 +639,15 @@ export const translations: Record<string, Record<string, string>> = {
     featureIdeaExec: "من الفكرة إلى التنفيذ",
     featureIdeaExecDesc: "اكتب فكرة أولية وAIVA يحولها إلى ملاحم ومهام ومهام فرعية مع درجات ثقة.",
     coreFeature: "ميزة أساسية",
+
+    // Activity Log
+    activityLog: "سجل النشاطات",
+    noActivityYet: "لا توجد نشاطات بعد",
+    activityCreatedTask: "أنشأ مهمة",
+    activityAddedIdea: "أضاف فكرة",
+    activityMovedTask: "نقل مهمة",
+    activityDeletedTask: "حذف مهمة",
+    activityJoinedProject: "انضم للمشروع",
   },
 } as const;
 
