@@ -64,17 +64,36 @@ const Team = () => {
       supabase.from("projects").select("owner_id").eq("id", projectId).single(),
     ]);
 
-    const ownerCheck = projectRes.data?.owner_id === user.id;
+    const ownerId = projectRes.data?.owner_id;
+    const ownerCheck = ownerId === user.id;
     setIsOwner(ownerCheck);
     setTasks(tasksRes.data || []);
 
     const rawMembers = membersRes.data || [];
+    
+    // Collect all user IDs: members + owner
     const memberUserIds = rawMembers.map(m => m.user_id);
+    const allUserIds = [...new Set([...memberUserIds, ...(ownerId ? [ownerId] : [])])];
 
-    if (memberUserIds.length > 0) {
-      const { data: profiles } = await supabase.from("profiles").select("user_id, display_name").in("user_id", memberUserIds);
+    if (allUserIds.length > 0) {
+      const { data: profiles } = await supabase.from("profiles").select("user_id, display_name").in("user_id", allUserIds);
       const profileMap = new Map((profiles || []).map(p => [p.user_id, p.display_name]));
-      setMembers(rawMembers.map(m => ({ ...m, display_name: profileMap.get(m.user_id) || "Unknown" })));
+      
+      // Build members list including owner
+      const membersList: Member[] = rawMembers.map(m => ({ ...m, display_name: profileMap.get(m.user_id) || "Unknown" }));
+      
+      // Add owner as a virtual member if not already in project_members
+      if (ownerId && !memberUserIds.includes(ownerId)) {
+        membersList.unshift({
+          id: `owner-${ownerId}`,
+          user_id: ownerId,
+          role: "owner",
+          joined_at: projectRes.data ? "" : "",
+          display_name: profileMap.get(ownerId) || "Owner",
+        });
+      }
+      
+      setMembers(membersList);
     } else {
       setMembers([]);
     }
@@ -262,7 +281,7 @@ const Team = () => {
                         <Badge variant="outline" className="text-[10px] mt-0.5">{m.role || "member"}</Badge>
                       </div>
                     </div>
-                    {isOwner && m.user_id !== user?.id && (
+                    {isOwner && m.user_id !== user?.id && !m.id.startsWith("owner-") && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={(e) => e.stopPropagation()}>
