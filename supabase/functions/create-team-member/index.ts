@@ -26,7 +26,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Verify the calling user
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } }
@@ -40,10 +39,10 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { email, password, displayName, projectId } = await req.json();
+    const { email, password, displayName, projectId, existingUserId } = await req.json();
 
-    if (!email || !password || !projectId) {
-      return new Response(JSON.stringify({ error: "Missing required fields" }), {
+    if (!projectId) {
+      return new Response(JSON.stringify({ error: "Missing projectId" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -63,25 +62,81 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Create the user using admin API (doesn't affect current session)
-    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-      email: email.trim().toLowerCase(),
-      password,
-      email_confirm: true, // Auto-confirm the email
-      user_metadata: { display_name: displayName || email.split("@")[0] }
-    });
+    let targetUserId: string;
 
-    if (createError) {
-      return new Response(JSON.stringify({ error: createError.message }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (existingUserId) {
+      // Adding an existing user to a new project
+      targetUserId = existingUserId;
+
+      // Check if already a member
+      const { data: existing } = await supabaseAdmin
+        .from("project_members")
+        .select("id")
+        .eq("project_id", projectId)
+        .eq("user_id", targetUserId)
+        .maybeSingle();
+
+      if (existing) {
+        return new Response(JSON.stringify({ error: "User is already a member of this project" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } else {
+      // Creating a new user
+      if (!email || !password) {
+        return new Response(JSON.stringify({ error: "Missing email or password for new user" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Check if user with this email already exists
+      const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+      const existingUser = existingUsers?.users?.find(
+        (u) => u.email?.toLowerCase() === email.trim().toLowerCase()
+      );
+
+      if (existingUser) {
+        // User exists - just add to project
+        targetUserId = existingUser.id;
+
+        const { data: alreadyMember } = await supabaseAdmin
+          .from("project_members")
+          .select("id")
+          .eq("project_id", projectId)
+          .eq("user_id", targetUserId)
+          .maybeSingle();
+
+        if (alreadyMember) {
+          return new Response(JSON.stringify({ error: "User is already a member of this project" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      } else {
+        // Create new user
+        const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+          email: email.trim().toLowerCase(),
+          password,
+          email_confirm: true,
+          user_metadata: { display_name: displayName || email.split("@")[0] }
+        });
+
+        if (createError) {
+          return new Response(JSON.stringify({ error: createError.message }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        targetUserId = newUser.user.id;
+      }
     }
 
     // Add user to project members
     const { error: memberError } = await supabaseAdmin.from("project_members").insert({
       project_id: projectId,
-      user_id: newUser.user.id,
+      user_id: targetUserId,
       role: "member",
     });
 
@@ -92,7 +147,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ success: true, userId: newUser.user.id }), {
+    return new Response(JSON.stringify({ success: true, userId: targetUserId }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
