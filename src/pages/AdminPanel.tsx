@@ -9,8 +9,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 import {
   Shield, Users, FolderKanban, Activity, ListChecks, AlertTriangle,
-  ArrowLeft, ArrowRight, LogOut, BarChart3, TrendingUp, Clock, Mail, Eye, CheckCircle2, Zap, Target
+  ArrowLeft, ArrowRight, LogOut, BarChart3, TrendingUp, Clock, Mail, Eye, CheckCircle2, Zap, Target, Trash2, UserCog
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { format, subDays, eachDayOfInterval, startOfDay } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, CartesianGrid } from "recharts";
 import { ar } from "date-fns/locale";
