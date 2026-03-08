@@ -113,8 +113,8 @@ const Settings = () => {
         <p className="text-muted-foreground text-sm mt-1">{t("settingsSubtitle")}</p>
       </div>
 
-      <Tabs defaultValue="profile">
-        <TabsList className="bg-card/60 border border-border/30">
+      <Tabs defaultValue="profile" dir={isRtl ? "rtl" : "ltr"}>
+        <TabsList className={`bg-card/60 border border-border/30 ${isRtl ? "flex-row-reverse" : ""}`}>
           <TabsTrigger value="profile">{t("profile")}</TabsTrigger>
           <TabsTrigger value="project">{t("project")}</TabsTrigger>
           <TabsTrigger value="language">{t("language")}</TabsTrigger>
