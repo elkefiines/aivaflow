@@ -44,6 +44,7 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
   const [status, setStatus] = useState("todo");
   const [assigneeId, setAssigneeId] = useState<string>("unassigned");
   const [dueDate, setDueDate] = useState("");
+  const [startDate, setStartDate] = useState("");
   const [recurrence, setRecurrence] = useState<string>("none");
   const [loading, setLoading] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
@@ -64,6 +65,7 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
       setStatus(task.status || "todo");
       setAssigneeId(task.assignee_id || "unassigned");
       setDueDate(task.due_date ? task.due_date.split("T")[0] : "");
+      setStartDate((task as any).start_date ? (task as any).start_date.split("T")[0] : "");
       setRecurrence((task as any).recurrence || "none");
     }
   }, [task]);
@@ -95,6 +97,7 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
       due_date: dueDate || null,
       recurrence: recurrence === "none" ? null : recurrence,
     } as any;
+    (updates as any).start_date = startDate || null;
     const { error } = await supabase.from("tasks").update(updates).eq("id", task.id);
     setLoading(false);
     if (error) { toast.error(t("failedToUpdateTask") || "Failed to update task"); return; }
@@ -167,6 +170,10 @@ const TaskEditDialog = ({ task, open, onOpenChange, onSaved, projectId }: TaskEd
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>{t("startDate") || "Start Date"}</Label>
+              <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-background/50 border-border/50" />
             </div>
             <div className="space-y-2">
               <Label>{t("dueDate") || "Due Date"}</Label>
