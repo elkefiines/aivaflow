@@ -11,8 +11,22 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Search, CheckSquare, Lightbulb, MessageSquare } from "lucide-react";
+import { Search, CheckSquare, Lightbulb, MessageSquare, Clock, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const RECENT_KEY = "aiva.search.recent";
+const loadRecent = (): string[] => {
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]").slice(0, 5);
+  } catch {
+    return [];
+  }
+};
+const saveRecent = (q: string) => {
+  const cur = loadRecent().filter((s) => s !== q);
+  const next = [q, ...cur].slice(0, 5);
+  localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+};
 
 interface SearchResult {
   id: string;
