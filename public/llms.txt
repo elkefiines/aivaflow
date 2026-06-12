@@ -1,0 +1,11 @@
+# AIVA FLOW
+
+> AI-powered project management platform that helps modern teams automate task generation, prioritize work, and track progress.
+
+AIVA FLOW combines a Kanban board, ideas inbox, AI assistant, analytics, and team collaboration features in one workspace.
+
+## Pages
+
+- [Home](/): Product overview, features, and how it works.
+- [Sign up](/signup): Create a new AIVA FLOW account.
+- [Log in](/login): Access an existing account.
