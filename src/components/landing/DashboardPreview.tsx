@@ -25,14 +25,14 @@ const summaryItems = [
 ];
 
 const trustedLogos = [
-  { id: "logo-1", description: "Acme Corp", image: "https://img.logoipsum.com/243.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
-  { id: "logo-2", description: "Globex", image: "https://img.logoipsum.com/244.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
-  { id: "logo-3", description: "Initech", image: "https://img.logoipsum.com/245.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
-  { id: "logo-4", description: "Umbrella", image: "https://img.logoipsum.com/246.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
-  { id: "logo-5", description: "Hooli", image: "https://img.logoipsum.com/247.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
-  { id: "logo-6", description: "Pied Piper", image: "https://img.logoipsum.com/248.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
-  { id: "logo-7", description: "Massive Dynamic", image: "https://img.logoipsum.com/249.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
-  { id: "logo-8", description: "Soylent", image: "https://img.logoipsum.com/250.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-1", description: "Logo of Acme Corp", image: "https://img.logoipsum.com/243.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-2", description: "Logo of Globex", image: "https://img.logoipsum.com/244.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-3", description: "Logo of Initech", image: "https://img.logoipsum.com/245.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-4", description: "Logo of Umbrella", image: "https://img.logoipsum.com/246.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-5", description: "Logo of Hooli", image: "https://img.logoipsum.com/247.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-6", description: "Logo of Pied Piper", image: "https://img.logoipsum.com/248.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-7", description: "Logo of Massive Dynamic", image: "https://img.logoipsum.com/249.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
+  { id: "logo-8", description: "Logo of Soylent", image: "https://img.logoipsum.com/250.svg", className: "h-7 w-auto brightness-0 invert opacity-60" },
 ];
 
 const AnimatedNumber = ({ value, delay = 0 }: { value: number; delay?: number }) => {
