@@ -50,7 +50,7 @@ const queryClient = new QueryClient({
   },
 });
 
-const lazyRoute = (El: React.LazyExoticComponent<() => JSX.Element>) => (
+const lazyRoute = (El: React.LazyExoticComponent<React.ComponentType<any>>) => (
   <Suspense fallback={<PageLoader />}>
     <El />
   </Suspense>
