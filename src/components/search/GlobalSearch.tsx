@@ -246,5 +246,3 @@ const GlobalSearch = () => {
 };
 
 export default GlobalSearch;
-
-export default GlobalSearch;
