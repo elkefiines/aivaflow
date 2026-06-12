@@ -130,9 +130,18 @@ const GlobalSearch = () => {
   }, [query, search]);
 
   const handleSelect = (result: SearchResult) => {
+    if (query.trim()) {
+      saveRecent(query.trim());
+      setRecent(loadRecent());
+    }
     setOpen(false);
     setQuery("");
     navigate(result.route);
+  };
+
+  const clearRecent = () => {
+    localStorage.removeItem(RECENT_KEY);
+    setRecent([]);
   };
 
   const iconMap = {
@@ -181,6 +190,31 @@ const GlobalSearch = () => {
           <CommandEmpty>
             {loading ? t("searching") : t("noResults")}
           </CommandEmpty>
+          {!query.trim() && recent.length > 0 && (
+            <CommandGroup
+              heading={
+                <div className="flex items-center justify-between w-full">
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="h-3 w-3" />
+                    {lang === "ar" ? "بحوث سابقة" : "Recent"}
+                  </span>
+                  <button
+                    onClick={clearRecent}
+                    className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {lang === "ar" ? "مسح" : "Clear"}
+                  </button>
+                </div>
+              }
+            >
+              {recent.map((q) => (
+                <CommandItem key={q} onSelect={() => setQuery(q)} className="gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="truncate">{q}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
           {(["task", "idea", "message"] as const).map((type) => {
             const group = results.filter((r) => r.type === type);
             if (group.length === 0) return null;
@@ -210,5 +244,7 @@ const GlobalSearch = () => {
     </>
   );
 };
+
+export default GlobalSearch;
 
 export default GlobalSearch;
