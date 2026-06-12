@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Tables } from "@/integrations/supabase/types";
 import { useLanguage } from "@/hooks/useLanguage";
 import { Card } from "@/components/ui/card";
@@ -38,6 +39,8 @@ const priorityBorder: Record<string, string> = {
 
 const KanbanBoard = ({ tasks, onStatusChange, onTaskClick, statuses, memberNames = {} }: KanbanBoardProps) => {
   const { t } = useLanguage();
+  const [dragOver, setDragOver] = useState<string | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
 
   const statusLabels: Record<string, string> = {
     backlog: t("backlog"),
@@ -49,34 +52,58 @@ const KanbanBoard = ({ tasks, onStatusChange, onTaskClick, statuses, memberNames
 
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
     e.dataTransfer.setData("taskId", taskId);
+    e.dataTransfer.effectAllowed = "move";
+    setDraggingId(taskId);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingId(null);
+    setDragOver(null);
   };
 
   const handleDrop = (e: React.DragEvent, status: string) => {
     e.preventDefault();
     const taskId = e.dataTransfer.getData("taskId");
     if (taskId) onStatusChange(taskId, status);
+    setDragOver(null);
+    setDraggingId(null);
   };
 
-  const handleDragOver = (e: React.DragEvent) => e.preventDefault();
+  const handleDragOver = (e: React.DragEvent, status: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOver !== status) setDragOver(status);
+  };
+
+  const handleDragLeave = (status: string) => {
+    if (dragOver === status) setDragOver(null);
+  };
 
   return (
     <div className="flex gap-4 min-w-[800px] lg:min-w-0 lg:grid lg:grid-cols-5">
       {statuses.map((status) => {
         const columnTasks = tasks.filter((t) => t.status === status);
+        const isOver = dragOver === status;
         return (
           <div
             key={status}
-            className={`rounded-xl border p-3 min-h-[200px] min-w-[200px] lg:min-w-0 flex-1 lg:flex-none ${statusColors[status] || ""}`}
+            className={`rounded-xl border p-3 min-h-[200px] min-w-[200px] lg:min-w-0 flex-1 lg:flex-none transition-all duration-200 ${
+              statusColors[status] || ""
+            } ${isOver ? "ring-2 ring-primary/60 ring-offset-2 ring-offset-background scale-[1.01]" : ""}`}
             onDrop={(e) => handleDrop(e, status)}
-            onDragOver={handleDragOver}
+            onDragOver={(e) => handleDragOver(e, status)}
+            onDragLeave={() => handleDragLeave(status)}
           >
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">
                 {statusLabels[status] || status}
               </h3>
-              <span className="text-[10px] text-muted-foreground bg-background/50 px-1.5 py-0.5 rounded-full">
+              <Badge
+                variant="secondary"
+                className="text-[10px] px-1.5 py-0 h-5 min-w-5 bg-background/70 border border-border/40 text-muted-foreground"
+              >
                 {columnTasks.length}
-              </span>
+              </Badge>
             </div>
             <div className="space-y-2">
               {columnTasks.map((task) => (
@@ -84,8 +111,11 @@ const KanbanBoard = ({ tasks, onStatusChange, onTaskClick, statuses, memberNames
                   key={task.id}
                   draggable
                   onDragStart={(e) => handleDragStart(e, task.id)}
+                  onDragEnd={handleDragEnd}
                   onClick={() => onTaskClick(task)}
-                  className={`p-3 cursor-pointer active:cursor-grabbing bg-card/80 border-border/30 hover:border-primary/30 transition-colors border-s-[3px] ${priorityBorder[task.priority || "medium"]}`}
+                  className={`p-3 cursor-pointer active:cursor-grabbing bg-card/80 border-border/30 hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all border-s-[3px] ${
+                    priorityBorder[task.priority || "medium"]
+                  } ${draggingId === task.id ? "opacity-50 rotate-1" : ""}`}
                 >
                   <div className="flex items-start gap-2">
                     <GripVertical className="h-4 w-4 text-muted-foreground/40 mt-0.5 shrink-0" />

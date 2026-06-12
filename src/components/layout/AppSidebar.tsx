@@ -100,7 +100,12 @@ const AppSidebar = () => {
                   return (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild tooltip={t(item.title.toLowerCase() as any)}>
-                        <NavLink to={item.url} end className="hover:bg-accent/50" activeClassName="bg-accent text-primary font-medium">
+                        <NavLink
+                          to={item.url}
+                          end
+                          className="relative hover:bg-accent/50 transition-colors"
+                          activeClassName="bg-accent text-primary font-medium before:absolute before:start-0 before:top-1/2 before:-translate-y-1/2 before:h-5 before:w-0.5 before:bg-primary before:rounded-e-full"
+                        >
                           <item.icon className={`h-4 w-4 ${groupColors[group.labelEn] || ""}`} />
                           <span className="flex-1">{t(item.title.toLowerCase() as any)}</span>
                           {badge > 0 && !collapsed && (
@@ -125,7 +130,12 @@ const AppSidebar = () => {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip={t("settings")}>
-                  <NavLink to="/settings" end className="hover:bg-accent/50" activeClassName="bg-accent text-primary font-medium">
+                  <NavLink
+                    to="/settings"
+                    end
+                    className="relative hover:bg-accent/50 transition-colors"
+                    activeClassName="bg-accent text-primary font-medium before:absolute before:start-0 before:top-1/2 before:-translate-y-1/2 before:h-5 before:w-0.5 before:bg-primary before:rounded-e-full"
+                  >
                     <Settings className="h-4 w-4" />
                     <span>{t("settings")}</span>
                   </NavLink>

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate, Outlet } from "react-router-dom";
+import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import AppSidebar from "@/components/layout/AppSidebar";
 import AppHeader from "@/components/layout/AppHeader";
+import PageTransition from "@/components/layout/PageTransition";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
@@ -37,6 +39,8 @@ const AppLayout = () => {
     );
   }
 
+  const location = useLocation();
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -44,7 +48,11 @@ const AppLayout = () => {
         <div className="flex-1 flex flex-col min-w-0">
           <AppHeader />
           <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">
-            <Outlet />
+            <AnimatePresence mode="wait" initial={false}>
+              <PageTransition key={location.pathname}>
+                <Outlet />
+              </PageTransition>
+            </AnimatePresence>
           </main>
         </div>
       </div>
