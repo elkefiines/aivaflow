@@ -41,7 +41,8 @@ const GlobalSearch = () => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
-  const { t, dir } = useLanguage();
+  const [recent, setRecent] = useState<string[]>(() => loadRecent());
+  const { t, dir, lang } = useLanguage();
   const { projectId } = useActiveProject();
   const navigate = useNavigate();
 
